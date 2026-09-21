@@ -12,83 +12,88 @@
         <main class="pt-5 mt-5 pb-5">
             
             <!-- Hero Section -->
-            <section class="hero-section container min-vh-75 d-flex align-items-center justify-content-center py-5 mb-5 position-relative z-1">
+            <section class="hero-section container mb-5 position-relative z-1 d-flex flex-column align-items-center">
+                <!-- Spacer A (Header to Logo) -->
+                <div class="py-3 py-md-4 w-100"></div>
+                
+                <!-- Decorative Floating Logo (Focal Point) -->
+                <div class="d-inline-block animate-float" style="z-index: 2;">
+                    <img th:src="@{/T-Winkle_LogoNoBG.png}" alt="Logo Icon" style="height: 140px; width: auto; max-width: 100%;">
+                </div>
+                
+                <!-- Spacer B (Logo to Slogan) -->
+                <div class="py-3 py-md-4 w-100"></div>
+                
                 <div class="text-center w-100 max-w-4xl mx-auto px-3 animate-fade-up">
-                    
-                    <!-- Decorative Floating Element -->
-                    <div class="d-inline-flex justify-content-center align-items-center rounded-circle bg-white shadow-sm mb-4 animate-float" style="width: 80px; height: 80px; border: 1px solid var(--color-glass-border);">
-                        <img th:src="@{/T-Winkle_LogoNoBG.png}" alt="Logo Icon" height="40">
-                    </div>
-                    
-                    <!-- Official Slogan -->
-                    <h1 class="display-4 fw-bold mb-4 px-2" style="letter-spacing: -0.02em;">
-                        <span class="text-cyan">One Step</span>
-                        <span class="text-muted-custom fw-medium mx-1">-</span>
-                        <span class="text-shining text-glow-shining">Shining All Day</span>
-                    </h1>
-                    
-                    <p class="lead text-muted-custom mb-5 mx-auto px-3" style="max-width: 600px;">
-                        Khám phá bộ sưu tập giày thể thao hiện đại, tôn vinh phong cách và nâng bước bạn tự tin tỏa sáng mỗi ngày.
-                    </p>
-                    
-                    <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
-                        <a th:href="@{/products}" class="tw-btn tw-btn-primary px-5 py-3 fs-6 fw-bold shadow-sm">Khám phá ngay</a>
-                        <a th:href="@{/stores}" class="tw-btn tw-btn-outline px-5 py-3 fs-6 fw-bold bg-white">Hệ thống cửa hàng</a>
+                    <!-- Content Glass Container -->
+                    <div class="p-4 p-md-5 rounded-4 mx-auto" style="background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(28px) saturate(120%); -webkit-backdrop-filter: blur(28px) saturate(120%); border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 1); max-width: 800px;">
+                        <!-- Official Slogan -->
+                        <h1 class="display-4 fw-bold mb-4 px-2" style="letter-spacing: -0.02em;">
+                            <span class="text-cyan">One Step</span>
+                            <span class="text-muted-custom fw-medium mx-1">-</span>
+                            <span class="text-shining text-glow-shining">Shining All Day</span>
+                        </h1>
+                        
+                        <p class="lead text-muted-custom mb-5 mx-auto px-3" style="max-width: 600px;">
+                            Khám phá bộ sưu tập giày thể thao hiện đại, tôn vinh phong cách và nâng bước bạn tự tin tỏa sáng mỗi ngày.
+                        </p>
+                        
+                        <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+                            <a th:href="@{/products}" class="tw-btn tw-btn-primary px-5 py-3 fs-6 fw-bold shadow-sm">Khám phá ngay</a>
+                            <a th:href="@{/stores}" class="tw-btn tw-btn-outline px-5 py-3 fs-6 fw-bold bg-white">Hệ thống cửa hàng</a>
+                        </div>
                     </div>
                 </div>
             </section>
 
             <!-- Newest Drops Section -->
-            <section class="newest-drops container py-5 position-relative z-1">
-                <div class="d-flex justify-content-between align-items-end mb-4 px-2">
-                    <div>
-                        <h2 class="h3 fw-bold text-cyan mb-1">Giày mới nhất</h2>
-                        <p class="text-muted-custom mb-0 text-sm">Những thiết kế vừa ra mắt không thể bỏ lỡ.</p>
-                    </div>
-                    <a th:href="@{/products}" class="text-cyan text-decoration-none fw-semibold hover-shining transition-colors text-sm d-none d-md-block">
-                        Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
-                    </a>
-                </div>
+            <section class="newest-drops py-5 position-relative z-1">
+                <div class="container">
+                    <!-- Light Glass Product Container (Stage) -->
+                    <div class="p-4 p-md-5 rounded-4" style="background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(28px) saturate(120%); -webkit-backdrop-filter: blur(28px) saturate(120%); border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 1);">
+                        <div class="d-flex justify-content-between align-items-end mb-4 px-2">
+                            <div>
+                                <h2 class="h3 fw-bold text-cyan mb-1">Giày mới nhất</h2>
+                                <p class="text-muted-custom mb-0 fs-6">Những thiết kế vừa ra mắt không thể bỏ lỡ.</p>
+                            </div>
+                            <a th:href="@{/products}" class="text-cyan text-decoration-none fw-semibold hover-shining transition-colors text-sm d-none d-md-block">
+                                Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </div>
 
-                <!-- Product Grid (Exactly 3 Products) -->
+                        <!-- Product Grid (Exactly 3 Products) -->
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                     
                     <!-- Product Card 1 -->
                     <div class="col">
-                        <div class="glass-card product-card h-100 p-3 d-flex flex-column rounded-4 border-0 shadow-sm position-relative">
-                            <!-- Wishlist Absolute Button -->
-                            <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-2 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích">
+                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
+                            <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">
                                 <i class="bi bi-heart"></i>
                             </button>
                             
-                            <!-- Image Placeholder -->
                             <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border);">
                                 <span class="badge bg-danger position-absolute top-0 start-0 m-2 z-1">MỚI</span>
                                 <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
                             </div>
                             
-                            <!-- Product Info -->
                             <div class="d-flex flex-column flex-grow-1">
                                 <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1">SNEAKER</span>
-                                <h3 class="h6 fw-bold text-dark mb-1 text-truncate" title="Urban Runner 2026">Urban Runner 2026</h3>
+                                <h3 class="h5 fw-bold text-dark mb-1 text-truncate" title="Urban Runner 2026">Urban Runner 2026</h3>
                                 
-                                <!-- Rating & Sold -->
                                 <div class="d-flex align-items-center gap-2 mb-3 text-sm">
-                                    <div class="text-shining">
+                                    <div style="color: #FACC15;">
                                         <i class="bi bi-star-fill"></i>
-                                        <span class="text-dark fw-medium ms-1">5.0</span>
+                                        <span class="text-dark fw-bold ms-1">5.0</span>
                                     </div>
-                                    <span class="text-muted-custom">•</span>
+                                    <span class="text-muted-custom">|</span>
                                     <span class="text-muted-custom">Đã bán 124</span>
                                 </div>
                                 
-                                <div class="mt-auto d-flex justify-content-between align-items-center">
+                                <div class="mt-auto d-flex align-items-end pe-5">
                                     <div>
-                                        <div class="fw-bold fs-5 text-cyan">2.450.000đ</div>
+                                        <div class="fw-bold fs-4 text-cyan">2.450.000đ</div>
                                     </div>
-                                    <a th:href="@{/products/1}" class="btn btn-sm btn-outline-cyan rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" aria-label="Xem chi tiết">
-                                        <i class="bi bi-arrow-right"></i>
-                                    </a>
+                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();"><i class="bi bi-cart fs-5"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -96,8 +101,8 @@
 
                     <!-- Product Card 2 -->
                     <div class="col">
-                        <div class="glass-card product-card h-100 p-3 d-flex flex-column rounded-4 border-0 shadow-sm position-relative">
-                            <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-2 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích">
+                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
+                            <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">
                                 <i class="bi bi-heart"></i>
                             </button>
                             
@@ -108,25 +113,23 @@
                             
                             <div class="d-flex flex-column flex-grow-1">
                                 <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1">LIFESTYLE</span>
-                                <h3 class="h6 fw-bold text-dark mb-1 text-truncate" title="T-Winkle Classic Low">T-Winkle Classic Low</h3>
+                                <h3 class="h5 fw-bold text-dark mb-1 text-truncate" title="T-Winkle Classic Low">T-Winkle Classic Low</h3>
                                 
                                 <div class="d-flex align-items-center gap-2 mb-3 text-sm">
-                                    <div class="text-shining">
+                                    <div style="color: #FACC15;">
                                         <i class="bi bi-star-fill"></i>
-                                        <span class="text-dark fw-medium ms-1">4.8</span>
+                                        <span class="text-dark fw-bold ms-1">4.8</span>
                                     </div>
-                                    <span class="text-muted-custom">•</span>
+                                    <span class="text-muted-custom">|</span>
                                     <span class="text-muted-custom">Đã bán 892</span>
                                 </div>
                                 
-                                <div class="mt-auto d-flex justify-content-between align-items-center">
+                                <div class="mt-auto d-flex align-items-end pe-5">
                                     <div>
-                                        <div class="fw-bold fs-5 text-cyan">1.870.000đ</div>
+                                        <div class="fw-bold fs-4 text-cyan">1.870.000đ</div>
                                         <div class="text-muted text-decoration-line-through text-xs">2.200.000đ</div>
                                     </div>
-                                    <a th:href="@{/products/2}" class="btn btn-sm btn-outline-cyan rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" aria-label="Xem chi tiết">
-                                        <i class="bi bi-arrow-right"></i>
-                                    </a>
+                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();"><i class="bi bi-cart fs-5"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -134,8 +137,8 @@
 
                     <!-- Product Card 3 -->
                     <div class="col">
-                        <div class="glass-card product-card h-100 p-3 d-flex flex-column rounded-4 border-0 shadow-sm position-relative">
-                            <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-2 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích">
+                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
+                            <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">
                                 <i class="bi bi-heart"></i>
                             </button>
                             
@@ -146,24 +149,22 @@
                             
                             <div class="d-flex flex-column flex-grow-1">
                                 <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1">TRAINING</span>
-                                <h3 class="h6 fw-bold text-dark mb-1 text-truncate" title="Aero Boost Pro">Aero Boost Pro</h3>
+                                <h3 class="h5 fw-bold text-dark mb-1 text-truncate" title="Aero Boost Pro">Aero Boost Pro</h3>
                                 
                                 <div class="d-flex align-items-center gap-2 mb-3 text-sm">
-                                    <div class="text-shining">
+                                    <div style="color: #FACC15;">
                                         <i class="bi bi-star-fill"></i>
-                                        <span class="text-dark fw-medium ms-1">4.9</span>
+                                        <span class="text-dark fw-bold ms-1">4.9</span>
                                     </div>
-                                    <span class="text-muted-custom">•</span>
+                                    <span class="text-muted-custom">|</span>
                                     <span class="text-muted-custom">Đã bán 56</span>
                                 </div>
                                 
-                                <div class="mt-auto d-flex justify-content-between align-items-center">
+                                <div class="mt-auto d-flex align-items-end pe-5">
                                     <div>
-                                        <div class="fw-bold fs-5 text-cyan">3.150.000đ</div>
+                                        <div class="fw-bold fs-4 text-cyan">3.150.000đ</div>
                                     </div>
-                                    <a th:href="@{/products/3}" class="btn btn-sm btn-outline-cyan rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" aria-label="Xem chi tiết">
-                                        <i class="bi bi-arrow-right"></i>
-                                    </a>
+                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();"><i class="bi bi-cart fs-5"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -175,7 +176,9 @@
                 <div class="mt-4 text-center d-block d-md-none">
                     <a th:href="@{/products}" class="tw-btn tw-btn-outline w-100">Xem tất cả sản phẩm</a>
                 </div>
-            </section>
+            </div>
+        </div>
+    </section>
         </main>
 
         <!-- Home Page Custom CSS (Animations & Overrides) -->
@@ -252,16 +255,159 @@
             
             /* Prefers Reduced Motion */
             @media (prefers-reduced-motion: reduce) {
-                .animate-fade-up, .animate-float, .product-card, .wishlist-btn {
+                .animate-fade-up, .animate-float {
                     animation: none !important;
-                    transition: none !important;
-                    transform: none !important;
-                }
-                .text-glow-shining {
-                    text-shadow: none;
                 }
             }
+            
+            @media (min-width: 992px) {
+                .modal-16-9 .modal-content {
+                    aspect-ratio: 16 / 9;
+                    max-height: 85vh;
+                }
+        
+            /* Custom Scrollbar for Info Panel */
+            .custom-scrollbar::-webkit-scrollbar {
+                width: 6px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-track {
+                background: rgba(0, 0, 0, 0.02);
+                border-radius: 4px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+                background: rgba(0, 0, 0, 0.15);
+                border-radius: 4px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                background: rgba(0, 0, 0, 0.25);
+            }
+
+        
+            /* Responsive Divider for Detail Product Card */
+            .detail-divider-panel {
+                border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+            }
+            @media (min-width: 992px) {
+                .detail-divider-panel {
+                    border-bottom: none !important;
+                    border-right: 1px solid rgba(0, 0, 0, 0.25);
+                }
+            }
+
         </style>
+        <!-- Detail Product Card Modal -->
+        <div class="modal fade" id="productDetailModal" tabindex="-1" aria-labelledby="productDetailModalLabel" aria-hidden="true" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-dialog-centered modal-xl modal-16-9">
+                <div class="modal-content border border-light shadow-lg d-flex flex-column" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(28px); border-radius: 1.5rem; overflow: hidden; max-height: 90vh;">
+                    <button type="button" class="btn-close position-absolute top-0 end-0 m-3 m-md-4 z-3 bg-white rounded-circle shadow-sm p-2" data-bs-dismiss="modal" aria-label="Đóng chi tiết sản phẩm"></button>
+                    
+                    <div class="modal-body p-4 p-md-5 d-flex flex-column h-100 overflow-hidden">
+                        <div class="row h-100 gx-0 gx-lg-5 gy-4 gy-lg-0 flex-column flex-lg-row overflow-hidden flex-nowrap">
+                            
+                            <!-- Left: Image Panel -->
+                            <div class="col-12 col-lg-5 d-flex flex-column pb-4 pb-lg-0 detail-divider-panel" style="flex: 0 0 auto;">
+                                <div class="bg-light position-relative d-flex align-items-center justify-content-center rounded-4 overflow-hidden h-100" style="min-height: 250px;">
+                                    <span class="badge bg-danger position-absolute top-0 start-0 m-3 m-md-4 z-1 fw-bold fs-6">MỚI</span>
+                                    <i class="bi bi-image text-muted opacity-25" style="font-size: 6rem;"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Right: Information Panel -->
+                            <div class="col-12 col-lg position-relative d-flex flex-column overflow-hidden h-100 pt-4 pt-lg-0">
+                                
+                                <!-- Scrollable Area -->
+                                <div class="flex-grow-1 overflow-y-auto pe-3 pb-2 custom-scrollbar">
+                                    
+                                    <div class="mb-2 mt-1">
+                                        <span class="badge text-cyan bg-cyan bg-opacity-10 fw-semibold fs-6 px-2 py-1">SNEAKER</span>
+                                        <span class="badge text-muted-custom bg-light fw-semibold fs-6 px-2 py-1 ms-2">T-WINKLE</span>
+                                    </div>
+                                    
+                                    <!-- HEADER ROW: Product Name & Actions (Cart -> Wishlist) -->
+                                    <div class="d-flex align-items-start justify-content-between gap-2 gap-sm-3 mb-3">
+                                        <h2 class="h2 fw-bold text-dark mb-0 flex-grow-1" id="productDetailModalLabel">Urban Runner 2026</h2>
+                                        
+                                        <!-- Actions: Top Right -->
+                                        <div class="d-flex gap-2 flex-shrink-0 z-3 position-relative">
+                                            <!-- Cart Button -->
+                                            <button class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center text-white hover-scale" style="width: 56px; height: 56px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();">
+                                                <i class="bi bi-cart fs-4"></i>
+                                            </button>
+                                            <!-- Wishlist Button -->
+                                            <button class="btn btn-light rounded-circle shadow-sm wishlist-btn text-muted-custom d-flex align-items-center justify-content-center hover-scale" style="width: 56px; height: 56px;" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">
+                                                <i class="bi bi-heart fs-4"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex align-items-center gap-3 mb-4 fs-6">
+                                        <div style="color: #FACC15;">
+                                            <i class="bi bi-star-fill"></i> <i class="bi bi-star-fill"></i> <i class="bi bi-star-fill"></i> <i class="bi bi-star-fill"></i> <i class="bi bi-star-fill"></i>
+                                            <span class="text-dark fw-bold ms-1">5.0</span>
+                                        </div>
+                                        <span class="text-muted-custom">|</span>
+                                        <span class="text-muted-custom fw-medium">Đã bán 124</span>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <div class="fw-bold text-cyan" style="font-size: 2.5rem; line-height: 1;">2.450.000đ</div>
+                                    </div>
+                                    
+                                    <p class="text-muted-custom mb-4 fs-6">
+                                        Thiết kế hiện đại mang hơi thở thành thị, kết hợp công nghệ đệm êm ái và vật liệu thoáng khí cao cấp. Giúp bạn tự tin tỏa sáng trên mỗi bước đi.
+                                    </p>
+
+                                    <!-- Variants (Size) -->
+                                    <div class="mb-3">
+                                        <p class="fw-semibold text-dark mb-2 text-sm">CHỌN SIZE</p>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">38</button>
+                                            <button class="btn btn-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">39</button>
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">40</button>
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">41</button>
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm disabled text-muted" disabled>42</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Variants (Color) -->
+                                    <div class="mb-4">
+                                        <p class="fw-semibold text-dark mb-2 text-sm">CHỌN MÀU</p>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <button class="btn btn-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">Đen</button>
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">Trắng</button>
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm disabled text-muted" disabled>Đỏ</button>
+                                        </div>
+                                        <div class="mt-2 text-xs text-muted-custom fst-italic">* Đang chọn: Đen / 39</div>
+                                    </div>
+
+                                    <!-- Store Availability -->
+                                    <div class="bg-light rounded-3 p-3 border mb-3">
+                                        <p class="fw-semibold text-dark mb-3 text-sm"><i class="bi bi-shop me-2"></i>Tình trạng tại cửa hàng</p>
+                                        <ul class="list-unstyled mb-0 text-sm">
+                                            <li class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary border-opacity-25">
+                                                <span class="text-muted-custom">T-Winkle Quận 1, TP.HCM</span>
+                                                <span class="badge bg-success bg-opacity-10 text-success px-2 py-1"><i class="bi bi-check-circle me-1"></i>Còn hàng</span>
+                                            </li>
+                                            <li class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary border-opacity-25">
+                                                <span class="text-muted-custom">T-Winkle Quận 3, TP.HCM</span>
+                                                <span class="badge bg-danger bg-opacity-10 text-danger px-2 py-1"><i class="bi bi-x-circle me-1"></i>Hết hàng</span>
+                                            </li>
+                                            <li class="d-flex justify-content-between align-items-center">
+                                                <span class="text-muted-custom">T-Winkle Cầu Giấy, Hà Nội</span>
+                                                <span class="badge bg-success bg-opacity-10 text-success px-2 py-1"><i class="bi bi-check-circle me-1"></i>Còn hàng</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
+
+
+
 </html>

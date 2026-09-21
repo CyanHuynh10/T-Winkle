@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: base('Tìm kiếm sản phẩm - T-Winkle', ~{::div.storefront-container})}">
+<body>
+    <div class="storefront-container position-relative">
+        
+        <!-- Navbar Fragment -->
+        <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+        <!-- Global Background -->
+        <div class="position-fixed top-0 start-0 w-100 h-100 z-0 pointer-events-none" style="background: radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.15) 0%, rgba(248, 250, 252, 1) 50%, rgba(248, 250, 252, 1) 100%);"></div>
+
+        <main class="pt-5 mt-5 pb-5 position-relative z-1" style="min-height: 80vh;">
+            
+            <!-- Search Hero Section -->
+            <section class="container mb-4 mb-md-5 pt-4">
+                <div class="max-w-4xl mx-auto text-center px-3 animate-fade-up">
+                    <h1 class="display-5 fw-bold text-dark mb-4">Khám phá phong cách của bạn</h1>
+                    
+                    <!-- Search Input Wrapper (Glassmorphism) -->
+                    <div class="glass-search-wrapper p-2 rounded-pill mx-auto position-relative" style="max-width: 680px; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: all 0.3s ease;">
+                        <div class="d-flex align-items-center bg-white rounded-pill pe-2 ps-4 py-2 position-relative z-1" style="box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+                            <i class="bi bi-search fs-5 text-muted-custom"></i>
+                            <input type="text" id="searchInput" class="form-control border-0 bg-transparent shadow-none fs-5 ms-2 py-2" placeholder="Nhập tên sản phẩm, thương hiệu..." aria-label="Tìm kiếm sản phẩm" autocomplete="off">
+                            <button id="clearSearchBtn" class="btn btn-link text-muted-custom text-decoration-none d-none hover-cyan" aria-label="Xóa tìm kiếm">
+                                <i class="bi bi-x-circle-fill fs-5"></i>
+                            </button>
+                            <button id="searchSubmitBtn" class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center ms-2" style="width: 44px; height: 44px; flex-shrink: 0;" aria-label="Tìm kiếm" title="Tìm kiếm">
+                                <i class="bi bi-search fs-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Search Result Area -->
+            <section class="container pb-5">
+                
+                <!-- Initial / Guidance State -->
+                <div id="stateInitial" class="text-center py-5 animate-fade-up" style="animation-delay: 0.1s;">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3" style="width: 80px; height: 80px;">
+                        <i class="bi bi-search text-cyan opacity-50" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h3 class="h5 fw-bold text-dark mb-2">Tìm kiếm sản phẩm</h3>
+                    <p class="text-muted-custom">Nhập từ khóa vào ô bên trên để bắt đầu khám phá.</p>
+                </div>
+
+                <!-- Empty State (No Results) -->
+                <div id="stateEmpty" class="text-center py-5 d-none">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3" style="width: 80px; height: 80px;">
+                        <i class="bi bi-inbox text-muted-custom opacity-50" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h3 class="h5 fw-bold text-dark mb-2">Không tìm thấy kết quả</h3>
+                    <p class="text-muted-custom mb-0">Rất tiếc, chúng tôi không tìm thấy sản phẩm nào khớp với từ khóa <strong id="emptyKeyword" class="text-dark"></strong>.</p>
+                    <p class="text-muted-custom">Vui lòng thử lại với từ khóa khác.</p>
+                </div>
+
+                <!-- Results State -->
+                <div id="stateResults" class="d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="h5 fw-bold text-dark mb-0">Kết quả cho: <span id="resultsKeyword" class="text-cyan"></span></h2>
+                        <span class="text-muted-custom text-sm">Tìm thấy 3 sản phẩm</span>
+                    </div>
+                    
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+                        <!-- Product Card 1 -->
+                        <div class="col">
+                            <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white" style="cursor: pointer;" onclick="alert('Chi tiết sản phẩm chưa khả dụng trong bản Preview.')">
+                                <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">
+                                    <i class="bi bi-heart"></i>
+                                </button>
+                                
+                                <div class="product-img-wrapper bg-light rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border);">
+                                    <span class="badge bg-danger position-absolute top-0 start-0 m-2 z-1">MỚI</span>
+                                    <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
+                                </div>
+                                
+                                <div class="d-flex flex-column flex-grow-1">
+                                    <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1">SNEAKER</span>
+                                    <h3 class="h5 fw-bold text-dark mb-1 text-truncate" title="Urban Runner 2026">Urban Runner 2026</h3>
+                                    
+                                    <div class="d-flex align-items-center gap-2 mb-3 text-sm">
+                                        <div style="color: #FACC15;">
+                                            <i class="bi bi-star-fill"></i>
+                                            <span class="text-dark fw-bold ms-1">5.0</span>
+                                        </div>
+                                        <span class="text-muted-custom">|</span>
+                                        <span class="text-muted-custom">Đã bán 124</span>
+                                    </div>
+                                    
+                                    <div class="mt-auto d-flex align-items-end pe-5">
+                                        <div>
+                                            <div class="fw-bold fs-4 text-cyan">2.450.000đ</div>
+                                        </div>
+                                        <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center hover-scale" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();"><i class="bi bi-cart fs-5"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product Card 2 -->
+                        <div class="col">
+                            <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white" style="cursor: pointer;" onclick="alert('Chi tiết sản phẩm chưa khả dụng trong bản Preview.')">
+                                <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">
+                                    <i class="bi bi-heart"></i>
+                                </button>
+                                
+                                <div class="product-img-wrapper bg-light rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border);">
+                                    <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
+                                </div>
+                                
+                                <div class="d-flex flex-column flex-grow-1">
+                                    <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1">SPORT</span>
+                                    <h3 class="h5 fw-bold text-dark mb-1 text-truncate" title="Velocity Pro">Velocity Pro</h3>
+                                    
+                                    <div class="d-flex align-items-center gap-2 mb-3 text-sm">
+                                        <div style="color: #FACC15;">
+                                            <i class="bi bi-star-fill"></i>
+                                            <span class="text-dark fw-bold ms-1">4.8</span>
+                                        </div>
+                                        <span class="text-muted-custom">|</span>
+                                        <span class="text-muted-custom">Đã bán 89</span>
+                                    </div>
+                                    
+                                    <div class="mt-auto d-flex align-items-end pe-5">
+                                        <div>
+                                            <div class="fw-bold fs-4 text-cyan">1.890.000đ</div>
+                                            <div class="text-decoration-line-through text-muted-custom text-sm">2.100.000đ</div>
+                                        </div>
+                                        <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center hover-scale" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();"><i class="bi bi-cart fs-5"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product Card 3 -->
+                        <div class="col">
+                            <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white" style="cursor: pointer;" onclick="alert('Chi tiết sản phẩm chưa khả dụng trong bản Preview.')">
+                                <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">
+                                    <i class="bi bi-heart"></i>
+                                </button>
+                                
+                                <div class="product-img-wrapper bg-light rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border);">
+                                    <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
+                                </div>
+                                
+                                <div class="d-flex flex-column flex-grow-1">
+                                    <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1">CASUAL</span>
+                                    <h3 class="h5 fw-bold text-dark mb-1 text-truncate" title="Street Walk V2">Street Walk V2</h3>
+                                    
+                                    <div class="d-flex align-items-center gap-2 mb-3 text-sm">
+                                        <div style="color: #FACC15;">
+                                            <i class="bi bi-star-fill"></i>
+                                            <span class="text-dark fw-bold ms-1">4.9</span>
+                                        </div>
+                                        <span class="text-muted-custom">|</span>
+                                        <span class="text-muted-custom">Đã bán 210</span>
+                                    </div>
+                                    
+                                    <div class="mt-auto d-flex align-items-end pe-5">
+                                        <div>
+                                            <div class="fw-bold fs-4 text-cyan">1.250.000đ</div>
+                                        </div>
+                                        <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center hover-scale" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();"><i class="bi bi-cart fs-5"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+        
+        <style>
+            /* Copied CSS for Reusability on Search Page */
+            .text-cyan { color: var(--color-primary) !important; }
+            .bg-cyan { background-color: var(--color-primary) !important; }
+            .hover-cyan:hover { color: var(--color-primary) !important; }
+            .text-muted-custom { color: var(--color-text-muted) !important; }
+            .text-xs { font-size: 0.75rem; }
+
+            .glass-search-wrapper:focus-within {
+                box-shadow: 0 15px 40px rgba(6, 182, 212, 0.15) !important;
+                border-color: var(--color-primary) !important;
+            }
+
+            .glass-card {
+                background: rgba(255, 255, 255, 0.85);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+            }
+            .glass-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 15px 30px rgba(6, 182, 212, 0.1) !important;
+            }
+            
+            .wishlist-btn {
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s ease;
+            }
+            .wishlist-btn:hover {
+                color: var(--color-danger) !important;
+                transform: scale(1.1);
+            }
+            
+            .hover-scale {
+                transition: transform 0.2s ease;
+            }
+            .hover-scale:hover {
+                transform: scale(1.05);
+            }
+
+            .product-img-wrapper img {
+                transition: transform 0.5s ease;
+            }
+            .product-card:hover .product-img-wrapper img, 
+            .product-card:hover .product-img-wrapper i {
+                transform: scale(1.05);
+            }
+
+            @keyframes fadeUp {
+                0% { opacity: 0; transform: translateY(20px); }
+                100% { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-up {
+                animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+            
+            @media (prefers-reduced-motion: reduce) {
+                .animate-fade-up {
+                    animation: none !important;
+                }
+            }
+        </style>
+
+        <!-- Search State Management Script -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const searchInput = document.getElementById("searchInput");
+                const clearBtn = document.getElementById("clearSearchBtn");
+                const submitBtn = document.getElementById("searchSubmitBtn");
+                
+                const stateInitial = document.getElementById("stateInitial");
+                const stateEmpty = document.getElementById("stateEmpty");
+                const stateResults = document.getElementById("stateResults");
+                
+                const emptyKeyword = document.getElementById("emptyKeyword");
+                const resultsKeyword = document.getElementById("resultsKeyword");
+
+                function toggleClearButton() {
+                    if (searchInput.value.length > 0) {
+                        clearBtn.classList.remove("d-none");
+                    } else {
+                        clearBtn.classList.add("d-none");
+                    }
+                }
+
+                function performSearch() {
+                    const val = searchInput.value.trim();
+                    if (val === "") {
+                        stateInitial.classList.remove("d-none");
+                        stateEmpty.classList.add("d-none");
+                        stateResults.classList.add("d-none");
+                        return;
+                    }
+                    
+                    stateInitial.classList.add("d-none");
+                    
+                    // Simple mock logic: if user types "empty" or "không", show empty state
+                    if (val.toLowerCase() === "empty" || val.toLowerCase() === "không") {
+                        stateEmpty.classList.remove("d-none");
+                        stateResults.classList.add("d-none");
+                        emptyKeyword.textContent = val;
+                    } else {
+                        stateEmpty.classList.add("d-none");
+                        stateResults.classList.remove("d-none");
+                        resultsKeyword.textContent = val;
+                    }
+                }
+
+                searchInput.addEventListener("input", toggleClearButton);
+                
+                searchInput.addEventListener("keypress", function(e) {
+                    if (e.key === "Enter") {
+                        e.preventDefault();
+                        performSearch();
+                    }
+                });
+
+                submitBtn.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    performSearch();
+                });
+
+                clearBtn.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    searchInput.value = "";
+                    toggleClearButton();
+                    searchInput.focus();
+                    performSearch(); // reset to initial state
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>

@@ -1,217 +1,837 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{fragments/layout :: base('Trung tâm Xem trước UI - T-Winkle', ~{::div.preview-container})}">
+      th:replace="~{fragments/layout :: base('T-Winkle - UI Preview Hub', ~{::div.preview-container})}">
 <body>
-    <div class="preview-container container py-5">
+    <div class="preview-container container py-5 position-relative z-1">
         
-        <!-- Header -->
-        <div class="text-center mb-5">
-            <a th:href="@{/}">
-                <img th:src="@{/T-Winkle_LogoNoBG.png}" alt="T-Winkle Logo" height="80" class="mb-3">
-            </a>
-            <h1 class="h2 fw-bold text-cyan mb-2">Trung tâm Xem trước UI T-Winkle</h1>
-            <p class="text-muted-custom">Mục lục trung tâm cho mọi luồng giao diện người dùng.</p>
+        <div class="text-center mb-5 animate-fade-up">
+            <h1 class="display-5 fw-bold mb-3"><span class="text-cyan">T-Winkle</span> UI Preview Hub</h1>
+            <p class="lead text-muted-custom max-w-2xl mx-auto">
+                Product Experience Roadmap. Danh sách toàn bộ các luồng giao diện và trạng thái phát triển.
+            </p>
         </div>
 
-        <div class="row g-4 max-w-4xl mx-auto" style="max-width: 800px;">
-            
-            <!-- AUTH EXPERIENCE -->
-            <div class="col-12">
+        <div class="row g-4 max-w-4xl mx-auto">
+
+            <!-- 1. AUTH -->
+            <div class="col-12 animate-fade-up" style="animation-delay: 0.1s;">
                 <div class="glass-card p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2 class="h4 mb-0">XÁC THỰC (AUTH)</h2>
-                        <span class="badge-status-success">5 / 5 UI ĐÃ DUYỆT</span>
+                        <h2 class="h4 mb-0 fw-bold">1. AUTH</h2>
                     </div>
                     <div class="list-group list-group-flush gap-2">
                         
-                        <!-- Login -->
-                        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light" style="border-color: var(--color-primary-light) !important; background-color: rgba(6, 182, 212, 0.05) !important;">
-                            <div class="mb-3 mb-md-0">
-                                <h6 class="mb-1 fw-bold text-cyan">Đăng nhập</h6>
-                                <small class="text-muted-custom">Khách hàng, Nhân viên, Quản trị viên</small>
-                            </div>
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="badge-status-success">ĐÃ DUYỆT</span>
-                                <a th:href="@{/login}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
-                            </div>
-                        </div>
-
-                        <!-- Register -->
-                        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light" style="border-color: var(--color-primary-light) !important; background-color: rgba(6, 182, 212, 0.05) !important;">
-                            <div class="mb-3 mb-md-0">
-                                <h6 class="mb-1 fw-bold text-cyan">Đăng ký</h6>
-                                <small class="text-muted-custom">Tạo tài khoản khách hàng mới</small>
-                            </div>
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="badge-status-success">ĐÃ DUYỆT</span>
-                                <a th:href="@{/register}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
-                            </div>
-                        </div>
-
-                        <!-- OTP -->
-                        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light" style="border-color: var(--color-primary-light) !important; background-color: rgba(6, 182, 212, 0.05) !important;">
-                            <div class="mb-3 mb-md-0">
-                                <h6 class="mb-1 fw-bold text-cyan">Xác thực OTP</h6>
-                                <small class="text-muted-custom">Mở modal xác thực sau khi Đăng ký thành công</small>
-                            </div>
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="badge-status-success">ĐÃ DUYỆT</span>
-                                <a th:href="@{/register}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
-                            </div>
-                        </div>
-
-                        <!-- Forgot Password -->
-                        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light" style="border-color: var(--color-primary-light) !important; background-color: rgba(6, 182, 212, 0.05) !important;">
-                            <div class="mb-3 mb-md-0">
-                                <h6 class="mb-1 fw-bold text-cyan">Quên mật khẩu</h6>
-                                <small class="text-muted-custom">Luồng khôi phục tài khoản</small>
-                            </div>
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="badge-status-success">ĐÃ DUYỆT</span>
-                                <a th:href="@{/forgot-password}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
-                            </div>
-                        </div>
-
-                        <!-- Reset Password -->
-                        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light" style="border-color: var(--color-primary-light) !important; background-color: rgba(6, 182, 212, 0.05) !important;">
-                            <div class="mb-3 mb-md-0">
-                                <h6 class="mb-1 fw-bold text-cyan">Đặt lại mật khẩu</h6>
-                                <small class="text-muted-custom">Tạo mật khẩu mới</small>
-                            </div>
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="badge-status-success">ĐÃ DUYỆT</span>
-                                <a th:href="@{/reset-password}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
-                            </div>
-                        </div>
-
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light " style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">1. Đăng nhập</h6>
+                <small class="text-muted-custom">Route: /login</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge-status-success">ĐÃ DUYỆT</span>
+                <a th:href="@{/login}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light " style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">2. Đăng ký</h6>
+                <small class="text-muted-custom">Route: /register</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge-status-success">ĐÃ DUYỆT</span>
+                <a th:href="@{/register}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light " style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">3. Xác thực OTP</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge-status-success">ĐÃ DUYỆT</span>
+                <a href="#" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light " style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">4. Quên mật khẩu</h6>
+                <small class="text-muted-custom">Route: /forgot-password</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge-status-success">ĐÃ DUYỆT</span>
+                <a th:href="@{/forgot-password}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light " style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">5. Đặt lại mật khẩu</h6>
+                <small class="text-muted-custom">Route: /reset-password</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge-status-success">ĐÃ DUYỆT</span>
+                <a th:href="@{/reset-password}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
+            </div>
+        </div>
+    
                     </div>
                 </div>
             </div>
 
-            <!-- STOREFRONT EXPERIENCE -->
-            <div class="col-12">
+            <!-- 2. STOREFRONT -->
+            <div class="col-12 animate-fade-up" style="animation-delay: 0.2s;">
                 <div class="glass-card p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2 class="h4 mb-0">CỬA HÀNG</h2>
-                        <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">HOÀN THÀNH 1</span>
+                        <h2 class="h4 mb-0 fw-bold">2. STOREFRONT</h2>
                     </div>
-                    <div class="list-group list-group-flush gap-2">
-                        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light" style="border-color: var(--color-primary-light) !important; background-color: rgba(6, 182, 212, 0.05) !important;">
-                            <div class="mb-3 mb-md-0">
-                                <h6 class="mb-1 fw-bold text-cyan">Trang chủ</h6>
-                                <small class="text-muted-custom">Hero, Sản phẩm mới, Thương hiệu</small>
-                            </div>
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="badge-status-success">SẴN SÀNG KIỂM TRA</span>
-                                <a th:href="@{/}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
-                            </div>
-                        </div>
+                    
+                    <h5 class="fw-bold text-muted-custom mb-3 mt-2 fs-6">GUEST / USER SHARED</h5>
+                    <div class="list-group list-group-flush gap-2 mb-4">
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light " style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">1. Trang chủ</h6>
+                <small class="text-muted-custom">Route: /</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge-status-success">ĐÃ DUYỆT</span>
+                <a th:href="@{/}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light " style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">2. Tìm kiếm sản phẩm</h6>
+                <small class="text-muted-custom">Route: /products</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge-status-warning">SẴN SÀNG KIỂM TRA</span>
+                <a th:href="@{/products}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">3. Danh sách sản phẩm</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">4. Chi tiết sản phẩm</h6>
+                <small class="text-muted-custom">Interaction / Entry point</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI MILESTONE RIÊNG</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">5. Danh mục sản phẩm</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">6. Thương hiệu</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">7. Cửa hàng</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">8. Bản đồ cửa hàng</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">9. Tình trạng sản phẩm tại cửa hàng</h6>
+                <small class="text-muted-custom">Interaction / Entry point</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI MILESTONE RIÊNG</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light " style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">10. Đăng nhập</h6>
+                <small class="text-muted-custom">Route: /login</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge-status-success">ĐÃ DUYỆT</span>
+                <a th:href="@{/login}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light " style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">11. Đăng ký</h6>
+                <small class="text-muted-custom">Route: /register</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge-status-success">ĐÃ DUYỆT</span>
+                <a th:href="@{/register}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
+            </div>
+        </div>
+    
+                    </div>
 
-                        <!-- Other Storefront Features -->
-                        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light" style="border-color: var(--color-border) !important;">
-                            <div class="mb-3 mb-md-0">
-                                <h6 class="mb-1 fw-semibold text-muted-custom">Các trang khác</h6>
-                                <small class="text-muted-custom">Sản phẩm, Giỏ hàng, Thanh toán, ...</small>
-                            </div>
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
-                                <button class="tw-btn tw-btn-outline px-4" disabled>Đã khóa</button>
-                            </div>
-                        </div>
+                    <h5 class="fw-bold text-muted-custom mb-3 fs-6">USER-ONLY</h5>
+                    <div class="list-group list-group-flush gap-2">
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">12. Hồ sơ cá nhân</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">13. Địa chỉ giao hàng</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">14. Giỏ hàng</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">15. Yêu thích</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">16. Thanh toán / Checkout</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">17. Phương thức thanh toán</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">18. Đơn hàng</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">19. Theo dõi đơn hàng</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">20. Đánh giá / Bình luận</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">21. Chat với cửa hàng</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">22. Chat với AI</h6>
+                <small class="text-muted-custom">Interaction / Entry point</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">SHARED STOREFRONT RULE</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
                     </div>
                 </div>
             </div>
 
-            <!-- MANAGER CONSOLE -->
-            <div class="col-12">
+            <!-- 3. MANAGER CONSOLE -->
+            <div class="col-12 animate-fade-up" style="animation-delay: 0.3s;">
                 <div class="glass-card p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2 class="h4 mb-0">BẢNG ĐIỀU HÀNH QUẢN LÝ</h2>
-                        <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">HOÀN THÀNH 0</span>
+                        <h2 class="h4 mb-0 fw-bold">3. MANAGER CONSOLE</h2>
                     </div>
                     <div class="list-group list-group-flush gap-2">
-                        <div class="list-group-item bg-transparent d-flex justify-content-between align-items-center px-3 py-3 border rounded border-light" style="border-color: var(--color-border) !important;">
-                            <div>
-                                <h6 class="mb-1 fw-semibold text-muted-custom">Dashboard Quản lý</h6>
-                                <small class="text-muted-custom">Kho hàng, Đơn hàng, Nhân viên</small>
-                            </div>
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
-                                <button class="tw-btn tw-btn-outline px-4" disabled>Đã khóa</button>
-                            </div>
-                        </div>
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">1. Dashboard</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">2. Sản phẩm</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">3. Biến thể sản phẩm</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">4. Kho hàng</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">5. Đơn hàng</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">6. Doanh thu</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">7. Thông tin cửa hàng</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">8. Khuyến mãi</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">9. Vận chuyển</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">10. Chat</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">11. Tài khoản</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
                     </div>
                 </div>
             </div>
 
-            <!-- ADMIN CONSOLE -->
-            <div class="col-12">
+            <!-- 4. ADMIN CONSOLE -->
+            <div class="col-12 animate-fade-up" style="animation-delay: 0.4s;">
                 <div class="glass-card p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2 class="h4 mb-0">BẢNG ĐIỀU HÀNH QUẢN TRỊ</h2>
-                        <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">HOÀN THÀNH 0</span>
+                        <h2 class="h4 mb-0 fw-bold">4. ADMIN CONSOLE</h2>
                     </div>
                     <div class="list-group list-group-flush gap-2">
-                        <div class="list-group-item bg-transparent d-flex justify-content-between align-items-center px-3 py-3 border rounded border-light" style="border-color: var(--color-border) !important;">
-                            <div>
-                                <h6 class="mb-1 fw-semibold text-muted-custom">Dashboard Quản trị</h6>
-                                <small class="text-muted-custom">Quản lý Hệ thống</small>
-                            </div>
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
-                                <button class="tw-btn tw-btn-outline px-4" disabled>Đã khóa</button>
-                            </div>
-                        </div>
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">1. Dashboard</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">2. Người dùng</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">3. Tài khoản Manager</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">4. Cửa hàng</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">5. Thương hiệu</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">6. Danh mục</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">7. Sản phẩm</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">8. Kho hàng</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">9. Đơn hàng</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">10. Khuyến mãi</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">11. Coupon</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">12. Commission / App Fee</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">13. Vận chuyển</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">14. Giao dịch</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">15. Conversations</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">16. System Config</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
                     </div>
                 </div>
             </div>
 
-            <!-- SHIPPER CONSOLE -->
-            <div class="col-12">
+            <!-- 5. SHIPPER CONSOLE -->
+            <div class="col-12 animate-fade-up" style="animation-delay: 0.5s;">
                 <div class="glass-card p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2 class="h4 mb-0">BẢNG ĐIỀU HÀNH GIAO HÀNG</h2>
-                        <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">HOÀN THÀNH 0</span>
+                        <h2 class="h4 mb-0 fw-bold">5. SHIPPER CONSOLE</h2>
                     </div>
                     <div class="list-group list-group-flush gap-2">
-                        <div class="list-group-item bg-transparent d-flex justify-content-between align-items-center px-3 py-3 border rounded border-light" style="border-color: var(--color-border) !important;">
-                            <div>
-                                <h6 class="mb-1 fw-semibold text-muted-custom">Quản lý Giao hàng</h6>
-                                <small class="text-muted-custom">Phân công và theo dõi Đơn hàng</small>
-                            </div>
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
-                                <button class="tw-btn tw-btn-outline px-4" disabled>Đã khóa</button>
-                            </div>
-                        </div>
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">1. Dashboard</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">2. Đơn hàng được phân công</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">3. Chi tiết đơn hàng</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">4. Cập nhật trạng thái giao hàng</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">5. Thống kê</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">6. Tài khoản</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
                     </div>
                 </div>
             </div>
 
-            <!-- SUPPORT CONSOLE -->
-            <div class="col-12">
+            <!-- 6. SUPPORT CONSOLE -->
+            <div class="col-12 animate-fade-up" style="animation-delay: 0.6s;">
                 <div class="glass-card p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2 class="h4 mb-0">BẢNG ĐIỀU HÀNH HỖ TRỢ</h2>
-                        <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">HOÀN THÀNH 0</span>
+                        <h2 class="h4 mb-0 fw-bold">6. SUPPORT CONSOLE</h2>
                     </div>
                     <div class="list-group list-group-flush gap-2">
-                        <div class="list-group-item bg-transparent d-flex justify-content-between align-items-center px-3 py-3 border rounded border-light" style="border-color: var(--color-border) !important;">
-                            <div>
-                                <h6 class="mb-1 fw-semibold text-muted-custom">Dịch vụ Khách hàng</h6>
-                                <small class="text-muted-custom">Vé hỗ trợ và Trò chuyện trực tuyến</small>
-                            </div>
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
-                                <button class="tw-btn tw-btn-outline px-4" disabled>Đã khóa</button>
-                            </div>
-                        </div>
+                        
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">1. Conversations</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">2. Thông tin User</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">3. Product Context</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">4. Chat</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">5. Tài khoản</h6>
+                <small class="text-muted-custom">Route: Pending</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+            </div>
+        </div>
+    
                     </div>
                 </div>
             </div>
 
         </div>
-    </div>
     </div>
 </body>
 </html>

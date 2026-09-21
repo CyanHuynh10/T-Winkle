@@ -1,0 +1,176 @@
+/* Glass Foundation */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--glass-radius);
+    box-shadow: var(--glass-shadow), var(--glass-inner-glow);
+    color: var(--color-text-main);
+}
+
+/* Glass Card with Hover Effects */
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    box-shadow: var(--glass-shadow), var(--glass-inner-glow);
+    color: var(--color-text-main);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+.glass-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(255, 255, 255, 0.90);
+    box-shadow: 0 24px 60px 0 rgba(250, 204, 21, 0.20), 0 12px 24px 0 rgba(6, 182, 212, 0.10), var(--glass-inner-glow);
+}
+
+/* Typography Specifics */
+.text-cyan {
+    color: var(--color-primary);
+}
+.text-shining {
+    color: var(--color-shine);
+}
+.text-muted-custom {
+    color: var(--color-text-muted);
+}
+
+/* Base Component Foundation: Button */
+.tw-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    transition: var(--transition-default);
+    height: 2.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+}
+.tw-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.tw-btn-primary {
+    background-color: var(--color-primary);
+    color: #FFFFFF;
+}
+.tw-btn-primary:hover:not(:disabled) {
+    background-color: var(--color-primary-hover);
+}
+.tw-btn-outline {
+    background-color: transparent;
+    border-color: var(--color-text-muted);
+    color: var(--color-text-main);
+}
+.tw-btn-outline:hover:not(:disabled) {
+    background-color: var(--color-bg-base);
+}
+
+/* Base Component Foundation: Input */
+.tw-input {
+    display: flex;
+    height: 2.5rem;
+    width: 100%;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    transition: var(--transition-default);
+    color: var(--color-text-main);
+}
+.tw-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2);
+    background-color: #FFFFFF;
+}
+.tw-input:disabled {
+    opacity: 0.5;
+    background-color: var(--color-bg-base);
+    cursor: not-allowed;
+}
+
+/* Badges */
+.badge-sale-solid {
+    background-color: var(--color-danger);
+    color: #FFFFFF;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.75rem;
+}
+
+.badge-sale-soft {
+    background-color: var(--color-danger-bg);
+    color: var(--color-danger);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.75rem;
+}
+
+.badge-status-new {
+    background-color: var(--color-shine);
+    color: #000000;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.75rem;
+}
+
+.badge-status-success {
+    background-color: var(--color-success-bg);
+    color: var(--color-success);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.75rem;
+}
+
+.badge-status-warning {
+    background-color: var(--color-warning-bg);
+    color: var(--color-warning);
+    border: 1px solid rgba(249, 115, 22, 0.2);
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.75rem;
+}
+
+.badge-status-danger {
+    background-color: var(--color-danger-bg);
+    color: var(--color-danger);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.75rem;
+}
+
+/* Rating */
+.tw-rating {
+    color: var(--color-shine);
+    font-size: 1.1rem;
+}

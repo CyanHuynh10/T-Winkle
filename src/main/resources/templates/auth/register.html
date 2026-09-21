@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: base('Đăng ký - T-Winkle', ~{::div.register-container})}">
+<body>
+    <div class="register-container container d-flex align-items-center justify-content-center min-vh-100 py-5 position-relative">
+        
+        <div class="glass-card p-4 p-md-5 w-100" style="max-width: 480px;">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <a th:href="@{/}">
+                    <img th:src="@{/T-Winkle_LogoNoBG.png}" alt="T-Winkle Logo" height="60" class="mb-3">
+                </a>
+                <h1 class="h3 fw-bold text-cyan mb-1">Tạo tài khoản</h1>
+                <p class="text-muted-custom">One Step - <span class="text-shining">Shining All Day</span></p>
+            </div>
+
+            <!-- Validation Feedback -->
+            <div th:if="${param.error}" class="alert alert-danger d-flex align-items-center" role="alert" style="background-color: var(--color-danger-bg); border-color: rgba(239, 68, 68, 0.2); color: var(--color-danger);">
+                <i class="bi bi-exclamation-circle-fill flex-shrink-0 me-2"></i>
+                <div>Đã xảy ra lỗi trong quá trình đăng ký.</div>
+            </div>
+
+            <!-- Register Form -->
+            <form th:action="@{/register}" method="post" id="registerForm" novalidate>
+                
+                <!-- Username -->
+                <div class="mb-3">
+                    <label for="username" class="form-label text-sm fw-medium">Tên đăng nhập</label>
+                    <input type="text" id="username" name="username" class="tw-input" placeholder="Chọn tên đăng nhập" required autofocus>
+                    <div class="invalid-feedback">Vui lòng cung cấp tên đăng nhập hợp lệ.</div>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <label for="email" class="form-label text-sm fw-medium">Địa chỉ Email</label>
+                    <input type="email" id="email" name="email" class="tw-input" placeholder="Nhập email của bạn" required>
+                    <div class="invalid-feedback">Vui lòng cung cấp địa chỉ email hợp lệ.</div>
+                </div>
+
+                <!-- Password -->
+                <div class="mb-3">
+                    <label for="password" class="form-label text-sm fw-medium mb-0">Mật khẩu</label>
+                    <div class="password-field-wrapper position-relative mt-2">
+                        <input type="password" id="password" name="password" class="tw-input pe-5" placeholder="Tạo mật khẩu" required autocomplete="new-password">
+                        <button type="button" id="togglePasswordBtn" class="password-toggle d-none" aria-label="Hiện mật khẩu">
+                            <i id="passwordVisibilityIcon" class="bi bi-eye" aria-hidden="true" style="pointer-events: none;"></i>
+                        </button>
+                    </div>
+                    <div class="invalid-feedback">Mật khẩu là bắt buộc.</div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="mb-3">
+                    <label for="confirmPassword" class="form-label text-sm fw-medium mb-0">Xác nhận mật khẩu</label>
+                    <div class="password-field-wrapper position-relative mt-2">
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="tw-input pe-5" placeholder="Xác nhận mật khẩu của bạn" required autocomplete="new-password">
+                        <button type="button" id="toggleConfirmPasswordBtn" class="password-toggle d-none" aria-label="Hiện mật khẩu">
+                            <i id="confirmPasswordVisibilityIcon" class="bi bi-eye" aria-hidden="true" style="pointer-events: none;"></i>
+                        </button>
+                    </div>
+                    <div class="invalid-feedback" id="confirmPasswordFeedback">Mật khẩu xác nhận không khớp.</div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="tw-btn tw-btn-primary w-100 fw-bold mt-4" id="registerSubmitBtn">
+                    <span id="registerBtnText">Đăng ký</span>
+                    <span id="registerBtnLoader" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+                </button>
+            </form>
+
+            <!-- Login Link -->
+            <div class="text-center mt-4 pt-3 border-top" style="border-color: var(--color-border) !important;">
+                <p class="text-sm text-muted-custom mb-0">Đã có tài khoản? <a th:href="@{/login}" class="text-cyan text-decoration-none fw-semibold">Đăng nhập ngay</a></p>
+            </div>
+        </div>
+        
+        <div th:replace="~{fragments/otp_modal :: otp_modal}"></div>
+
+        <!-- Global Success Notification (Structurally Ready) -->
+        <div id="globalToast" class="position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 1100; transition: opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); opacity: 0; transform: translateY(-20px); pointer-events: none; margin-top: 1rem;">
+            <div class="glass-card d-flex align-items-center px-4 py-3 shadow-lg border-0" style="border-left: 4px solid var(--color-success) !important; background: rgba(255,255,255,0.85);">
+                <i class="bi bi-check-circle-fill fs-4 me-3" style="color: var(--color-success);"></i>
+                <div class="fw-bold fs-6 text-cyan">Tạo tài khoản thành công!</div>
+            </div>
+        </div>
+
+        <!-- Register Page Interactions -->
+        <script>
+            // Safe password toggle setup isolated dynamically
+            function setupPasswordToggle(inputId, btnId, iconId) {
+                const input = document.getElementById(inputId);
+                const btn = document.getElementById(btnId);
+                const icon = document.getElementById(iconId);
+
+                if (input && btn && icon) {
+                    input.addEventListener('input', function() {
+                        if (input.value.length > 0) {
+                            btn.classList.remove('d-none');
+                        } else {
+                            input.type = 'password';
+                            icon.className = 'bi bi-eye';
+                            btn.setAttribute('aria-label', 'Hiện mật khẩu');
+                            btn.classList.add('d-none');
+                        }
+                    });
+
+                    btn.addEventListener('click', function() {
+                        const isHidden = input.type === 'password';
+                        input.type = isHidden ? 'text' : 'password';
+                        icon.className = isHidden ? 'bi bi-eye-slash' : 'bi bi-eye';
+                        btn.setAttribute('aria-label', isHidden ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
+                    });
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize both toggles independently
+                setupPasswordToggle('password', 'togglePasswordBtn', 'passwordVisibilityIcon');
+                setupPasswordToggle('confirmPassword', 'toggleConfirmPasswordBtn', 'confirmPasswordVisibilityIcon');
+
+                // Form Validation & Match Check
+                const registerForm = document.getElementById('registerForm');
+                const registerSubmitBtn = document.getElementById('registerSubmitBtn');
+                const registerBtnText = document.getElementById('registerBtnText');
+                const registerBtnLoader = document.getElementById('registerBtnLoader');
+                
+                const passwordInput = document.getElementById('password');
+                const confirmPasswordInput = document.getElementById('confirmPassword');
+
+                if (registerForm) {
+                    registerForm.addEventListener('submit', function(event) {
+                        let isValid = true;
+                        
+                        // Enforce HTML5 Required validity
+                        if (!registerForm.checkValidity()) {
+                            isValid = false;
+                        }
+
+                        // Enforce Custom Password Match Rule
+                        if (passwordInput.value !== confirmPasswordInput.value) {
+                            confirmPasswordInput.setCustomValidity('Mật khẩu xác nhận không khớp');
+                            isValid = false;
+                        } else {
+                            confirmPasswordInput.setCustomValidity('');
+                        }
+
+                        if (!isValid) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            registerForm.classList.add('was-validated');
+                        } else {
+                            event.preventDefault(); // Intercepting for AJAX POST to backend
+                            
+                            if (!registerSubmitBtn.disabled) {
+                                registerSubmitBtn.disabled = true;
+                                registerBtnText.textContent = 'Đang tạo tài khoản...';
+                                registerBtnLoader.classList.remove('d-none');
+                                
+                                // PRODUCTION BOUNDARY: Await backend POST /register API.
+                                // Upon success, frontend should show OTP Modal and bind focus trap.
+                            }
+                        }
+                    });
+
+                    // Clear the mismatch warning visually while typing to recover quickly
+                    const clearMismatch = function() {
+                        if (passwordInput.value === confirmPasswordInput.value && confirmPasswordInput.value !== '') {
+                            confirmPasswordInput.setCustomValidity('');
+                        } else if (passwordInput.value !== confirmPasswordInput.value && registerForm.classList.contains('was-validated')) {
+                            confirmPasswordInput.setCustomValidity('Mật khẩu xác nhận không khớp');
+                        }
+                    };
+                    
+                    passwordInput.addEventListener('input', clearMismatch);
+                    confirmPasswordInput.addEventListener('input', clearMismatch);
+                }
+
+                // OTP Modal Interactions [PRODUCTION READY]
+                const otpForm = document.getElementById('otpForm');
+                const otpCode = document.getElementById('otpCode');
+                const otpSubmitBtn = document.getElementById('otpSubmitBtn');
+                const otpBtnText = document.getElementById('otpBtnText');
+                const otpBtnLoader = document.getElementById('otpBtnLoader');
+                const resendOtpBtn = document.getElementById('resendOtpBtn');
+                const otpSuccessMsg = document.getElementById('otpSuccessMsg');
+
+                if (otpForm) {
+                    otpForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        if (!otpForm.checkValidity()) {
+                            e.stopPropagation();
+                            otpForm.classList.add('was-validated');
+                        } else {
+                            otpSubmitBtn.disabled = true;
+                            otpBtnText.textContent = 'Đang xác thực...';
+                            otpBtnLoader.classList.remove('d-none');
+                            
+                            // PRODUCTION BOUNDARY: Await backend POST /otp/verify API.
+                            // Upon success: Trigger Toast Notification & Redirect to /login.
+                            // Upon failure: Trigger custom validity error state.
+                        }
+                    });
+                    
+                    otpCode.addEventListener('input', function() {
+                        this.value = this.value.replace(/[^0-9]/g, ''); // Numeric only
+                        this.setCustomValidity(''); // Clear error on type
+                        if(otpSuccessMsg) otpSuccessMsg.classList.add('d-none');
+                    });
+
+                    resendOtpBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        resendOtpBtn.disabled = true;
+                        resendOtpBtn.textContent = 'Đang gửi...';
+                        
+                        // PRODUCTION BOUNDARY: Await backend POST /otp/resend API.
+                        // Upon success: Trigger cooldown UI.
+                    });
+                }
+            });
+        </script>
+
+        <!-- Custom Component CSS -->
+        <style>
+            .was-validated .tw-input:invalid {
+                border-color: var(--color-danger);
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23EF4444'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23EF4444' stroke='none'/%3e%3c/svg%3e");
+                background-repeat: no-repeat;
+                background-position: right calc(0.375em + 0.1875rem) center;
+                background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+            }
+            .was-validated .tw-input:invalid:focus {
+                box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+            }
+            
+            .password-toggle {
+                position: absolute;
+                top: 50%;
+                right: 0;
+                transform: translateY(-50%);
+                z-index: 10;
+                border: none;
+                background: transparent;
+                padding: 0 1rem;
+                color: var(--color-text-muted);
+                cursor: pointer;
+                transition: color 0.2s ease;
+            }
+            
+            .password-toggle:hover,
+            .password-toggle:focus {
+                color: var(--color-primary);
+                outline: none;
+            }
+            
+            .password-toggle:focus-visible {
+                box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.5);
+                border-radius: var(--radius-md);
+            }
+        </style>
+    </div>
+</body>
+</html>

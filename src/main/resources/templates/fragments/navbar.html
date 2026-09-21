@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <th:block th:fragment="navbar">
+        <nav class="navbar navbar-expand-lg fixed-top glass-card border-0 rounded-0 border-bottom px-4" style="border-bottom-color: var(--color-glass-border) !important;">
+            <div class="container">
+                <!-- Brand -->
+                <a class="navbar-brand d-flex align-items-center" th:href="@{/}">
+                    <img th:src="@{/T-Winkle_LogoNoBG.png}" alt="T-Winkle Logo" height="40">
+                </a>
+
+                <!-- Mobile Toggle -->
+                <button class="navbar-toggler border-0 shadow-none text-cyan" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="bi bi-list fs-1"></i>
+                </button>
+
+                <!-- Navigation Links -->
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0 fw-semibold text-sm gap-2 gap-lg-4">
+                        <li class="nav-item">
+                            <a class="nav-link text-cyan active" aria-current="page" th:href="@{/}">Trang chủ</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-muted-custom hover-cyan transition-colors" th:href="@{/products}">Sản phẩm</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-muted-custom hover-cyan transition-colors" th:href="@{/stores}">Cửa hàng</a>
+                        </li>
+                    </ul>
+
+                    <!-- Auth Actions -->
+                    <div class="d-flex align-items-center gap-3">
+                        <!-- Guest State (Default for UI preview without Backend context) -->
+                        <div class="guest-nav d-flex align-items-center gap-2">
+                            <a th:href="@{/login}" class="tw-btn tw-btn-outline px-4 text-sm fw-bold">Đăng nhập</a>
+                            <a th:href="@{/register}" class="tw-btn tw-btn-primary px-4 text-sm fw-bold">Đăng ký</a>
+                        </div>
+                        
+                        <!-- Authenticated State (Hidden by default in UI preview, waiting for Backend session implementation) -->
+                        <div class="user-nav d-none align-items-center gap-3">
+                            <a th:href="@{/wishlist}" class="text-muted-custom hover-cyan transition-colors position-relative" aria-label="Wishlist">
+                                <i class="bi bi-heart fs-5"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">0</span>
+                            </a>
+                            <a th:href="@{/cart}" class="text-muted-custom hover-cyan transition-colors position-relative me-2" aria-label="Giỏ hàng">
+                                <i class="bi bi-bag fs-5"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-cyan text-white" style="font-size: 0.6rem;">0</span>
+                            </a>
+                            
+                            <div class="dropdown">
+                                <a class="text-decoration-none dropdown-toggle text-cyan fw-semibold text-sm d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="rounded-circle bg-cyan text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">U</div>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end glass-card border-0 shadow-lg mt-2">
+                                    <li><a class="dropdown-item fw-medium text-sm text-muted-custom hover-cyan" th:href="@{/profile}"><i class="bi bi-person me-2"></i> Hồ sơ</a></li>
+                                    <li><a class="dropdown-item fw-medium text-sm text-muted-custom hover-cyan" th:href="@{/orders}"><i class="bi bi-box-seam me-2"></i> Đơn hàng</a></li>
+                                    <li><hr class="dropdown-divider border-light"></li>
+                                    <li><a class="dropdown-item fw-medium text-sm text-danger" href="#"><i class="bi bi-box-arrow-right me-2"></i> Đăng xuất</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <style>
+            .navbar {
+                backdrop-filter: blur(24px);
+                -webkit-backdrop-filter: blur(24px);
+                background: rgba(255, 255, 255, 0.45);
+            }
+            .nav-link.active {
+                color: var(--color-primary) !important;
+                font-weight: 700;
+            }
+            .hover-cyan:hover {
+                color: var(--color-primary) !important;
+            }
+            .transition-colors {
+                transition: color 0.2s ease, background-color 0.2s ease;
+            }
+        </style>
+    </th:block>
+</body>
+</html>

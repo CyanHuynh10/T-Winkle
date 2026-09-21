@@ -1,0 +1,108 @@
+body {
+    font-family: var(--font-primary);
+    background-color: var(--color-bg-base);
+    color: var(--color-text-main);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    color: var(--color-text-main);
+    margin-top: 0;
+}
+
+code, pre {
+    font-family: var(--font-mono);
+}
+
+::selection {
+    background-color: var(--color-primary);
+    color: var(--color-surface);
+}
+
+/* Accessibility focus styles */
+:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* --- MESH GRADIENT BACKGROUND FOUNDATION --- */
+.background-blobs {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    background: var(--color-bg-base);
+}
+
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.65;
+    animation: float 12s infinite alternate ease-in-out;
+}
+
+.blob-1 {
+    top: -10%;
+    left: -5%;
+    width: 45vw;
+    height: 45vw;
+    background: var(--color-blob-1);
+    animation-delay: 0s;
+}
+
+.blob-2 {
+    top: 30%;
+    right: -10%;
+    width: 50vw;
+    height: 50vw;
+    background: var(--color-blob-2);
+    animation-delay: -3s;
+}
+
+.blob-3 {
+    bottom: -15%;
+    left: 15%;
+    width: 40vw;
+    height: 40vw;
+    background: var(--color-blob-3);
+    animation-delay: -6s;
+}
+
+@keyframes float {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+    50% {
+        transform: translate(40px, -20px) scale(1.05);
+    }
+    100% {
+        transform: translate(-20px, 40px) scale(0.95);
+    }
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .blob {
+        animation: none !important;
+    }
+    .glass-card, .tw-btn, .tw-input, .form-control {
+        transition: none !important;
+    }
+    .glass-card:hover {
+        transform: none !important;
+    }
+}
+
+/* Hide native browser password reveal to prevent duplicate icons */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none;
+}

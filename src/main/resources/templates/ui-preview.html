@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: base('Trung tâm Xem trước UI - T-Winkle', ~{::div.preview-container})}">
+<body>
+    <div class="preview-container container py-5">
+        
+        <!-- Header -->
+        <div class="text-center mb-5">
+            <a th:href="@{/}">
+                <img th:src="@{/T-Winkle_LogoNoBG.png}" alt="T-Winkle Logo" height="80" class="mb-3">
+            </a>
+            <h1 class="h2 fw-bold text-cyan mb-2">Trung tâm Xem trước UI T-Winkle</h1>
+            <p class="text-muted-custom">Mục lục trung tâm cho mọi luồng giao diện người dùng.</p>
+        </div>
+
+        <div class="row g-4 max-w-4xl mx-auto" style="max-width: 800px;">
+            
+            <!-- AUTH EXPERIENCE -->
+            <div class="col-12">
+                <div class="glass-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="h4 mb-0">XÁC THỰC (AUTH)</h2>
+                        <span class="badge-status-success">5 / 5 UI ĐÃ DUYỆT</span>
+                    </div>
+                    <div class="list-group list-group-flush gap-2">
+                        
+                        <!-- Login -->
+                        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light" style="border-color: var(--color-primary-light) !important; background-color: rgba(6, 182, 212, 0.05) !important;">
+                            <div class="mb-3 mb-md-0">
+                                <h6 class="mb-1 fw-bold text-cyan">Đăng nhập</h6>
+                                <small class="text-muted-custom">Khách hàng, Nhân viên, Quản trị viên</small>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="badge-status-success">ĐÃ DUYỆT</span>
+                                <a th:href="@{/login}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
+                            </div>
+                        </div>
+
+                        <!-- Register -->
+                        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light" style="border-color: var(--color-primary-light) !important; background-color: rgba(6, 182, 212, 0.05) !important;">
+                            <div class="mb-3 mb-md-0">
+                                <h6 class="mb-1 fw-bold text-cyan">Đăng ký</h6>
+                                <small class="text-muted-custom">Tạo tài khoản khách hàng mới</small>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="badge-status-success">ĐÃ DUYỆT</span>
+                                <a th:href="@{/register}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
+                            </div>
+                        </div>
+
+                        <!-- OTP -->
+                        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light" style="border-color: var(--color-primary-light) !important; background-color: rgba(6, 182, 212, 0.05) !important;">
+                            <div class="mb-3 mb-md-0">
+                                <h6 class="mb-1 fw-bold text-cyan">Xác thực OTP</h6>
+                                <small class="text-muted-custom">Mở modal xác thực sau khi Đăng ký thành công</small>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="badge-status-success">ĐÃ DUYỆT</span>
+                                <a th:href="@{/register}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
+                            </div>
+                        </div>
+
+                        <!-- Forgot Password -->
+                        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light" style="border-color: var(--color-primary-light) !important; background-color: rgba(6, 182, 212, 0.05) !important;">
+                            <div class="mb-3 mb-md-0">
+                                <h6 class="mb-1 fw-bold text-cyan">Quên mật khẩu</h6>
+                                <small class="text-muted-custom">Luồng khôi phục tài khoản</small>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="badge-status-success">ĐÃ DUYỆT</span>
+                                <a th:href="@{/forgot-password}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
+                            </div>
+                        </div>
+
+                        <!-- Reset Password -->
+                        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light" style="border-color: var(--color-primary-light) !important; background-color: rgba(6, 182, 212, 0.05) !important;">
+                            <div class="mb-3 mb-md-0">
+                                <h6 class="mb-1 fw-bold text-cyan">Đặt lại mật khẩu</h6>
+                                <small class="text-muted-custom">Tạo mật khẩu mới</small>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="badge-status-success">ĐÃ DUYỆT</span>
+                                <a th:href="@{/reset-password}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- STOREFRONT EXPERIENCE -->
+            <div class="col-12">
+                <div class="glass-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="h4 mb-0">CỬA HÀNG</h2>
+                        <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">HOÀN THÀNH 1</span>
+                    </div>
+                    <div class="list-group list-group-flush gap-2">
+                        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light" style="border-color: var(--color-primary-light) !important; background-color: rgba(6, 182, 212, 0.05) !important;">
+                            <div class="mb-3 mb-md-0">
+                                <h6 class="mb-1 fw-bold text-cyan">Trang chủ</h6>
+                                <small class="text-muted-custom">Hero, Sản phẩm mới, Thương hiệu</small>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="badge-status-success">SẴN SÀNG KIỂM TRA</span>
+                                <a th:href="@{/}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
+                            </div>
+                        </div>
+
+                        <!-- Other Storefront Features -->
+                        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light" style="border-color: var(--color-border) !important;">
+                            <div class="mb-3 mb-md-0">
+                                <h6 class="mb-1 fw-semibold text-muted-custom">Các trang khác</h6>
+                                <small class="text-muted-custom">Sản phẩm, Giỏ hàng, Thanh toán, ...</small>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                                <button class="tw-btn tw-btn-outline px-4" disabled>Đã khóa</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MANAGER CONSOLE -->
+            <div class="col-12">
+                <div class="glass-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="h4 mb-0">BẢNG ĐIỀU HÀNH QUẢN LÝ</h2>
+                        <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">HOÀN THÀNH 0</span>
+                    </div>
+                    <div class="list-group list-group-flush gap-2">
+                        <div class="list-group-item bg-transparent d-flex justify-content-between align-items-center px-3 py-3 border rounded border-light" style="border-color: var(--color-border) !important;">
+                            <div>
+                                <h6 class="mb-1 fw-semibold text-muted-custom">Dashboard Quản lý</h6>
+                                <small class="text-muted-custom">Kho hàng, Đơn hàng, Nhân viên</small>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                                <button class="tw-btn tw-btn-outline px-4" disabled>Đã khóa</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADMIN CONSOLE -->
+            <div class="col-12">
+                <div class="glass-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="h4 mb-0">BẢNG ĐIỀU HÀNH QUẢN TRỊ</h2>
+                        <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">HOÀN THÀNH 0</span>
+                    </div>
+                    <div class="list-group list-group-flush gap-2">
+                        <div class="list-group-item bg-transparent d-flex justify-content-between align-items-center px-3 py-3 border rounded border-light" style="border-color: var(--color-border) !important;">
+                            <div>
+                                <h6 class="mb-1 fw-semibold text-muted-custom">Dashboard Quản trị</h6>
+                                <small class="text-muted-custom">Quản lý Hệ thống</small>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                                <button class="tw-btn tw-btn-outline px-4" disabled>Đã khóa</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SHIPPER CONSOLE -->
+            <div class="col-12">
+                <div class="glass-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="h4 mb-0">BẢNG ĐIỀU HÀNH GIAO HÀNG</h2>
+                        <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">HOÀN THÀNH 0</span>
+                    </div>
+                    <div class="list-group list-group-flush gap-2">
+                        <div class="list-group-item bg-transparent d-flex justify-content-between align-items-center px-3 py-3 border rounded border-light" style="border-color: var(--color-border) !important;">
+                            <div>
+                                <h6 class="mb-1 fw-semibold text-muted-custom">Quản lý Giao hàng</h6>
+                                <small class="text-muted-custom">Phân công và theo dõi Đơn hàng</small>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                                <button class="tw-btn tw-btn-outline px-4" disabled>Đã khóa</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUPPORT CONSOLE -->
+            <div class="col-12">
+                <div class="glass-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="h4 mb-0">BẢNG ĐIỀU HÀNH HỖ TRỢ</h2>
+                        <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">HOÀN THÀNH 0</span>
+                    </div>
+                    <div class="list-group list-group-flush gap-2">
+                        <div class="list-group-item bg-transparent d-flex justify-content-between align-items-center px-3 py-3 border rounded border-light" style="border-color: var(--color-border) !important;">
+                            <div>
+                                <h6 class="mb-1 fw-semibold text-muted-custom">Dịch vụ Khách hàng</h6>
+                                <small class="text-muted-custom">Vé hỗ trợ và Trò chuyện trực tuyến</small>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
+                                <button class="tw-btn tw-btn-outline px-4" disabled>Đã khóa</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    </div>
+</body>
+</html>

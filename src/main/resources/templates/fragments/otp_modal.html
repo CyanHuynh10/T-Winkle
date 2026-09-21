@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <!-- OTP Modal Overlay Fragment -->
+    <th:block th:fragment="otp_modal">
+        <div id="otpModalOverlay" class="otp-modal-overlay" aria-modal="true" role="dialog" aria-labelledby="otpModalTitle">
+            <div class="glass-card otp-modal-card p-4 p-md-5 w-100 mx-3 mx-md-auto">
+                <div class="text-center mb-4">
+                    <h2 id="otpModalTitle" class="h4 fw-bold text-cyan mb-2">Xác thực OTP</h2>
+                    <p class="text-muted-custom mb-0">Nhập mã OTP được gửi đến email của bạn.</p>
+                    <p class="text-sm text-cyan fw-medium mt-1 mb-0" id="otpTargetEmail">user@example.com</p>
+                </div>
+                
+                <form id="otpForm" novalidate>
+                    <div class="mb-4 text-center">
+                        <input type="text" id="otpCode" name="otpCode" class="tw-input text-center fs-4 fw-bold tracking-widest py-3" placeholder="------" required autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}">
+                        <div class="invalid-feedback text-start mt-2">Mã OTP không hợp lệ. Vui lòng nhập 6 chữ số.</div>
+                    </div>
+                    
+                    <button type="submit" class="tw-btn tw-btn-primary w-100 fw-bold mb-3" id="otpSubmitBtn">
+                        <span id="otpBtnText">Xác nhận OTP</span>
+                        <span id="otpBtnLoader" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+                    </button>
+                    
+                    <div class="text-center">
+                        <button type="button" class="btn btn-link text-muted-custom text-decoration-none text-sm fw-medium p-0" id="resendOtpBtn">
+                            Gửi lại mã
+                        </button>
+                    </div>
+                    
+                    <!-- Success Validation Message -->
+                    <div id="otpSuccessMsg" class="alert alert-success d-none mt-3 mb-0 py-2 text-sm text-center">
+                        Xác thực OTP thành công.
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <style>
+            /* OTP Modal Styles extracted for reuse */
+            .otp-modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(15, 23, 42, 0.18);
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+                z-index: 1050;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s ease, visibility 0.3s ease;
+            }
+            .otp-modal-overlay.show {
+                opacity: 1;
+                visibility: visible;
+            }
+            .otp-modal-card {
+                max-width: 400px;
+                transform: scale(0.95) translateY(10px);
+                transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+            .otp-modal-overlay.show .otp-modal-card {
+                transform: scale(1) translateY(0);
+            }
+            @media (prefers-reduced-motion: reduce) {
+                .otp-modal-overlay, .otp-modal-card {
+                    transition: none !important;
+                    transform: none !important;
+                }
+            }
+            .tracking-widest {
+                letter-spacing: 0.5em;
+            }
+        </style>
+    </th:block>
+</body>
+</html>

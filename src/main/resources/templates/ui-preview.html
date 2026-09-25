@@ -32,7 +32,6 @@
             </div>
         </div>
     
-                        
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light " style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
                 <h6 class="mb-1 fw-bold text-dark">2. Đăng ký</h6>
@@ -44,7 +43,6 @@
             </div>
         </div>
     
-                        
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light " style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
                 <h6 class="mb-1 fw-bold text-dark">3. Xác thực OTP</h6>
@@ -52,11 +50,10 @@
             </div>
             <div class="d-flex align-items-center gap-3">
                 <span class="badge-status-success">ĐÃ DUYỆT</span>
-                <a href="#" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
+                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
             </div>
         </div>
     
-                        
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light " style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
                 <h6 class="mb-1 fw-bold text-dark">4. Quên mật khẩu</h6>
@@ -68,7 +65,6 @@
             </div>
         </div>
     
-                        
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light " style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
                 <h6 class="mb-1 fw-bold text-dark">5. Đặt lại mật khẩu</h6>
@@ -90,9 +86,12 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h2 class="h4 mb-0 fw-bold">2. STOREFRONT</h2>
                     </div>
-                    
-                    <h5 class="fw-bold text-muted-custom mb-3 mt-2 fs-6">GUEST / USER SHARED</h5>
-                    <div class="list-group list-group-flush gap-2 mb-4">
+                    <div class="list-group list-group-flush gap-2">
+                    <div class="alert alert-info border-0 rounded bg-cyan bg-opacity-10 text-dark px-3 py-2 mb-3 text-sm d-flex align-items-center gap-2">
+                        <i class="bi bi-info-circle text-cyan"></i>
+                        <span><strong>Shared Rule:</strong> Chat with AI là floating button trên toàn bộ Storefront (Guest &rarr; /login, User &rarr; /chat).</span>
+                    </div>
+
                         
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light " style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
@@ -105,10 +104,20 @@
             </div>
         </div>
     
-                        
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light " style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
                 <h6 class="mb-1 fw-bold text-dark">2. Tìm kiếm sản phẩm</h6>
+                <small class="text-muted-custom">Route: /products</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge-status-success">ĐÃ DUYỆT</span>
+                <a th:href="@{/products}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
+            </div>
+        </div>
+    
+        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light " style="border-color: var(--color-border) !important;">
+            <div class="mb-3 mb-md-0">
+                <h6 class="mb-1 fw-bold text-dark">3. Danh sách sản phẩm</h6>
                 <small class="text-muted-custom">Route: /products</small>
             </div>
             <div class="d-flex align-items-center gap-3">
@@ -117,10 +126,9 @@
             </div>
         </div>
     
-                        
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
-                <h6 class="mb-1 fw-bold text-dark">3. Danh sách sản phẩm</h6>
+                <h6 class="mb-1 fw-bold text-dark">4. Chi tiết sản phẩm</h6>
                 <small class="text-muted-custom">Route: Pending</small>
             </div>
             <div class="d-flex align-items-center gap-3">
@@ -129,19 +137,6 @@
             </div>
         </div>
     
-                        
-        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
-            <div class="mb-3 mb-md-0">
-                <h6 class="mb-1 fw-bold text-dark">4. Chi tiết sản phẩm</h6>
-                <small class="text-muted-custom">Interaction / Entry point</small>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI MILESTONE RIÊNG</span>
-                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
-            </div>
-        </div>
-    
-                        
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
                 <h6 class="mb-1 fw-bold text-dark">5. Danh mục sản phẩm</h6>
@@ -153,7 +148,6 @@
             </div>
         </div>
     
-                        
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
                 <h6 class="mb-1 fw-bold text-dark">6. Thương hiệu</h6>
@@ -165,7 +159,6 @@
             </div>
         </div>
     
-                        
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
                 <h6 class="mb-1 fw-bold text-dark">7. Cửa hàng</h6>
@@ -177,7 +170,6 @@
             </div>
         </div>
     
-                        
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
                 <h6 class="mb-1 fw-bold text-dark">8. Bản đồ cửa hàng</h6>
@@ -189,50 +181,9 @@
             </div>
         </div>
     
-                        
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
                 <h6 class="mb-1 fw-bold text-dark">9. Tình trạng sản phẩm tại cửa hàng</h6>
-                <small class="text-muted-custom">Interaction / Entry point</small>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI MILESTONE RIÊNG</span>
-                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
-            </div>
-        </div>
-    
-                        
-        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light " style="border-color: var(--color-border) !important;">
-            <div class="mb-3 mb-md-0">
-                <h6 class="mb-1 fw-bold text-dark">10. Đăng nhập</h6>
-                <small class="text-muted-custom">Route: /login</small>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-                <span class="badge-status-success">ĐÃ DUYỆT</span>
-                <a th:href="@{/login}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
-            </div>
-        </div>
-    
-                        
-        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light " style="border-color: var(--color-border) !important;">
-            <div class="mb-3 mb-md-0">
-                <h6 class="mb-1 fw-bold text-dark">11. Đăng ký</h6>
-                <small class="text-muted-custom">Route: /register</small>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-                <span class="badge-status-success">ĐÃ DUYỆT</span>
-                <a th:href="@{/register}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
-            </div>
-        </div>
-    
-                    </div>
-
-                    <h5 class="fw-bold text-muted-custom mb-3 fs-6">USER-ONLY</h5>
-                    <div class="list-group list-group-flush gap-2">
-                        
-        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
-            <div class="mb-3 mb-md-0">
-                <h6 class="mb-1 fw-bold text-dark">12. Hồ sơ cá nhân</h6>
                 <small class="text-muted-custom">Route: Pending</small>
             </div>
             <div class="d-flex align-items-center gap-3">
@@ -241,10 +192,9 @@
             </div>
         </div>
     
-                        
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
-                <h6 class="mb-1 fw-bold text-dark">13. Địa chỉ giao hàng</h6>
+                <h6 class="mb-1 fw-bold text-dark">10. Hồ sơ cá nhân</h6>
                 <small class="text-muted-custom">Route: Pending</small>
             </div>
             <div class="d-flex align-items-center gap-3">
@@ -253,10 +203,9 @@
             </div>
         </div>
     
-                        
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
-                <h6 class="mb-1 fw-bold text-dark">14. Giỏ hàng</h6>
+                <h6 class="mb-1 fw-bold text-dark">11. Địa chỉ giao hàng</h6>
                 <small class="text-muted-custom">Route: Pending</small>
             </div>
             <div class="d-flex align-items-center gap-3">
@@ -265,10 +214,9 @@
             </div>
         </div>
     
-                        
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
-                <h6 class="mb-1 fw-bold text-dark">15. Yêu thích</h6>
+                <h6 class="mb-1 fw-bold text-dark">12. Giỏ hàng</h6>
                 <small class="text-muted-custom">Route: Pending</small>
             </div>
             <div class="d-flex align-items-center gap-3">
@@ -277,10 +225,9 @@
             </div>
         </div>
     
-                        
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
-                <h6 class="mb-1 fw-bold text-dark">16. Thanh toán / Checkout</h6>
+                <h6 class="mb-1 fw-bold text-dark">13. Yêu thích</h6>
                 <small class="text-muted-custom">Route: Pending</small>
             </div>
             <div class="d-flex align-items-center gap-3">
@@ -289,10 +236,9 @@
             </div>
         </div>
     
-                        
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
-                <h6 class="mb-1 fw-bold text-dark">17. Phương thức thanh toán</h6>
+                <h6 class="mb-1 fw-bold text-dark">14. Checkout</h6>
                 <small class="text-muted-custom">Route: Pending</small>
             </div>
             <div class="d-flex align-items-center gap-3">
@@ -301,10 +247,9 @@
             </div>
         </div>
     
-                        
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
-                <h6 class="mb-1 fw-bold text-dark">18. Đơn hàng</h6>
+                <h6 class="mb-1 fw-bold text-dark">15. Phương thức thanh toán</h6>
                 <small class="text-muted-custom">Route: Pending</small>
             </div>
             <div class="d-flex align-items-center gap-3">
@@ -313,10 +258,9 @@
             </div>
         </div>
     
-                        
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
-                <h6 class="mb-1 fw-bold text-dark">19. Theo dõi đơn hàng</h6>
+                <h6 class="mb-1 fw-bold text-dark">16. Đơn hàng</h6>
                 <small class="text-muted-custom">Route: Pending</small>
             </div>
             <div class="d-flex align-items-center gap-3">
@@ -325,10 +269,9 @@
             </div>
         </div>
     
-                        
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
-                <h6 class="mb-1 fw-bold text-dark">20. Đánh giá / Bình luận</h6>
+                <h6 class="mb-1 fw-bold text-dark">17. Theo dõi đơn hàng</h6>
                 <small class="text-muted-custom">Route: Pending</small>
             </div>
             <div class="d-flex align-items-center gap-3">
@@ -337,10 +280,9 @@
             </div>
         </div>
     
-                        
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
-                <h6 class="mb-1 fw-bold text-dark">21. Chat với cửa hàng</h6>
+                <h6 class="mb-1 fw-bold text-dark">18. Đánh giá / Bình luận</h6>
                 <small class="text-muted-custom">Route: Pending</small>
             </div>
             <div class="d-flex align-items-center gap-3">
@@ -349,14 +291,13 @@
             </div>
         </div>
     
-                        
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
-                <h6 class="mb-1 fw-bold text-dark">22. Chat với AI</h6>
-                <small class="text-muted-custom">Interaction / Entry point</small>
+                <h6 class="mb-1 fw-bold text-dark">19. Chat với cửa hàng</h6>
+                <small class="text-muted-custom">Route: Pending</small>
             </div>
             <div class="d-flex align-items-center gap-3">
-                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">SHARED STOREFRONT RULE</span>
+                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
                 <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
             </div>
         </div>
@@ -833,5 +774,12 @@
 
         </div>
     </div>
+    
+    <!-- Shared Storefront Rule Note: Chat with AI -->
+    <!-- (Floating chat button removed from UI Preview page to avoid confusion, it exists in storefront layouts) -->
+    
+    <!-- Bootstrap & JS Foundation -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/main.js"></script>
 </body>
 </html>

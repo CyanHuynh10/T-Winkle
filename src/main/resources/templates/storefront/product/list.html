@@ -206,19 +206,19 @@
                 <div class="modal-content border border-light shadow-lg d-flex flex-column" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(28px); border-radius: 1.5rem; overflow: hidden; max-height: 90vh;">
                     <button type="button" class="btn-close position-absolute top-0 end-0 m-3 m-md-4 z-3 bg-white rounded-circle shadow-sm p-2" data-bs-dismiss="modal" aria-label="Đóng chi tiết sản phẩm"></button>
                     
-                    <div class="modal-body p-4 p-md-5 d-flex flex-column h-100 overflow-hidden">
-                        <div class="row h-100 gx-0 gx-lg-5 gy-4 gy-lg-0 flex-column flex-lg-row overflow-hidden flex-nowrap">
+                    <div class="modal-body p-4 p-md-5 d-flex flex-column flex-grow-1 overflow-hidden" style="min-height: 0;">
+                        <div class="row flex-grow-1 gx-0 gx-lg-5 gy-4 gy-lg-0 flex-column flex-lg-row overflow-hidden flex-nowrap" style="min-height: 0;">
                             
                             <!-- Left: Image Panel -->
-                            <div class="col-12 col-lg-5 d-flex flex-column pb-4 pb-lg-0 detail-divider-panel" style="flex: 0 0 auto;">
-                                <div class="bg-light position-relative d-flex align-items-center justify-content-center rounded-4 overflow-hidden h-100" style="min-height: 250px;">
+                            <div class="col-12 col-lg-5 d-flex flex-column pb-4 pb-lg-0 detail-divider-panel">
+                                <div class="bg-light position-relative d-flex align-items-center justify-content-center rounded-4 overflow-hidden h-100 detail-img-wrapper">
                                     <span class="badge bg-danger position-absolute top-0 start-0 m-3 m-md-4 z-1 fw-bold fs-6">MỚI</span>
                                     <i class="bi bi-image text-muted opacity-25" style="font-size: 6rem;"></i>
                                 </div>
                             </div>
                             
                             <!-- Right: Information Panel -->
-                            <div class="col-12 col-lg position-relative d-flex flex-column overflow-hidden h-100 pt-4 pt-lg-0">
+                            <div class="col-12 col-lg position-relative d-flex flex-column overflow-hidden flex-grow-1 flex-shrink-1 pt-4 pt-lg-0" style="min-height: 0;">
                                 
                                 <!-- Scrollable Area -->
                                 <div class="flex-grow-1 overflow-y-auto pe-3 pb-2 custom-scrollbar">

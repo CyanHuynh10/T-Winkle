@@ -24,13 +24,13 @@
                     <div class="collapse navbar-collapse" id="mainNavbar">
                         <ul class="navbar-nav mx-auto mb-2 mb-lg-0 fw-semibold text-sm gap-2 gap-lg-4">
                             <li class="nav-item">
-                                <a class="nav-link text-cyan active" aria-current="page" th:href="@{/}">Trang chủ</a>
+                                <a th:class="${#execInfo.processedTemplateName == 'index' ? 'nav-link text-cyan active' : 'nav-link text-muted-custom hover-cyan transition-colors'}" aria-current="page" th:href="@{/}">Trang chủ</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-muted-custom hover-cyan transition-colors" th:href="@{/products}">Sản phẩm</a>
+                                <a th:class="${#strings.startsWith(#execInfo.processedTemplateName, 'storefront/product/') ? 'nav-link text-cyan active' : 'nav-link text-muted-custom hover-cyan transition-colors'}" th:href="@{/products}">Sản phẩm</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-muted-custom hover-cyan transition-colors" th:href="@{/stores}">Cửa hàng</a>
+                                <a th:class="${#strings.startsWith(#execInfo.processedTemplateName, 'storefront/store/') ? 'nav-link text-cyan active' : 'nav-link text-muted-custom hover-cyan transition-colors'}" th:href="@{/stores}">Cửa hàng</a>
                             </li>
                         </ul>
                     </div>

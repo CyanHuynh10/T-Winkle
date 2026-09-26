@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: base('Xác thực OTP - T-Winkle', ~{::div.otp-container})}">
+<body>
+    <div class="otp-container container d-flex align-items-center justify-content-center min-vh-100 py-5 position-relative">
+        
+        <div class="glass-card p-4 p-md-5 w-100" style="max-width: 480px;">
+            <div class="text-center mb-4">
+                <a th:href="@{/}">
+                    <img th:src="@{/T-Winkle_LogoNoBG.png}" alt="T-Winkle Logo" height="60" class="mb-3">
+                </a>
+                <h1 class="h4 fw-bold text-cyan mb-2">Xác thực OTP</h1>
+                <p class="text-muted-custom mb-0">Nhập mã OTP được gửi đến email của bạn.</p>
+                <p class="text-sm text-cyan fw-medium mt-1 mb-0" th:text="${session.AUTH_FLOW_EMAIL}"></p>
+            </div>
+            
+            
+            
+            
+
+            
+            
+            
+            
+
+            <form th:action="@{/otp}" th:object="${otpRequest}" method="post" id="otpForm" novalidate>
+                <input type="hidden" th:field="*{email}">
+                
+                <div class="mb-4 text-center">
+                    <input type="text" th:field="*{otpCode}" class="tw-input text-center fs-4 fw-bold tracking-widest py-3" placeholder="------" required autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}">
+                    <div class="invalid-feedback text-start mt-2" th:if="${#fields.hasErrors('otpCode')}" th:errors="*{otpCode}">Mã OTP không hợp lệ. Vui lòng nhập 6 chữ số.</div>
+                </div>
+                
+                <button type="submit" class="tw-btn tw-btn-primary w-100 fw-bold mb-3" id="otpSubmitBtn">
+                    <span id="otpBtnText">Xác nhận OTP</span>
+                </button>
+            </form>
+            
+            <div class="text-center mt-2">
+                
+            
+            
+            
+
+            <form th:action="@{/otp/resend}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-link text-muted-custom text-decoration-none text-sm fw-medium p-0" id="resendOtpBtn">
+                        Gửi lại mã
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <style>
+            .tracking-widest {
+                letter-spacing: 0.5em;
+            }
+        </style>
+    </div>
+</body>
+</html>

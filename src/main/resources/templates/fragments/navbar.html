@@ -5,7 +5,7 @@
         <!-- Floating Blocks Wrapper -->
         <!-- On Mobile: Space-between ensures Nav is left, Auth is right -->
         <!-- On Desktop (lg): Center ensures Nav is center, Auth is absolutely positioned to right -->
-        <div class="fixed-top mt-3 mx-2 mx-md-4 z-3 d-flex justify-content-between justify-content-lg-center align-items-stretch position-relative" style="pointer-events: none;">
+        <div class="mt-3 mx-2 mx-md-4 z-3 d-flex justify-content-between justify-content-lg-center align-items-stretch position-relative" style="pointer-events: none;">
             
             <!-- CỤM 1 - TOP CENTER (Main Header) -->
             <nav class="navbar navbar-expand-lg header-glass-pill px-2 px-md-4" style="pointer-events: auto; position: relative;">
@@ -37,17 +37,53 @@
                 </div>
             </nav>
             
-            <!-- CỤM 2 - TOP RIGHT (Auth Group) -->
+                        <!-- CỤM 2 - TOP RIGHT (Auth Group) -->
             <div class="d-flex align-items-stretch gap-1 gap-md-2 position-lg-absolute top-0 end-0 h-100" style="pointer-events: auto;">
-                <!-- ĐĂNG NHẬP (Same text-sm as navigation) -->
-                <a th:href="@{/login}" class="header-glass-pill text-decoration-none text-muted-custom hover-cyan px-3 px-md-4 fw-bold d-flex align-items-center justify-content-center text-sm">
-                    Đăng nhập
-                </a>
+                
+                <!-- GUEST STATE -->
+                <th:block th:if="${!isAuthenticated}">
+                    <a th:href="@{/login}" class="header-glass-pill text-decoration-none text-muted-custom hover-cyan px-3 px-md-4 fw-bold d-flex align-items-center justify-content-center text-sm">
+                        Đăng nhập
+                    </a>
+                    <a th:href="@{/register}" class="header-glass-pill text-decoration-none text-cyan hover-cyan px-3 px-md-4 fw-bold d-flex align-items-center justify-content-center text-sm" style="background: rgba(255, 255, 255, 0.85);">
+                        Đăng ký
+                    </a>
+                </th:block>
 
-                <!-- ĐĂNG KÝ (Same text-sm as navigation) -->
-                <a th:href="@{/register}" class="header-glass-pill text-decoration-none text-cyan hover-cyan px-3 px-md-4 fw-bold d-flex align-items-center justify-content-center text-sm" style="background: rgba(255, 255, 255, 0.85);">
-                    Đăng ký
-                </a>
+                <!-- AUTHENTICATED STATE -->
+                <th:block th:if="${isAuthenticated}">
+                    <div class="header-glass-pill dropdown d-flex align-items-stretch" style="background: rgba(255, 255, 255, 0.9);">
+                        <button class="btn btn-link text-decoration-none d-flex align-items-center gap-2 px-3 hover-cyan transition-colors shadow-none border-0" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="color: var(--color-text-main);">
+                            <!-- Avatar -->
+                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-cyan text-white fw-bold shadow-sm" style="width: 32px; height: 32px; font-size: 0.875rem;">
+                                <span class="auth-avatar-initial">U</span>
+                            </div>
+                            <!-- Username -->
+                            <span class="fw-bold text-sm d-none d-md-inline text-dark auth-username" th:text="${currentUsername}">user1</span>
+                            <i class="bi bi-chevron-down ms-1 text-muted-custom" style="font-size: 0.75rem;"></i>
+                        </button>
+                        
+                        <ul class="dropdown-menu dropdown-menu-end border border-light shadow-lg rounded-4 mt-2 p-2" aria-labelledby="userDropdown" style="min-width: 220px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(24px);">
+                            <li class="px-3 py-2 mb-2 border-bottom border-light">
+                                <div class="fw-bold text-dark text-truncate auth-username-dropdown" th:text="${currentUsername}">user1</div>
+                                <div class="text-xs text-muted-custom">Thành viên T-Winkle</div>
+                            </li>
+                            <li>
+                                <a class="dropdown-item rounded-3 text-sm fw-medium py-2 d-flex align-items-center gap-2" th:href="@{/account}">
+                                    <i class="bi bi-person fs-5"></i> Tài khoản
+                                </a>
+                            </li>
+                            <li>
+                                <form th:action="@{/logout}" method="post" class="m-0 p-0">
+                                    <button type="submit" class="dropdown-item rounded-3 text-sm fw-medium py-2 d-flex align-items-center gap-2 text-danger w-100 text-start">
+                                        <i class="bi bi-box-arrow-right fs-5"></i> Đăng xuất
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </th:block>
+
             </div>
 
         </div>
@@ -110,6 +146,19 @@
                 }
             }
         </style>
-    </th:block>
+    
+                        <script>
+                            document.addEventListener("DOMContentLoaded", function() {
+                                var usernameSpan = document.querySelector(".auth-username");
+                                var initialSpan = document.querySelector(".auth-avatar-initial");
+                                if (usernameSpan && initialSpan) {
+                                    var username = usernameSpan.textContent || usernameSpan.innerText;
+                                    if (username && username.length > 0) {
+                                        initialSpan.textContent = username.charAt(0).toUpperCase();
+                                    }
+                                }
+                            });
+                        </script>
+</th:block>
 </body>
 </html>

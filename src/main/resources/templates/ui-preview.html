@@ -107,29 +107,32 @@
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light " style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
                 <h6 class="mb-1 fw-bold text-dark">2. Tìm kiếm sản phẩm</h6>
-                <small class="text-muted-custom">Route: /products</small>
+                <small class="text-muted-custom">Route: <span class="text-cyan">Search UI trên /categories</span></small>
+                <p class="text-xs text-muted-custom mt-1 mb-0">Sử dụng flow Search hiện tại trên /categories.</p>
             </div>
             <div class="d-flex align-items-center gap-3">
                 <span class="badge-status-success">ĐÃ DUYỆT</span>
-                <a th:href="@{/products}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
+                <a th:href="@{/categories}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
             </div>
         </div>
     
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light " style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
-                <h6 class="mb-1 fw-bold text-dark">3. Danh sách sản phẩm</h6>
-                <small class="text-muted-custom">Route: /products</small>
+                <h6 class="mb-1 fw-bold text-dark">3. Tất cả sản phẩm / Danh mục sản phẩm</h6>
+                <small class="text-muted-custom">Route: /categories</small>
+                <p class="text-xs text-muted-custom mt-1 mb-0">Hiển thị toàn bộ sản phẩm và là điểm khám phá sản phẩm chính của Storefront.</p>
             </div>
             <div class="d-flex align-items-center gap-3">
                 <span class="badge-status-warning">SẴN SÀNG KIỂM TRA</span>
-                <a th:href="@{/products}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
+                <a th:href="@{/categories}" class="tw-btn tw-btn-primary text-decoration-none px-4">Mở &rarr;</a>
             </div>
         </div>
     
         <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
             <div class="mb-3 mb-md-0">
                 <h6 class="mb-1 fw-bold text-dark">4. Chi tiết sản phẩm</h6>
-                <small class="text-muted-custom">Route: Pending</small>
+                <small class="text-muted-custom">Route: <span class="text-cyan">Product Detail Card / Modal</span></small>
+                <p class="text-xs text-muted-custom mt-1 mb-0">Click Product Card &rarr; mở Product Detail Card / Modal.</p>
             </div>
             <div class="d-flex align-items-center gap-3">
                 <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
@@ -137,14 +140,15 @@
             </div>
         </div>
     
-        <div class="list-group-item bg-transparent d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-light opacity-75" style="border-color: var(--color-border) !important;">
+        <div class="list-group-item bg-white d-flex flex-column flex-md-row justify-content-between align-items-md-center px-3 py-3 border rounded border-cyan shadow-sm" style="border-color: var(--color-cyan) !important;">
             <div class="mb-3 mb-md-0">
-                <h6 class="mb-1 fw-bold text-dark">5. Danh mục sản phẩm</h6>
-                <small class="text-muted-custom">Route: Pending</small>
+                <h6 class="mb-1 fw-bold text-dark">5. Danh mục / Category navigation</h6>
+                <small class="text-muted-custom">Routes: <a href="/categories/sneaker" class="text-cyan">/sneaker</a>, <a href="/categories/sandals" class="text-cyan">/sandals</a>, <a href="/categories/sports" class="text-cyan">/sports</a></small>
+                <p class="text-xs text-muted-custom mt-1 mb-0">Điều hướng nhanh giữa các danh mục Sneaker, Sandals và Sports.</p>
             </div>
             <div class="d-flex align-items-center gap-3">
-                <span class="badge" style="background-color: var(--color-bg-base); border: 1px solid var(--color-border); color: var(--color-text-muted);">CHƯA TRIỂN KHAI</span>
-                <button class="tw-btn tw-btn-outline px-4" disabled>Chưa có</button>
+                <span class="badge border border-warning text-warning" style="background-color: rgba(250,204,21,0.1);">READY FOR VERIFICATION</span>
+                <a href="/categories" target="_blank" class="tw-btn tw-btn-primary px-4">Xem UI</a>
             </div>
         </div>
     

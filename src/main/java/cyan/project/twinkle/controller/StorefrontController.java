@@ -15,11 +15,6 @@ public class StorefrontController {
         return "index";
     }
 
-    @GetMapping("/products")
-    public String productList(Model model) {
-        return "storefront/product/list";
-    }
-
     @GetMapping("/products/{id}")
     public String productDetail(@PathVariable String id, Model model) {
         return "storefront/product/detail";
@@ -78,5 +73,11 @@ public class StorefrontController {
     @GetMapping("/chat")
     public String chat(Model model) {
         return "storefront/chat";
+    }
+
+    @GetMapping({"/categories", "/categories/{slug}"})
+    public String categories(@PathVariable(required = false) String slug, Model model) {
+        model.addAttribute("selectedCategory", slug);
+        return "storefront/category/list";
     }
 }

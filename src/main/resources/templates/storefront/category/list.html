@@ -67,20 +67,71 @@
                         
                         <!-- Filter & Sort -->
                         <div class="d-flex gap-2 align-items-center flex-shrink-0 w-100 w-lg-auto justify-content-end">
-                            <button class="tw-btn tw-btn-outline bg-white rounded-pill d-flex align-items-center gap-2 px-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterOffcanvas" aria-label="Bộ lọc sản phẩm">
+                            <button class="tw-btn control-btn bg-white rounded-pill d-flex align-items-center gap-2 px-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterOffcanvas" aria-label="Bộ lọc sản phẩm">
                                 <i class="bi bi-funnel"></i> <span class="d-none d-sm-inline">Bộ lọc</span>
                             </button>
                             
+                            <style>
+                                /* Control Buttons (Filter, Sort) */
+                                .control-btn {
+                                    border: 1px solid transparent !important; /* Remove black border */
+                                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important; /* Subtle shadow */
+                                    transition: all 0.2s ease;
+                                    outline: none !important;
+                                }
+                                .control-btn:hover {
+                                    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08) !important;
+                                    transform: translateY(-1px);
+                                }
+                                .control-btn:focus-visible {
+                                    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2) !important;
+                                }
+
+                                /* Sort Dropdown Refinements */
+                                .sort-dropdown-item {
+                                    color: #1f2937 !important; /* Dark text main */
+                                    background-color: transparent !important;
+                                    transition: color 0.2s ease;
+                                    font-weight: 500 !important;
+                                    padding: 0.5rem 1rem;
+                                }
+                                .sort-dropdown-item:hover, .sort-dropdown-item:focus {
+                                    color: var(--color-cyan, #0891B2) !important;
+                                    background-color: transparent !important;
+                                }
+                                .sort-dropdown-item.selected-sort {
+                                    color: var(--color-cyan, #0891B2) !important;
+                                    font-weight: 500 !important; /* No bold */
+                                    background-color: transparent !important;
+                                }
+                                
+                                /* Filter State Sync */
+                                .form-check-input:checked + .form-check-label,
+                                .form-check-input:checked ~ .form-check-label {
+                                    color: var(--color-cyan, #0891B2) !important;
+                                    font-weight: 600;
+                                }
+                            </style>
                             <div class="dropdown">
-                                <button class="tw-btn tw-btn-outline bg-white rounded-pill d-flex align-items-center gap-2 px-3 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Sắp xếp sản phẩm">
-                                    <i class="bi bi-sort-down"></i> <span class="d-none d-sm-inline">Mới nhất</span>
+                                <button class="tw-btn control-btn bg-white rounded-pill d-flex align-items-center gap-2 px-3 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Sắp xếp sản phẩm">
+                                    <i class="bi bi-sort-down"></i> <span class="d-none d-sm-inline" id="sortLabel">Phổ biến nhất</span>
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm glass-card">
-                                    <li><a class="dropdown-item active" href="#">Mới nhất</a></li>
-                                    <li><a class="dropdown-item" href="#">Giá thấp &rarr; cao</a></li>
-                                    <li><a class="dropdown-item" href="#">Giá cao &rarr; thấp</a></li>
-                                    <li><a class="dropdown-item" href="#">Bán chạy</a></li>
-                                    <li><a class="dropdown-item" href="#">Đánh giá cao</a></li>
+                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm glass-card p-2" style="min-width: 200px;">
+                                    <li>
+                                        <a class="dropdown-item sort-dropdown-item selected-sort d-flex justify-content-between align-items-center rounded mb-1" href="#" data-sort="popular">
+                                            <span class="sort-text">Phổ biến nhất</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item sort-dropdown-item d-flex justify-content-between align-items-center rounded mb-1" href="#" data-sort="price-desc">
+                                            <span class="sort-text">Giá cao &rarr; thấp</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item sort-dropdown-item d-flex justify-content-between align-items-center rounded" href="#" data-sort="price-asc">
+                                            <span class="sort-text">Giá thấp &rarr; cao</span>
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -199,7 +250,7 @@
                 
             </div>
             <div class="offcanvas-footer p-4 border-top border-light d-flex gap-2 bg-white rounded-bottom-4">
-                <button class="tw-btn tw-btn-outline flex-grow-1 bg-white" data-bs-dismiss="offcanvas">Xóa bộ lọc</button>
+                <button class="tw-btn control-btn flex-grow-1 bg-white" data-bs-dismiss="offcanvas">Xóa bộ lọc</button>
                 <button class="tw-btn tw-btn-primary flex-grow-1" data-bs-dismiss="offcanvas">Áp dụng</button>
             </div>
         </div>
@@ -567,5 +618,42 @@
             });
         </script>
     </div>
+
+    <!-- Sort Dropdown Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sortItems = document.querySelectorAll('.sort-dropdown-item');
+            const sortLabel = document.getElementById('sortLabel');
+            
+            sortItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Reset all
+                    sortItems.forEach(el => {
+                        el.classList.remove('selected-sort');
+                    });
+                    
+                    // Set active
+                    item.classList.add('selected-sort');
+                    
+                    // Update label
+                    const textNode = item.querySelector('.sort-text');
+                    if (textNode && sortLabel) {
+                        sortLabel.innerHTML = textNode.innerHTML;
+                    }
+                });
+            });
+            
+            // Filter UI sync - just to be absolutely sure inputs trigger changes in some browsers
+            const filterInputs = document.querySelectorAll('#filterOffcanvas .form-check-input');
+            filterInputs.forEach(input => {
+                input.addEventListener('change', () => {
+                    // CSS :checked handles visual, but this forces a repaint just in case
+                });
+            });
+        });
+    </script>
+
 </body>
 </html>

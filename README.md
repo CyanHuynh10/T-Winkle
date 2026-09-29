@@ -23,4 +23,4 @@ Localhost-first.
 ## Run
 1. Configure SQL Server connection in `application.properties`.
 2. Run `TWinkleApplication.java` from IDE or use `./mvnw spring-boot:run`.
-3. Access `http://localhost:8080`.
+3. Access `http://localhost:5656`.

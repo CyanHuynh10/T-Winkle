@@ -50,27 +50,16 @@
                             <a href="#" class="tw-btn tw-btn-primary rounded-pill px-4 py-2 text-decoration-none d-flex align-items-center gap-2 shadow-sm hover-lift">
                                 <i class="bi bi-chat-dots-fill"></i> Chat với cửa hàng
                             </a>
-                            <button class="tw-btn control-btn bg-white rounded-pill px-4 py-2 d-flex align-items-center gap-2 follow-btn" id="followBtn">
-                                <i class="bi bi-person-plus-fill"></i> <span class="follow-text">Theo dõi</span>
-                            </button>
-                            <!-- Note: Map is for Milestone 8 -->
-                            <a href="#" class="tw-btn control-btn bg-white rounded-pill px-4 py-2 text-decoration-none d-flex align-items-center gap-2 text-muted-custom hover-cyan">
-                                <i class="bi bi-map"></i> Xem bản đồ
+                            
+                            <!-- Store Catalog Button -->
+                            <a th:href="@{'/stores/' + ${storeSlug != null ? storeSlug : 't-winkle-flagship'} + '/catagories'}" class="tw-btn control-btn bg-white border shadow-sm rounded-pill px-4 py-2 text-decoration-none d-flex align-items-center gap-2 text-dark fw-bold hover-cyan">
+                                <i class="bi bi-bag"></i> Sản phẩm tại cửa hàng
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Products from this store -->
-                <div class="mb-4 d-flex justify-content-between align-items-end">
-                    <h2 class="h5 fw-bold text-dark mb-0">Sản phẩm tại cửa hàng</h2>
-                    <a th:href="@{/categories}" class="text-cyan text-decoration-none text-sm fw-semibold hover-cyan transition-colors">Xem tất cả <i class="bi bi-arrow-right"></i></a>
-                </div>
-
-                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" id="storeProductGrid">
-                    <!-- Fake Products will be injected via JS to avoid hardcoding massive HTML. Reuses the approved product card design. -->
-                </div>
-
+                
             </div>
         </main>
     </div>
@@ -89,87 +78,12 @@
             transform: translateY(-1px);
             color: var(--color-cyan, #0891B2);
         }
-        .follow-btn.following {
-            background-color: var(--color-cyan, #0891B2) !important;
-            color: white !important;
-        }
-        .follow-btn.following:hover {
-            color: white !important;
-        }
-        .follow-btn.following i {
-            color: white !important;
-        }
+        
+        
+        
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Follow Button Interaction
-            const followBtn = document.getElementById('followBtn');
-            if (followBtn) {
-                followBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    followBtn.classList.toggle('following');
-                    const textSpan = followBtn.querySelector('.follow-text');
-                    const icon = followBtn.querySelector('i');
-                    if (followBtn.classList.contains('following')) {
-                        textSpan.textContent = 'Đang theo dõi';
-                        icon.classList.remove('bi-person-plus-fill');
-                        icon.classList.add('bi-person-check-fill');
-                    } else {
-                        textSpan.textContent = 'Theo dõi';
-                        icon.classList.remove('bi-person-check-fill');
-                        icon.classList.add('bi-person-plus-fill');
-                    }
-                });
-            }
-
-            // Generate fake products matching the exact approved Product Card visual language
-            const grid = document.getElementById('storeProductGrid');
-            if (grid) {
-                const fakeProducts = [
-                    { name: 'T-Winkle Air Runner', price: '2.450.000đ', rating: '5.0', sold: '124', cat: 'Sneaker', old: '3.200.000đ', badge: 'Giảm giá', bg: 'bg-danger' },
-                    { name: 'T-Winkle Classic White', price: '1.850.000đ', rating: '4.8', sold: '85', cat: 'Sneaker', old: null, badge: 'Mới', bg: 'bg-primary' },
-                    { name: 'T-Winkle Sport Elite', price: '3.100.000đ', rating: '4.9', sold: '56', cat: 'Sports', old: '3.500.000đ', badge: 'Bán chạy', bg: 'bg-warning text-dark' },
-                    { name: 'T-Winkle Summer Walk', price: '950.000đ', rating: '4.7', sold: '210', cat: 'Sandals', old: null, badge: null }
-                ];
-                let cardsHtml = '';
-                fakeProducts.forEach(p => {
-                    let badgeHtml = p.badge ? \`<span class="position-absolute top-0 start-0 m-2 badge \${p.bg} px-2 py-1 z-3 shadow-sm">\${p.badge}</span>\` : '';
-                    let priceHtml = p.old ? \`<div class="fw-bold fs-5 text-cyan">\${p.price}</div><div class="text-muted text-decoration-line-through text-xs">\${p.old}</div>\` : \`<div class="fw-bold fs-5 text-cyan">\${p.price}</div>\`;
-                    cardsHtml += \`
-                        <div class="col">
-                            <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white hover-lift transition-all" style="cursor: pointer;">
-                                <div class="product-img-wrapper bg-light rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1;">
-                                    \${badgeHtml}
-                                    <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
-                                    
-                                    <!-- Hover actions overlay -->
-                                    <div class="product-actions-overlay position-absolute top-0 end-0 p-2 d-flex flex-column gap-2 opacity-0 transition-all z-3">
-                                        <button class="btn btn-light bg-white rounded-circle shadow-sm text-muted-custom hover-cyan d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" aria-label="Thêm vào yêu thích">
-                                            <i class="bi bi-heart"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="d-flex flex-column flex-grow-1">
-                                    <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1">\${p.cat}</span>
-                                    <h3 class="h6 fw-bold text-dark mb-1 text-truncate" title="\${p.name}">\${p.name}</h3>
-                                    <div class="d-flex align-items-center gap-1 mb-3 text-sm">
-                                        <div style="color: #FACC15;"><i class="bi bi-star-fill"></i><span class="text-dark fw-bold ms-1">\${p.rating}</span></div>
-                                        <span class="text-muted-custom mx-1">|</span><span class="text-muted-custom">Đã bán \${p.sold}</span>
-                                    </div>
-                                    <div class="mt-auto d-flex align-items-end justify-content-between">
-                                        <div>\${priceHtml}</div>
-                                        <button class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-lift" style="width: 40px; height: 40px;" aria-label="Thêm vào giỏ">
-                                            <i class="bi bi-cart-plus fs-5"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    \`;
-                });
-                grid.innerHTML = cardsHtml;
-            }
-        });
-    </script>
+            </script>
 </body>
 </html>

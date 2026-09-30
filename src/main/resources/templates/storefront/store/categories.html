@@ -55,16 +55,8 @@
                 <div id="stateResults" th:classappend="${selectedCategory == 'accessories' ? 'd-none' : ''}">
                     
                     <!-- Toolbar: Category (Left) + Filter & Sort (Right) -->
-                    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3 mb-4 animate-fade-up position-relative" style="animation-delay: 0.1s; z-index: 20;">
+                    <div class="d-flex flex-column flex-lg-row justify-content-end align-items-start align-items-lg-center gap-3 mb-4 animate-fade-up position-relative" style="animation-delay: 0.1s; z-index: 20;">
                         
-                        <!-- Categories (Pills) -->
-                        <div class="d-flex gap-2 overflow-auto hide-scrollbar pb-2 pb-lg-0 w-100 w-lg-auto" style="white-space: nowrap; -webkit-overflow-scrolling: touch;">
-                            <button class="tw-btn tw-btn-primary rounded-pill px-4" aria-label="Danh mục Tất cả">Tất cả</button>
-                            <button class="tw-btn tw-btn-outline rounded-pill px-4 bg-white" aria-label="Danh mục Sneaker">Sneaker</button>
-                            <button class="tw-btn tw-btn-outline rounded-pill px-4 bg-white" aria-label="Danh mục Sport">Sport</button>
-                            <button class="tw-btn tw-btn-outline rounded-pill px-4 bg-white" aria-label="Danh mục Casual">Casual</button>
-                            <button class="tw-btn tw-btn-outline rounded-pill px-4 bg-white" aria-label="Danh mục Phụ kiện">Phụ kiện</button>
-                        </div>
                         
                         <!-- Filter & Sort -->
                         <div class="d-flex gap-2 align-items-center flex-shrink-0 w-100 w-lg-auto justify-content-end">
@@ -89,18 +81,18 @@
                                 }
 
                                 /* Sort Dropdown Refinements */
-                                .sort-dropdown-item {
+                                .sort-dropdown-item, .category-dropdown-item {
                                     color: #1f2937 !important; /* Dark text main */
                                     background-color: transparent !important;
                                     transition: color 0.2s ease;
                                     font-weight: 500 !important;
                                     padding: 0.5rem 1rem;
                                 }
-                                .sort-dropdown-item:hover, .sort-dropdown-item:focus {
+                                .sort-dropdown-item, .category-dropdown-item:hover, .sort-dropdown-item, .category-dropdown-item:focus {
                                     color: var(--color-cyan, #0891B2) !important;
                                     background-color: transparent !important;
                                 }
-                                .sort-dropdown-item.selected-sort {
+                                .sort-dropdown-item, .category-dropdown-item.selected-sort, .selected-category {
                                     color: var(--color-cyan, #0891B2) !important;
                                     font-weight: 500 !important; /* No bold */
                                     background-color: transparent !important;
@@ -510,10 +502,12 @@
                     { name: "Essential Walk", cat: "CASUAL", price: "790.000đ", old: "990.000đ", rating: "4.5", sold: 520, tag: "" }
                 ];
                 
+                
                 let currentSort = 'popular';
                 
                 function renderProducts() {
                     grid.innerHTML = '';
+                    
                     let filtered = [...products];
                     
                     if (currentSort === 'price-desc') {
@@ -529,6 +523,7 @@
                         let badgeHtml = p.tag ? '<span class="badge bg-danger position-absolute top-0 start-0 m-2 z-1">' + p.tag + '</span>' : '';
                         let priceHtml = p.old ? '<div class="fw-bold fs-4 text-cyan">' + p.price + '</div><div class="text-muted text-decoration-line-through text-xs">' + p.old + '</div>' : '<div class="fw-bold fs-4 text-cyan">' + p.price + '</div>';
                         
+                        // Using old-school string concatenation to strictly avoid SpEL conflicts
                         col.innerHTML = 
                             '<div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">' +
                                 '<button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">' +
@@ -566,24 +561,22 @@
                 // Event listeners for sort dropdown
                 const sortDropdownItems = document.querySelectorAll('.sort-dropdown-item');
                 const sortText = document.getElementById('currentSortText');
-                if(sortDropdownItems.length > 0 && sortText) {
-                    sortDropdownItems.forEach(item => {
-                        item.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            sortDropdownItems.forEach(i => i.classList.remove('selected-sort'));
-                            item.classList.add('selected-sort');
-                            currentSort = item.getAttribute('data-sort');
-                            sortText.textContent = item.querySelector('.sort-text').textContent;
-                            
-                            document.querySelectorAll('.sort-dropdown-item i.bi-check').forEach(i => i.remove());
-                            const checkIcon = document.createElement('i');
-                            checkIcon.className = 'bi bi-check text-cyan ms-2';
-                            item.appendChild(checkIcon);
-                            
-                            renderProducts();
-                        });
+                sortDropdownItems.forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        sortDropdownItems.forEach(i => i.classList.remove('selected-sort'));
+                        item.classList.add('selected-sort');
+                        currentSort = item.getAttribute('data-sort');
+                        sortText.textContent = item.querySelector('.sort-text').textContent;
+                        
+                        document.querySelectorAll('.sort-dropdown-item i.bi-check').forEach(i => i.remove());
+                        const checkIcon = document.createElement('i');
+                        checkIcon.className = 'bi bi-check text-cyan ms-2';
+                        item.appendChild(checkIcon);
+                        
+                        renderProducts();
                     });
-                }
+                });
 
 
                 // 2. SEARCH LOGIC
@@ -656,7 +649,7 @@
     <!-- Sort Dropdown Logic -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const sortItems = document.querySelectorAll('.sort-dropdown-item');
+            const sortItems = document.querySelectorAll('.sort-dropdown-item, .category-dropdown-item');
             const sortLabel = document.getElementById('sortLabel');
             
             sortItems.forEach(item => {
@@ -672,7 +665,7 @@
                     item.classList.add('selected-sort');
                     
                     // Update label
-                    const textNode = item.querySelector('.sort-text');
+                    const textNode = item.querySelector('.sort-text, .category-text');
                     if (textNode && sortLabel) {
                         sortLabel.innerHTML = textNode.innerHTML;
                     }

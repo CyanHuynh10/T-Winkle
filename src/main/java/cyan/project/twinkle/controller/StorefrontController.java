@@ -27,7 +27,15 @@ public class StorefrontController {
 
     @GetMapping("/stores/{id}")
     public String storeDetail(@PathVariable String id, Model model) {
+        model.addAttribute("storeSlug", id);
         return "storefront/store/detail";
+    }
+
+    @GetMapping({"/stores/{id}/catagories", "/stores/{id}/catagories/{category}"})
+    public String storeCategories(@PathVariable String id, @PathVariable(required = false) String category, Model model) {
+        model.addAttribute("storeSlug", id);
+        model.addAttribute("selectedCategory", category);
+        return "storefront/store/categories";
     }
 
     @GetMapping("/cart")

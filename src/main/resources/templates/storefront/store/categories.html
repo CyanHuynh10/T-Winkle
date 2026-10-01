@@ -287,7 +287,7 @@
                                                 <i class="bi bi-cart fs-4"></i>
                                             </button>
                                             <!-- Wishlist Button -->
-                                            <button class="btn btn-light rounded-circle shadow-sm wishlist-btn text-muted-custom d-flex align-items-center justify-content-center hover-scale" style="width: 56px; height: 56px;" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">
+                                            <button class="btn btn-light rounded-circle shadow-sm wishlist-btn text-muted-custom d-flex align-items-center justify-content-center hover-scale" style="width: 56px; height: 56px;" aria-label="Thêm vào yêu thích" >
                                                 <i class="bi bi-heart fs-4"></i>
                                             </button>
                                         </div>
@@ -526,7 +526,7 @@
                         // Using old-school string concatenation to strictly avoid SpEL conflicts
                         col.innerHTML = 
                             '<div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">' +
-                                '<button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">' +
+                                '<button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" >' +
                                     '<i class="bi bi-heart"></i>' +
                                 '</button>' +
                                 '<div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">' +

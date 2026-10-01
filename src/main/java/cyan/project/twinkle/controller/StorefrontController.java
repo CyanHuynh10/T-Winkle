@@ -48,7 +48,10 @@ public class StorefrontController {
     }
 
     @GetMapping("/checkout")
-    public String checkout(Model model) {
+    public String checkout(Principal principal, Model model) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
         return "storefront/checkout/checkout";
     }
 
@@ -74,7 +77,10 @@ public class StorefrontController {
     }
 
     @GetMapping("/wishlist")
-    public String wishlist(Model model) {
+    public String wishlist(Principal principal, Model model) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
         return "storefront/user/wishlist";
     }
 

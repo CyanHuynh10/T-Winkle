@@ -2,6 +2,7 @@ package cyan.project.twinkle.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import java.security.Principal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,7 +40,10 @@ public class StorefrontController {
     }
 
     @GetMapping("/cart")
-    public String cart(Model model) {
+    public String cart(Principal principal, Model model) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
         return "storefront/cart/cart";
     }
 
@@ -49,12 +53,18 @@ public class StorefrontController {
     }
 
     @GetMapping("/profile")
-    public String profile(Model model) {
+    public String profile(Principal principal, Model model) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
         return "storefront/user/profile";
     }
 
     @GetMapping("/addresses")
-    public String addresses(Model model) {
+    public String addresses(Principal principal, Model model) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
         return "storefront/user/addresses";
     }
 

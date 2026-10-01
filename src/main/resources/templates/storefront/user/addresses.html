@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: base('Địa chỉ giao hàng - T-Winkle', ~{::div.addresses-container})}">
+<body>
+    <div class="addresses-container position-relative">
+        <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+        <style>
+            .profile-main-card {
+                background: rgba(255, 255, 255, 0.85);
+                backdrop-filter: blur(28px);
+                border: 1px solid rgba(226, 232, 240, 0.8);
+                box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            }
+            .profile-identity-badge {
+                background: rgba(6, 182, 212, 0.08);
+                color: #0891B2;
+                border: 1px solid rgba(6, 182, 212, 0.16);
+                box-shadow: 0 4px 12px rgba(6, 182, 212, 0.06);
+            }
+            .info-mini-surface {
+                background: rgba(248, 250, 252, 0.72);
+                border: 1px solid rgba(226, 232, 240, 0.9);
+                border-radius: 16px;
+                box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+                transition: all 0.2s ease;
+            }
+            .info-mini-surface.is-default {
+                border-left: 2px solid #06B6D4;
+            }
+            .profile-input {
+                background: rgba(248, 250, 252, 0.9);
+                border: 1px solid #E2E8F0;
+                box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+                color: #0F172A;
+            }
+            .profile-input::placeholder {
+                color: #94A3B8;
+            }
+            .profile-input:focus {
+                border-color: #06B6D4;
+                box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.10);
+            }
+            .btn-profile-primary {
+                background: #06B6D4;
+                color: #FFFFFF;
+                box-shadow: 0 8px 20px rgba(6, 182, 212, 0.22);
+                transition: all 200ms ease;
+                border: none;
+            }
+            .btn-profile-primary:hover {
+                background: #0891B2;
+                box-shadow: 0 10px 24px rgba(6, 182, 212, 0.28);
+                color: #FFFFFF;
+            }
+            .btn-profile-primary:active {
+                box-shadow: 0 4px 12px rgba(6, 182, 212, 0.20);
+                transform: translateY(1px);
+            }
+            .btn-profile-cancel {
+                background: #FFFFFF;
+                border: 1px solid #E2E8F0;
+                color: #475569;
+                transition: all 200ms ease;
+            }
+            .btn-profile-cancel:hover {
+                background: #F8FAFC;
+                border-color: #CBD5E1;
+                color: #475569;
+            }
+            .hover-cyan:hover {
+                color: #06B6D4 !important;
+            }
+            .modal-content.glass-modal {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(28px);
+                border: 1px solid rgba(226, 232, 240, 0.8);
+                box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+            }
+        </style>
+
+        <main class="pt-3 mt-2 pb-4 position-relative z-1" style="min-height: 80vh;">
+            <div class="container max-w-4xl mx-auto px-3 animate-fade-up">
+                
+                <h1 class="h3 fw-bold text-dark mb-3 text-center text-md-start">Địa chỉ giao hàng</h1>
+                
+                <div class="profile-main-card rounded-4 overflow-hidden mb-4">
+                    <div class="p-3 p-md-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-light">
+                            <p class="text-muted-custom mb-0">Quản lý địa chỉ nhận hàng của bạn.</p>
+                            <button type="button" class="tw-btn btn-profile-primary rounded-pill px-4 py-2 text-decoration-none fw-bold text-sm" onclick="openAddressModal()">
+                                + Thêm địa chỉ
+                            </button>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div id="emptyState" class="text-center py-5" style="display: none;">
+                            <div class="mb-3">
+                                <i class="bi bi-geo text-muted-custom" style="font-size: 3rem; opacity: 0.5;"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-2">Chưa có địa chỉ giao hàng</h5>
+                            <p class="text-muted-custom mb-4">Bạn chưa lưu bất kỳ địa chỉ nào. Thêm địa chỉ ngay để thanh toán nhanh hơn.</p>
+                        </div>
+
+                        <!-- Address List -->
+                        <div id="addressList" class="d-flex flex-column gap-3">
+                            <!-- Cards rendered by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Address Form Modal -->
+        <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content glass-modal rounded-4 border-0">
+                    <div class="modal-header border-bottom border-light px-4 py-3">
+                        <h5 class="modal-title fw-bold text-dark" id="addressModalLabel">Thêm địa chỉ mới</h5>
+                        <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body px-4 py-4">
+                        <form id="addressForm" novalidate onsubmit="return false;">
+                            <input type="hidden" id="addrId">
+                            <div class="row gy-3">
+                                <div class="col-md-6">
+                                    <label class="form-label text-sm fw-semibold mb-1" style="color: #64748B;">Họ và tên <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control profile-input shadow-none" id="addrName" required>
+                                    <div class="invalid-feedback">Vui lòng nhập họ và tên người nhận.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-sm fw-semibold mb-1" style="color: #64748B;">Số điện thoại <span class="text-danger">*</span></label>
+                                    <input type="tel" class="form-control profile-input shadow-none" id="addrPhone" required pattern="[0-9]{10,11}">
+                                    <div class="invalid-feedback">Vui lòng nhập số điện thoại hợp lệ.</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label text-sm fw-semibold mb-1" style="color: #64748B;">Tỉnh/Thành phố <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control profile-input shadow-none" id="addrProvince" required>
+                                    <div class="invalid-feedback">Vui lòng nhập Tỉnh/Thành phố.</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label text-sm fw-semibold mb-1" style="color: #64748B;">Quận/Huyện <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control profile-input shadow-none" id="addrDistrict" required>
+                                    <div class="invalid-feedback">Vui lòng nhập Quận/Huyện.</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label text-sm fw-semibold mb-1" style="color: #64748B;">Phường/Xã <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control profile-input shadow-none" id="addrWard" required>
+                                    <div class="invalid-feedback">Vui lòng nhập Phường/Xã.</div>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label text-sm fw-semibold mb-1" style="color: #64748B;">Địa chỉ chi tiết <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control profile-input shadow-none" id="addrDetail" placeholder="Số nhà, tên đường..." required>
+                                    <div class="invalid-feedback">Vui lòng nhập địa chỉ chi tiết.</div>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label text-sm fw-semibold mb-1" style="color: #64748B;">Ghi chú giao hàng (Tùy chọn)</label>
+                                    <input type="text" class="form-control profile-input shadow-none" id="addrNote" placeholder="Ví dụ: Giao giờ hành chính">
+                                </div>
+                                <div class="col-12 mt-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="addrDefault">
+                                        <label class="form-check-label fw-medium text-dark" for="addrDefault">
+                                            Đặt làm địa chỉ mặc định
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer border-top border-light px-4 py-3 bg-light rounded-bottom-4">
+                        <button type="button" class="tw-btn btn-profile-cancel rounded-pill px-4 py-2 text-decoration-none fw-bold" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" class="tw-btn btn-profile-primary rounded-pill px-4 py-2 text-decoration-none fw-bold" onclick="saveAddress()">Lưu địa chỉ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-sm">
+                <div class="modal-content glass-modal rounded-4 border-0 text-center p-4">
+                    <div class="mb-3 text-danger">
+                        <i class="bi bi-exclamation-circle" style="font-size: 3rem;"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Xóa địa chỉ?</h5>
+                    <p class="text-muted-custom mb-4 text-sm">Bạn có chắc chắn muốn xóa địa chỉ này? Hành động này không thể hoàn tác.</p>
+                    <input type="hidden" id="deleteAddrId">
+                    <div class="d-flex gap-2 w-100">
+                        <button type="button" class="tw-btn btn-profile-cancel rounded-pill py-2 w-50 fw-bold" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" class="tw-btn bg-danger text-white border-0 rounded-pill py-2 w-50 fw-bold shadow-sm" onclick="confirmDelete()">Xóa</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let mockAddresses = [
+                {
+                    id: 1,
+                    name: "Nguyễn Văn A",
+                    phone: "0901234567",
+                    province: "TP. Hồ Chí Minh",
+                    district: "Quận 1",
+                    ward: "Phường Bến Nghé",
+                    detail: "123 Nguyễn Huệ",
+                    note: "Giao giờ hành chính",
+                    isDefault: true
+                },
+                {
+                    id: 2,
+                    name: "Trần Thị B",
+                    phone: "0987654321",
+                    province: "TP. Hà Nội",
+                    district: "Quận Cầu Giấy",
+                    ward: "Phường Dịch Vọng",
+                    detail: "456 Xuân Thủy",
+                    note: "",
+                    isDefault: false
+                }
+            ];
+
+            const addressListEl = document.getElementById('addressList');
+            const emptyStateEl = document.getElementById('emptyState');
+            
+            let bsAddressModal;
+            let bsDeleteModal;
+
+            document.addEventListener('DOMContentLoaded', () => {
+                bsAddressModal = new bootstrap.Modal(document.getElementById('addressModal'));
+                bsDeleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+                renderAddresses();
+
+                document.getElementById('addressModal').addEventListener('hidden.bs.modal', () => {
+                    document.getElementById('addressForm').classList.remove('was-validated');
+                    document.getElementById('addressForm').reset();
+                    document.getElementById('addrId').value = '';
+                });
+            });
+
+            function renderAddresses() {
+                if (mockAddresses.length === 0) {
+                    addressListEl.style.display = 'none';
+                    emptyStateEl.style.display = 'block';
+                    return;
+                }
+
+                emptyStateEl.style.display = 'none';
+                addressListEl.style.display = 'flex';
+                
+                // Sort to put default address first
+                const sorted = [...mockAddresses].sort((a, b) => b.isDefault - a.isDefault);
+                
+                addressListEl.innerHTML = sorted.map(addr => `
+                    <div class="info-mini-surface p-3 p-md-4 ${addr.isDefault ? 'is-default' : ''}">
+                        <div class="d-flex justify-content-between align-items-start mb-2 gap-2 flex-column flex-md-row">
+                            <div>
+                                <h5 class="fw-bold text-dark mb-1" style="font-size: 1.1rem;">
+                                    ${addr.name} <span class="fw-normal text-muted ms-1 me-1">|</span> ${addr.phone}
+                                </h5>
+                            </div>
+                            ${addr.isDefault ? '<span class="badge px-3 py-2 rounded-pill fw-medium profile-identity-badge flex-shrink-0 text-nowrap">Địa chỉ mặc định</span>' : ''}
+                        </div>
+                        <p class="mb-1 text-dark fw-medium">${addr.detail}</p>
+                        <p class="mb-2 text-muted text-sm">${addr.ward}, ${addr.district}, ${addr.province}</p>
+                        ${addr.note ? `<p class="mb-2 text-muted text-sm fst-italic">Ghi chú: ${addr.note}</p>` : ''}
+                        <div class="d-flex flex-wrap gap-3 mt-3 pt-3 border-top border-light">
+                            <button class="btn btn-link text-decoration-none p-0 fw-semibold text-cyan hover-cyan text-sm" onclick="openAddressModal(${addr.id})">Chỉnh sửa</button>
+                            ${!addr.isDefault ? `<button class="btn btn-link text-decoration-none p-0 fw-semibold text-danger text-sm" onclick="promptDelete(${addr.id})">Xóa</button>` : ''}
+                            ${!addr.isDefault ? `<button class="btn btn-link text-decoration-none p-0 fw-semibold text-muted hover-cyan ms-auto text-sm" onclick="setDefault(${addr.id})">Đặt làm mặc định</button>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function openAddressModal(id = null) {
+                const modalLabel = document.getElementById('addressModalLabel');
+                if (id) {
+                    modalLabel.textContent = 'Chỉnh sửa địa chỉ';
+                    const addr = mockAddresses.find(a => a.id === id);
+                    if(addr) {
+                        document.getElementById('addrId').value = addr.id;
+                        document.getElementById('addrName').value = addr.name;
+                        document.getElementById('addrPhone').value = addr.phone;
+                        document.getElementById('addrProvince').value = addr.province;
+                        document.getElementById('addrDistrict').value = addr.district;
+                        document.getElementById('addrWard').value = addr.ward;
+                        document.getElementById('addrDetail').value = addr.detail;
+                        document.getElementById('addrNote').value = addr.note;
+                        document.getElementById('addrDefault').checked = addr.isDefault;
+                        document.getElementById('addrDefault').disabled = addr.isDefault; // Cannot unset default from edit
+                    }
+                } else {
+                    modalLabel.textContent = 'Thêm địa chỉ mới';
+                    document.getElementById('addrDefault').disabled = mockAddresses.length === 0;
+                    if(mockAddresses.length === 0) {
+                        document.getElementById('addrDefault').checked = true;
+                    }
+                }
+                bsAddressModal.show();
+            }
+
+            function saveAddress() {
+                const form = document.getElementById('addressForm');
+                if (!form.checkValidity()) {
+                    form.classList.add('was-validated');
+                    return;
+                }
+
+                const id = document.getElementById('addrId').value;
+                const newAddr = {
+                    name: document.getElementById('addrName').value,
+                    phone: document.getElementById('addrPhone').value,
+                    province: document.getElementById('addrProvince').value,
+                    district: document.getElementById('addrDistrict').value,
+                    ward: document.getElementById('addrWard').value,
+                    detail: document.getElementById('addrDetail').value,
+                    note: document.getElementById('addrNote').value,
+                    isDefault: document.getElementById('addrDefault').checked
+                };
+
+                if (newAddr.isDefault) {
+                    mockAddresses.forEach(a => a.isDefault = false);
+                }
+
+                if (id) {
+                    const idx = mockAddresses.findIndex(a => a.id == id);
+                    if(idx > -1) {
+                        mockAddresses[idx] = { ...mockAddresses[idx], ...newAddr };
+                    }
+                } else {
+                    newAddr.id = Date.now();
+                    if(mockAddresses.length === 0) newAddr.isDefault = true;
+                    mockAddresses.push(newAddr);
+                }
+
+                // If no default exists, make the first one default
+                if(mockAddresses.length > 0 && !mockAddresses.some(a => a.isDefault)) {
+                    mockAddresses[0].isDefault = true;
+                }
+
+                renderAddresses();
+                bsAddressModal.hide();
+            }
+
+            function promptDelete(id) {
+                document.getElementById('deleteAddrId').value = id;
+                bsDeleteModal.show();
+            }
+
+            function confirmDelete() {
+                const id = document.getElementById('deleteAddrId').value;
+                mockAddresses = mockAddresses.filter(a => a.id != id);
+                
+                // Ensure there is a default if items remain
+                if(mockAddresses.length > 0 && !mockAddresses.some(a => a.isDefault)) {
+                    mockAddresses[0].isDefault = true;
+                }
+
+                renderAddresses();
+                bsDeleteModal.hide();
+            }
+
+            function setDefault(id) {
+                mockAddresses.forEach(a => a.isDefault = false);
+                const addr = mockAddresses.find(a => a.id == id);
+                if(addr) addr.isDefault = true;
+                renderAddresses();
+            }
+        </script>
+    </div>
+</body>
+</html>

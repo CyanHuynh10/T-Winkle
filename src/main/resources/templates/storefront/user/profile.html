@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: base('Hồ sơ cá nhân - T-Winkle', ~{::div.profile-container})}">
+<body>
+    <div class="profile-container position-relative">
+        <!-- Navbar Fragment -->
+        <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+        <style>
+            /* Visual Hierarchy Styles for Profile */
+            .profile-main-card {
+                background: rgba(255, 255, 255, 0.85);
+                backdrop-filter: blur(28px);
+                border: 1px solid rgba(226, 232, 240, 0.8);
+                box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            }
+            .profile-avatar-surface {
+                background: #FFFFFF;
+                border: 1px solid rgba(6, 182, 212, 0.16);
+                box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08), 0 0 0 4px rgba(6, 182, 212, 0.05);
+            }
+            .profile-identity-badge {
+                background: rgba(6, 182, 212, 0.08);
+                color: #0891B2;
+                border: 1px solid rgba(6, 182, 212, 0.16);
+                box-shadow: 0 4px 12px rgba(6, 182, 212, 0.06);
+            }
+            .profile-header-separator {
+                border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            }
+            .info-mini-surface {
+                background: rgba(248, 250, 252, 0.72);
+                border: 1px solid rgba(226, 232, 240, 0.9);
+                border-radius: 16px;
+                box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+                border-left: 2px solid #06B6D4;
+                transition: all 0.2s ease;
+            }
+            .profile-input {
+                background: rgba(248, 250, 252, 0.9);
+                border: 1px solid #E2E8F0;
+                box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+                color: #0F172A;
+            }
+            .profile-input::placeholder {
+                color: #94A3B8;
+            }
+            .profile-input:focus {
+                border-color: #06B6D4;
+                box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.10);
+            }
+            .view-mode-text.text-muted-fallback {
+                color: #94A3B8 !important;
+            }
+            .btn-profile-primary {
+                background: #06B6D4;
+                color: #FFFFFF;
+                box-shadow: 0 8px 20px rgba(6, 182, 212, 0.22);
+                transition: all 200ms ease;
+                border: none;
+            }
+            .btn-profile-primary:hover {
+                background: #0891B2;
+                box-shadow: 0 10px 24px rgba(6, 182, 212, 0.28);
+                color: #FFFFFF;
+            }
+            .btn-profile-primary:active {
+                box-shadow: 0 4px 12px rgba(6, 182, 212, 0.20);
+                transform: translateY(1px);
+            }
+            .btn-profile-cancel {
+                background: #FFFFFF;
+                border: 1px solid #E2E8F0;
+                color: #475569;
+                transition: all 200ms ease;
+            }
+            .btn-profile-cancel:hover {
+                background: #F8FAFC;
+                border-color: #CBD5E1;
+                color: #475569;
+            }
+        </style>
+
+        <main class="pt-3 mt-2 pb-4 position-relative z-1" style="min-height: 80vh;">
+            <div class="container max-w-4xl mx-auto px-3 animate-fade-up">
+                
+                <!-- Page Title -->
+                <h1 class="h3 fw-bold text-dark mb-3 text-center text-md-start">Hồ sơ cá nhân</h1>
+                
+                <!-- Profile Card -->
+                <div class="profile-main-card rounded-4 overflow-hidden">
+                    <div class="p-3 p-md-4">
+                        <form id="profileForm" novalidate onsubmit="return false;">
+                            <!-- Top Section: Avatar & Identity -->
+                            <div class="d-flex flex-column flex-md-row align-items-center align-items-md-start gap-3 mb-3 pb-3 profile-header-separator">
+                                <div class="position-relative">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold profile-avatar-surface" id="profileAvatar" style="width: 80px; height: 80px; font-size: 2rem;">
+                                        <span class="auth-avatar-initial" style="color: #0891B2;" th:text="${currentUsername != null ? #strings.substring(currentUsername, 0, 1).toUpperCase() : 'U'}">U</span>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-light rounded-circle position-absolute bottom-0 end-0 shadow-sm border" aria-label="Thay đổi ảnh đại diện" id="editAvatarBtn" style="display: none; width: 32px; height: 32px;">
+                                        <i class="bi bi-camera-fill text-muted-custom"></i>
+                                    </button>
+                                </div>
+                                <div class="text-center text-md-start pt-md-2">
+                                    <h2 class="h4 fw-bold mb-2" style="color: #0F172A;" id="displayUsername" th:text="${currentUsername != null ? currentUsername : 'Thành viên'}">Thành viên</h2>
+                                    <span class="badge px-3 py-2 rounded-pill fw-medium profile-identity-badge">Thành viên T-Winkle</span>
+                                </div>
+                            </div>
+
+                            <!-- Info Section: Fields -->
+                            <div class="row gy-3 mb-3">
+                                <!-- Heading -->
+                                <div class="col-12 mb-2">
+                                    <h3 class="h5 fw-bold text-dark mb-0">Thông tin cá nhân</h3>
+                                </div>
+
+                                <!-- Full Name -->
+                                <div class="col-md-6">
+                                    <div class="info-mini-surface p-3 h-100">
+                                        <label for="fullName" class="form-label text-sm fw-semibold mb-1" style="color: #64748B;">Họ và tên</label>
+                                        <div class="view-mode-text fw-medium fs-5" style="color: #0F172A;" id="viewFullName">Nguyễn Văn A</div>
+                                        <div class="edit-mode-field" style="display: none;">
+                                            <input type="text" class="form-control profile-input shadow-none" id="fullName" value="Nguyễn Văn A" required>
+                                            <div class="invalid-feedback">Vui lòng nhập họ và tên.</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="col-md-6">
+                                    <div class="info-mini-surface p-3 h-100">
+                                        <label class="form-label text-sm fw-semibold mb-1" style="color: #64748B;">Email</label>
+                                        <div class="fw-medium fs-5" style="color: #0F172A;" id="viewEmail">user@example.com</div>
+                                    </div>
+                                </div>
+
+                                <!-- Phone -->
+                                <div class="col-md-6">
+                                    <div class="info-mini-surface p-3 h-100">
+                                        <label for="phone" class="form-label text-sm fw-semibold mb-1" style="color: #64748B;">Số điện thoại</label>
+                                        <div class="view-mode-text fw-medium fs-5 text-muted-fallback" id="viewPhone">Chưa cập nhật</div>
+                                        <div class="edit-mode-field" style="display: none;">
+                                            <input type="tel" class="form-control profile-input shadow-none" id="phone" value="" pattern="[0-9]{10,11}">
+                                            <div class="invalid-feedback">Vui lòng nhập số điện thoại hợp lệ (10-11 số).</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Username -->
+                                <div class="col-md-6">
+                                    <div class="info-mini-surface p-3 h-100">
+                                        <label for="username" class="form-label text-sm fw-semibold mb-1" style="color: #64748B;">Username</label>
+                                        <div class="view-mode-text fw-medium fs-5" style="color: #0F172A;" id="viewUsername" th:text="${currentUsername != null ? currentUsername : 'user'}">user</div>
+                                        <div class="edit-mode-field" style="display: none;">
+                                            <input type="text" class="form-control profile-input shadow-none" id="username" th:value="${currentUsername != null ? currentUsername : 'user'}" required>
+                                            <div class="invalid-feedback">Vui lòng nhập Username.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Actions -->
+                            <div class="d-flex flex-column flex-md-row gap-3 pt-3 border-top border-light mt-3">
+                                <button type="button" class="tw-btn btn-profile-primary rounded-pill px-5 py-2 text-decoration-none fw-bold" id="editProfileBtn">
+                                    Chỉnh sửa hồ sơ
+                                </button>
+                                
+                                <div class="edit-actions w-100 d-flex flex-column flex-md-row gap-3" style="display: none !important;">
+                                    <button type="submit" class="tw-btn btn-profile-primary rounded-pill px-5 py-2 text-decoration-none fw-bold flex-grow-1 flex-md-grow-0" id="saveProfileBtn">
+                                        Lưu thay đổi
+                                    </button>
+                                    <button type="button" class="tw-btn btn-profile-cancel rounded-pill px-5 py-2 text-decoration-none fw-bold flex-grow-1 flex-md-grow-0" id="cancelEditBtn">
+                                        Hủy
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const editBtn = document.getElementById('editProfileBtn');
+                const cancelBtn = document.getElementById('cancelEditBtn');
+                const saveBtn = document.getElementById('saveProfileBtn');
+                const form = document.getElementById('profileForm');
+                const editAvatarBtn = document.getElementById('editAvatarBtn');
+                
+                const viewTexts = document.querySelectorAll('.view-mode-text');
+                const editFields = document.querySelectorAll('.edit-mode-field');
+                const editActions = document.querySelector('.edit-actions');
+                
+                const fullNameInput = document.getElementById('fullName');
+                const phoneInput = document.getElementById('phone');
+                const usernameInput = document.getElementById('username');
+                
+                const viewFullName = document.getElementById('viewFullName');
+                const viewEmail = document.getElementById('viewEmail');
+                const viewPhone = document.getElementById('viewPhone');
+                const viewUsername = document.getElementById('viewUsername');
+                const displayUsername = document.getElementById('displayUsername');
+                
+                let originalData = {
+                    fullName: fullNameInput.value,
+                    phone: phoneInput.value,
+                    username: usernameInput.value
+                };
+
+                const toggleMode = (isEdit) => {
+                    if (isEdit) {
+                        editBtn.style.setProperty('display', 'none', 'important');
+                        editActions.style.setProperty('display', 'flex', 'important');
+                        editAvatarBtn.style.display = 'block';
+                        
+                        viewTexts.forEach(el => {
+                            if(el.nextElementSibling && el.nextElementSibling.classList.contains('edit-mode-field')) {
+                                el.style.display = 'none';
+                            }
+                        });
+                        editFields.forEach(el => el.style.display = 'block');
+                        
+                        setTimeout(() => usernameInput.focus(), 50);
+                    } else {
+                        editBtn.style.setProperty('display', 'inline-block', 'important');
+                        editActions.style.setProperty('display', 'none', 'important');
+                        editAvatarBtn.style.display = 'none';
+                        
+                        viewTexts.forEach(el => el.style.display = 'block');
+                        editFields.forEach(el => el.style.display = 'none');
+                        
+                        form.classList.remove('was-validated');
+                    }
+                };
+
+                editBtn.addEventListener('click', () => {
+                    toggleMode(true);
+                });
+
+                cancelBtn.addEventListener('click', () => {
+                    fullNameInput.value = originalData.fullName;
+                    phoneInput.value = originalData.phone;
+                    usernameInput.value = originalData.username;
+                    toggleMode(false);
+                });
+
+                saveBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    if (!form.checkValidity()) {
+                        e.stopPropagation();
+                        form.classList.add('was-validated');
+                        return;
+                    }
+
+                    const originalText = saveBtn.textContent;
+                    saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Đang lưu...';
+                    saveBtn.disabled = true;
+
+                    setTimeout(() => {
+                        originalData.fullName = fullNameInput.value;
+                        originalData.phone = phoneInput.value;
+                        originalData.username = usernameInput.value;
+                        
+                        viewFullName.textContent = originalData.fullName;
+                        viewUsername.textContent = originalData.username;
+                        
+                        if(originalData.phone.trim() === '') {
+                            viewPhone.textContent = 'Chưa cập nhật';
+                            viewPhone.className = 'view-mode-text fw-medium fs-5 text-muted-fallback';
+                            viewPhone.style.color = '';
+                        } else {
+                            viewPhone.textContent = originalData.phone;
+                            viewPhone.className = 'view-mode-text fw-medium fs-5';
+                            viewPhone.style.color = '#0F172A';
+                        }
+                        
+                        // Identity Display updates based on Username, NOT Họ và tên
+                        displayUsername.textContent = originalData.username;
+                        
+                        const initialSpan = document.querySelector('.auth-avatar-initial');
+                        if (initialSpan && originalData.username.length > 0) {
+                            initialSpan.textContent = originalData.username.charAt(0).toUpperCase();
+                        }
+                        
+                        saveBtn.textContent = 'Lưu thay đổi';
+                        saveBtn.disabled = false;
+                        
+                        toggleMode(false);
+                    }, 800);
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>

@@ -66,12 +66,12 @@
                     
                     <!-- Product Card 1 -->
                     <div class="col">
-                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
+                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
                             <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">
                                 <i class="bi bi-heart"></i>
                             </button>
                             
-                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border);">
+                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
                                 <span class="badge bg-danger position-absolute top-0 start-0 m-2 z-1">MỚI</span>
                                 <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
                             </div>
@@ -93,7 +93,7 @@
                                     <div>
                                         <div class="fw-bold fs-4 text-cyan">2.450.000đ</div>
                                     </div>
-                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();"><i class="bi bi-cart fs-5"></i></button>
+                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation(); CartHandler.addToCart({ productId: 1, variantId: &quot;V1&quot;, storeId: &quot;S1&quot;, storeName: &quot;T-Winkle Quận 1&quot;, productName: &quot;Urban Runner 2026&quot;, image: &quot;https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200&quot;, originalPrice: 2200000, effectivePrice: 1870000, variantName: &quot;Size 42 - Đen&quot; });"><i class="bi bi-cart fs-5"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -101,12 +101,12 @@
 
                     <!-- Product Card 2 -->
                     <div class="col">
-                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
+                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
                             <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">
                                 <i class="bi bi-heart"></i>
                             </button>
                             
-                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border);">
+                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
                                 <span class="badge bg-danger position-absolute top-0 start-0 m-2 z-1">-15%</span>
                                 <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
                             </div>
@@ -129,7 +129,7 @@
                                         <div class="fw-bold fs-4 text-cyan">1.870.000đ</div>
                                         <div class="text-muted text-decoration-line-through text-xs">2.200.000đ</div>
                                     </div>
-                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();"><i class="bi bi-cart fs-5"></i></button>
+                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation(); CartHandler.addToCart({ productId: 1, variantId: &quot;V1&quot;, storeId: &quot;S1&quot;, storeName: &quot;T-Winkle Quận 1&quot;, productName: &quot;Urban Runner 2026&quot;, image: &quot;https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200&quot;, originalPrice: 2200000, effectivePrice: 1870000, variantName: &quot;Size 42 - Đen&quot; });"><i class="bi bi-cart fs-5"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -137,12 +137,12 @@
 
                     <!-- Product Card 3 -->
                     <div class="col">
-                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
+                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
                             <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">
                                 <i class="bi bi-heart"></i>
                             </button>
                             
-                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border);">
+                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
                                 <span class="badge bg-danger position-absolute top-0 start-0 m-2 z-1">MỚI</span>
                                 <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
                             </div>
@@ -164,7 +164,7 @@
                                     <div>
                                         <div class="fw-bold fs-4 text-cyan">3.150.000đ</div>
                                     </div>
-                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();"><i class="bi bi-cart fs-5"></i></button>
+                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation(); CartHandler.addToCart({ productId: 1, variantId: &quot;V1&quot;, storeId: &quot;S1&quot;, storeName: &quot;T-Winkle Quận 1&quot;, productName: &quot;Urban Runner 2026&quot;, image: &quot;https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200&quot;, originalPrice: 2200000, effectivePrice: 1870000, variantName: &quot;Size 42 - Đen&quot; });"><i class="bi bi-cart fs-5"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -200,12 +200,12 @@
                     
                     <!-- Product Card 1 -->
                     <div class="col">
-                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
+                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
                             <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">
                                 <i class="bi bi-heart"></i>
                             </button>
                             
-                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border);">
+                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
                                 <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-2 z-1">HOT</span>
                                 <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
                             </div>
@@ -227,7 +227,7 @@
                                     <div>
                                         <div class="fw-bold fs-4 text-cyan">2.450.000đ</div>
                                     </div>
-                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();"><i class="bi bi-cart fs-5"></i></button>
+                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation(); CartHandler.addToCart({ productId: 1, variantId: &quot;V1&quot;, storeId: &quot;S1&quot;, storeName: &quot;T-Winkle Quận 1&quot;, productName: &quot;Urban Runner 2026&quot;, image: &quot;https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200&quot;, originalPrice: 2200000, effectivePrice: 1870000, variantName: &quot;Size 42 - Đen&quot; });"><i class="bi bi-cart fs-5"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -235,12 +235,12 @@
 
                     <!-- Product Card 2 -->
                     <div class="col">
-                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
+                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
                             <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">
                                 <i class="bi bi-heart"></i>
                             </button>
                             
-                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border);">
+                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
                                 <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-2 z-1">HOT</span>
                                 <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
                             </div>
@@ -263,7 +263,7 @@
                                         <div class="fw-bold fs-4 text-cyan">1.870.000đ</div>
                                         <div class="text-muted text-decoration-line-through text-xs">2.200.000đ</div>
                                     </div>
-                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();"><i class="bi bi-cart fs-5"></i></button>
+                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation(); CartHandler.addToCart({ productId: 1, variantId: &quot;V1&quot;, storeId: &quot;S1&quot;, storeName: &quot;T-Winkle Quận 1&quot;, productName: &quot;Urban Runner 2026&quot;, image: &quot;https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200&quot;, originalPrice: 2200000, effectivePrice: 1870000, variantName: &quot;Size 42 - Đen&quot; });"><i class="bi bi-cart fs-5"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -271,12 +271,12 @@
 
                     <!-- Product Card 3 -->
                     <div class="col">
-                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
+                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
                             <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">
                                 <i class="bi bi-heart"></i>
                             </button>
                             
-                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border);">
+                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
                                 <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-2 z-1">HOT</span>
                                 <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
                             </div>
@@ -298,7 +298,7 @@
                                     <div>
                                         <div class="fw-bold fs-4 text-cyan">3.150.000đ</div>
                                     </div>
-                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();"><i class="bi bi-cart fs-5"></i></button>
+                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation(); CartHandler.addToCart({ productId: 1, variantId: &quot;V1&quot;, storeId: &quot;S1&quot;, storeName: &quot;T-Winkle Quận 1&quot;, productName: &quot;Urban Runner 2026&quot;, image: &quot;https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200&quot;, originalPrice: 2200000, effectivePrice: 1870000, variantName: &quot;Size 42 - Đen&quot; });"><i class="bi bi-cart fs-5"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -334,12 +334,12 @@
                     
                     <!-- Product Card 1 -->
                     <div class="col">
-                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
+                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
                             <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">
                                 <i class="bi bi-heart"></i>
                             </button>
                             
-                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border);">
+                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
                                 <span class="badge bg-danger position-absolute top-0 start-0 m-2 z-1">-30%</span>
                                 <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
                             </div>
@@ -361,7 +361,7 @@
                                     <div>
                                         <div class="text-muted-custom text-decoration-line-through text-sm mb-1">3.500.000₫</div><div class="fw-bold fs-4 text-danger">2.450.000đ</div>
                                     </div>
-                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();"><i class="bi bi-cart fs-5"></i></button>
+                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation(); CartHandler.addToCart({ productId: 1, variantId: &quot;V1&quot;, storeId: &quot;S1&quot;, storeName: &quot;T-Winkle Quận 1&quot;, productName: &quot;Urban Runner 2026&quot;, image: &quot;https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200&quot;, originalPrice: 2200000, effectivePrice: 1870000, variantName: &quot;Size 42 - Đen&quot; });"><i class="bi bi-cart fs-5"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -369,12 +369,12 @@
 
                     <!-- Product Card 2 -->
                     <div class="col">
-                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
+                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
                             <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">
                                 <i class="bi bi-heart"></i>
                             </button>
                             
-                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border);">
+                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
                                 <span class="badge bg-danger position-absolute top-0 start-0 m-2 z-1">-30%</span>
                                 <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
                             </div>
@@ -397,7 +397,7 @@
                                         <div class="text-muted-custom text-decoration-line-through text-sm mb-1">3.500.000₫</div><div class="fw-bold fs-4 text-danger">1.870.000đ</div>
                                         <div class="text-muted text-decoration-line-through text-xs">2.200.000đ</div>
                                     </div>
-                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();"><i class="bi bi-cart fs-5"></i></button>
+                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation(); CartHandler.addToCart({ productId: 1, variantId: &quot;V1&quot;, storeId: &quot;S1&quot;, storeName: &quot;T-Winkle Quận 1&quot;, productName: &quot;Urban Runner 2026&quot;, image: &quot;https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200&quot;, originalPrice: 2200000, effectivePrice: 1870000, variantName: &quot;Size 42 - Đen&quot; });"><i class="bi bi-cart fs-5"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -405,12 +405,12 @@
 
                     <!-- Product Card 3 -->
                     <div class="col">
-                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
+                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
                             <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">
                                 <i class="bi bi-heart"></i>
                             </button>
                             
-                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border);">
+                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
                                 <span class="badge bg-danger position-absolute top-0 start-0 m-2 z-1">-30%</span>
                                 <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
                             </div>
@@ -432,7 +432,7 @@
                                     <div>
                                         <div class="text-muted-custom text-decoration-line-through text-sm mb-1">3.500.000₫</div><div class="fw-bold fs-4 text-danger">3.150.000đ</div>
                                     </div>
-                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();"><i class="bi bi-cart fs-5"></i></button>
+                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation(); CartHandler.addToCart({ productId: 1, variantId: &quot;V1&quot;, storeId: &quot;S1&quot;, storeName: &quot;T-Winkle Quận 1&quot;, productName: &quot;Urban Runner 2026&quot;, image: &quot;https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200&quot;, originalPrice: 2200000, effectivePrice: 1870000, variantName: &quot;Size 42 - Đen&quot; });"><i class="bi bi-cart fs-5"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -603,7 +603,7 @@
                                         <!-- Actions: Top Right -->
                                         <div class="d-flex gap-2 flex-shrink-0 z-3 position-relative">
                                             <!-- Cart Button -->
-                                            <button class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center text-white hover-scale" style="width: 56px; height: 56px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();">
+                                            <button id="modalAddToCartBtn" class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center text-white hover-scale" style="width: 56px; height: 56px;" aria-label="Thêm vào giỏ hàng" >
                                                 <i class="bi bi-cart fs-4"></i>
                                             </button>
                                             <!-- Wishlist Button -->
@@ -634,10 +634,10 @@
                                     <div class="mb-3">
                                         <p class="fw-semibold text-dark mb-2 text-sm">CHỌN SIZE</p>
                                         <div class="d-flex flex-wrap gap-2">
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">38</button>
-                                            <button class="btn btn-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">39</button>
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">40</button>
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">41</button>
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm size-btn" onclick="event.stopPropagation()">38</button>
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm size-btn" onclick="event.stopPropagation()">39</button>
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm size-btn" onclick="event.stopPropagation()">40</button>
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm size-btn" onclick="event.stopPropagation()">41</button>
                                             <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm disabled text-muted" disabled>42</button>
                                         </div>
                                     </div>
@@ -646,9 +646,9 @@
                                     <div class="mb-4">
                                         <p class="fw-semibold text-dark mb-2 text-sm">CHỌN MÀU</p>
                                         <div class="d-flex flex-wrap gap-2">
-                                            <button class="btn btn-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">Đen</button>
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">Trắng</button>
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm disabled text-muted" disabled>Đỏ</button>
+                                            <button class="btn btn-dark px-3 py-1 fw-medium text-sm color-btn" onclick="event.stopPropagation()">Đen</button>
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm color-btn" onclick="event.stopPropagation()">Trắng</button>
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm disabled text-muted color-btn" disabled>Đỏ</button>
                                         </div>
                                         <div class="mt-2 text-xs text-muted-custom fst-italic">* Đang chọn: Đen / 39</div>
                                     </div>

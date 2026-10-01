@@ -5,6 +5,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import jakarta.servlet.http.HttpServletRequest;
 
 @ControllerAdvice
 public class GlobalModelAttributes {
@@ -27,4 +28,16 @@ public class GlobalModelAttributes {
         }
         return null;
     }
+
+    @ModelAttribute("isAuthPage")
+    public boolean isAuthPage(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        if (uri == null) return false;
+        return uri.startsWith("/login") || 
+               uri.startsWith("/register") || 
+               uri.startsWith("/otp") || 
+               uri.startsWith("/forgot-password") || 
+               uri.startsWith("/reset-password");
+    }
+
 }

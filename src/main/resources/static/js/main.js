@@ -4,30 +4,54 @@ document.addEventListener("DOMContentLoaded", () => {
         const toastContainer = document.getElementById('toastContainer');
         if (!toastContainer) return;
         
-        toastContainer.innerHTML = '';
+        const toastEl = document.createElement('div');
+        toastEl.className = 'toast align-items-center border-0 shadow-lg';
+        toastEl.setAttribute('role', 'alert');
+        toastEl.setAttribute('aria-live', 'assertive');
+        toastEl.setAttribute('aria-atomic', 'true');
         
-        const bgColor = type === 'success' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)';
-        const borderColor = type === 'success' ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)';
-        const textColor = type === 'success' ? 'var(--color-success)' : 'var(--color-danger)';
-        const iconClass = type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill';
+        let bgColor, borderColor, iconClass, iconColor, textColor;
         
-        const toastHtml = `
-            <div class="toast align-items-center show" role="alert" aria-live="assertive" aria-atomic="true"
-                 style="background-color: ${bgColor}; border: 1px solid ${borderColor}; color: ${textColor}; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                <div class="d-flex">
-                    <div class="toast-body d-flex align-items-center fw-medium">
-                        <i class="bi ${iconClass} me-2 fs-5"></i>
-                        <span>${message}</span>
-                    </div>
-                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" style="filter: ${type === 'success' ? 'invert(1)' : 'invert(1) grayscale(100%) brightness(200%)'};"></button>
+        if (type === 'success') {
+            bgColor = 'var(--color-success-bg, #ecfdf5)';
+            borderColor = 'var(--color-success, #10b981)';
+            iconClass = 'bi-check-circle-fill';
+            iconColor = 'var(--color-success, #10b981)';
+            textColor = 'var(--color-success, #10b981)';
+        } else if (type === 'error') {
+            bgColor = 'var(--color-danger-bg, #fef2f2)';
+            borderColor = 'var(--color-danger, #ef4444)';
+            iconClass = 'bi-exclamation-circle-fill';
+            iconColor = 'var(--color-danger, #ef4444)';
+            textColor = 'var(--color-danger, #ef4444)';
+        } else if (type === 'warning') {
+            bgColor = 'var(--color-warning-bg, #FEFCE8)';
+            borderColor = 'var(--color-shining, #FACC15)';
+            iconClass = 'bi-exclamation-triangle-fill';
+            iconColor = 'var(--color-shining, #EAB308)';
+            textColor = '#CA8A04';
+        }
+        
+        toastEl.style.backgroundColor = bgColor;
+        toastEl.style.setProperty('border-left', '4px solid ' + borderColor, 'important');
+        
+        toastEl.innerHTML = `
+            <div class="d-flex px-2 py-1">
+                <div class="toast-body d-flex align-items-center">
+                    <i class="bi ${iconClass} me-3 fs-5" style="color: ${iconColor};"></i>
+                    <span class="fw-bold fs-6" style="color: ${textColor};">${message}</span>
                 </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         `;
-        toastContainer.innerHTML = toastHtml;
         
-        const newToastEl = toastContainer.querySelector('.toast');
-        const bsToast = new bootstrap.Toast(newToastEl, { autohide: true, delay: 3000 });
+        toastContainer.appendChild(toastEl);
+        const bsToast = new bootstrap.Toast(toastEl, { autohide: true, delay: 3000 });
         bsToast.show();
+        
+        toastEl.addEventListener('hidden.bs.toast', () => {
+            toastEl.remove();
+        });
     };
 
     console.log("T-Winkle Design System Foundation Initialized.");

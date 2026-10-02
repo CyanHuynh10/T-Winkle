@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: base('Theo dõi đơn hàng - T-Winkle', ~{::div.tracking-container})}">
+<body>
+    <div class="tracking-container position-relative">
+        <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+        <style>
+            .tracking-card {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(28px);
+                border: 1px solid rgba(226, 232, 240, 0.8);
+                box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+                border-radius: 16px;
+                padding: 2rem;
+                max-width: 600px;
+                margin: 0 auto;
+            }
+            .timeline {
+                position: relative;
+                padding-left: 2rem;
+                margin-top: 2rem;
+                margin-bottom: 2rem;
+            }
+            .timeline::before {
+                content: '';
+                position: absolute;
+                left: 0.7rem;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background-color: #E2E8F0;
+                border-radius: 2px;
+            }
+            .timeline-item {
+                position: relative;
+                margin-bottom: 2.5rem;
+            }
+            .timeline-item:last-child {
+                margin-bottom: 0;
+            }
+            .timeline-node {
+                position: absolute;
+                left: -2.35rem;
+                width: 1.5rem;
+                height: 1.5rem;
+                border-radius: 50%;
+                background: #F8FAFC;
+                border: 2px solid #CBD5E1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1;
+                transition: all 0.3s ease;
+            }
+            .timeline-node i {
+                font-size: 0.75rem;
+                color: transparent;
+                transition: color 0.3s ease;
+            }
+            
+            /* State: Completed */
+            .timeline-item.completed .timeline-node {
+                background: #06B6D4;
+                border-color: #06B6D4;
+            }
+            .timeline-item.completed .timeline-node i {
+                color: #FFFFFF;
+            }
+            .timeline-item.completed .timeline-title {
+                color: #0F172A;
+                font-weight: 600;
+            }
+
+            /* State: Current */
+            .timeline-item.current .timeline-node {
+                background: #FFFFFF;
+                border-color: #06B6D4;
+                border-width: 3px;
+                box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.15);
+            }
+            .timeline-item.current .timeline-node i {
+                color: #06B6D4;
+            }
+            .timeline-item.current .timeline-title {
+                color: #06B6D4;
+                font-weight: 700;
+            }
+
+            /* State: Cancelled */
+            .timeline-item.cancelled .timeline-node {
+                background: #EF4444;
+                border-color: #EF4444;
+            }
+            .timeline-item.cancelled .timeline-node i {
+                color: #FFFFFF;
+            }
+            .timeline-item.cancelled .timeline-title {
+                color: #EF4444;
+                font-weight: 700;
+            }
+
+            /* Line coloring up to current node */
+            .timeline-connector-active {
+                position: absolute;
+                left: 0.7rem;
+                top: 0;
+                width: 2px;
+                background-color: #06B6D4;
+                border-radius: 2px;
+                z-index: 0;
+            }
+
+            .timeline-title {
+                font-size: 1.05rem;
+                color: #64748B;
+                font-weight: 500;
+                margin-bottom: 0.25rem;
+            }
+            .timeline-time {
+                font-size: 0.85rem;
+                color: #94A3B8;
+            }
+        </style>
+
+        <main class="pt-3 mt-2 pb-5 position-relative z-1" style="min-height: 80vh;">
+            <div class="container max-w-6xl mx-auto px-3 animate-fade-up">
+                
+                <input type="hidden" id="pageOrderId" th:value="${orderId}">
+                
+                <div class="mb-4 d-flex justify-content-center align-items-center">
+                    <h1 class="h3 fw-bold text-dark mb-0 page-heading text-center" id="trackingHeading">Theo dõi đơn hàng</h1>
+                </div>
+
+                <!-- Not Found State -->
+                <div id="trackingNotFoundState" class="tracking-card align-items-center justify-content-center text-center py-5" style="display: none;">
+                    <div class="mb-4">
+                        <i class="bi bi-search text-muted-custom" style="font-size: 4rem; opacity: 0.4;"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-3">Không tìm thấy đơn hàng</h4>
+                    <p class="text-muted-custom mb-4">Đơn hàng này không tồn tại hoặc dữ liệu đã bị lỗi.</p>
+                    <a th:href="@{/orders}" class="tw-btn btn-cyan text-white rounded-pill px-5 py-3 text-decoration-none fw-bold d-inline-flex align-items-center justify-content-center shadow-sm">
+                        Quay lại danh sách đơn hàng
+                    </a>
+                </div>
+
+                <!-- Tracking Content -->
+                <div id="trackingContent" class="tracking-card" style="display: none;">
+                    
+                    <div class="text-center mb-4 pb-4 border-bottom border-light">
+                        <div class="fw-bold text-dark fs-5 mb-1" id="trkOrderId"></div>
+                        <div class="text-muted-custom text-sm mb-3" id="trkDate"></div>
+                        <div id="trkStatusBadge"></div>
+                        
+                        <div id="trkPendingCancel" style="display: none;" class="alert alert-warning border-warning border-opacity-50 text-dark mb-0 py-2 mt-3 mx-auto text-sm" style="max-width: 300px;">
+                            <i class="bi bi-info-circle-fill text-warning me-1"></i>Đang chờ cửa hàng xác nhận hủy
+                        </div>
+                    </div>
+
+                    <div class="timeline position-relative" id="timelineContainer">
+                        <div class="timeline-connector-active" id="activeConnector" style="height: 0;"></div>
+                        <!-- JS renders timeline nodes here -->
+                    </div>
+
+                    <div class="mt-5 pt-3 border-top border-light">
+                        <a th:href="@{/orders/{id}(id=${orderId})}" class="btn btn-light w-100 rounded-pill py-2 fw-medium text-dark hover-cyan shadow-sm border">
+                            <i class="bi bi-arrow-left me-2"></i>Quay lại chi tiết đơn hàng
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <script src="/js/tracking-handler.js"></script>
+    </div>
+</body>
+</html>

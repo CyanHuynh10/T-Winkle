@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: base('Chi tiết đơn hàng - T-Winkle', ~{::div.order-detail-container})}">
+<body>
+    <div class="order-detail-container position-relative">
+        <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+        <style>
+            .detail-card {
+                background: rgba(255, 255, 255, 0.85);
+                backdrop-filter: blur(28px);
+                border: 1px solid rgba(226, 232, 240, 0.8);
+                box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+                border-radius: 16px;
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+            .store-group-header {
+                background: rgba(248, 250, 252, 0.5);
+                padding: 0.75rem 1rem;
+                border-radius: 12px;
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-weight: 700;
+                color: #0F172A;
+                border: 1px solid rgba(226, 232, 240, 0.6);
+            }
+        </style>
+
+        <main class="pt-3 mt-2 pb-5 position-relative z-1" style="min-height: 80vh;">
+            <div class="container max-w-6xl mx-auto px-3 animate-fade-up">
+                
+                <!-- Hidden order ID from Thymeleaf -->
+                <input type="hidden" id="pageOrderId" th:value="${orderId}">
+                
+                <div class="mb-4 d-flex align-items-center">
+                    <a th:href="@{/orders}" class="btn btn-light rounded-circle shadow-sm me-3" style="width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center;"><i class="bi bi-arrow-left"></i></a>
+                    <h1 class="h3 fw-bold text-dark mb-0 page-heading" id="detailHeading">Chi tiết đơn hàng</h1>
+                </div>
+
+                <!-- Not Found State -->
+                <div id="orderNotFoundState" class="detail-card align-items-center justify-content-center text-center py-5 mx-auto" style="display: none; min-height: 400px; max-width: 800px;">
+                    <div class="mb-4">
+                        <i class="bi bi-search text-muted-custom" style="font-size: 4rem; opacity: 0.4;"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-3">Không tìm thấy đơn hàng</h4>
+                    <p class="text-muted-custom mb-4">Đơn hàng này không tồn tại hoặc bạn không có quyền truy cập.</p>
+                    <a th:href="@{/orders}" class="tw-btn btn-cyan text-white rounded-pill px-5 py-3 text-decoration-none fw-bold d-inline-flex align-items-center justify-content-center shadow-sm">
+                        Quay lại danh sách
+                    </a>
+                </div>
+
+                <!-- Detail Content -->
+                <div id="orderDetailContent" class="row gy-4" style="display: none;">
+                    
+                    <!-- Left Column -->
+                    <div class="col-lg-8">
+                        
+                        <!-- Status Card -->
+                        <div class="detail-card">
+                            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
+                                <div>
+                                    <h5 class="fw-bold text-dark mb-1">Mã đơn: <span id="dtlOrderId" class="text-cyan"></span></h5>
+                                    <div class="text-muted text-sm" id="dtlDate"></div>
+                                </div>
+                                <div class="mt-3 mt-md-0 text-md-end" id="dtlStatusContainer">
+                                    <!-- Status badge goes here -->
+                                </div>
+                            </div>
+                            <div id="dtlPendingCancel" style="display: none;" class="alert alert-warning border-warning border-opacity-50 text-dark mb-0 py-2 mt-3">
+                                <i class="bi bi-info-circle-fill text-warning me-2"></i><strong>Đang chờ cửa hàng xác nhận hủy đơn.</strong>
+                            </div>
+                        </div>
+
+                        <!-- Address Card -->
+                        <div class="detail-card">
+                            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-geo-alt text-cyan me-2"></i>Địa chỉ nhận hàng</h6>
+                            <div id="dtlAddress" class="text-dark">
+                                <!-- Address rendered here -->
+                            </div>
+                        </div>
+
+                        <!-- Products Card -->
+                        <div class="detail-card">
+                            <h6 class="fw-bold text-dark mb-4"><i class="bi bi-box-seam text-cyan me-2"></i>Sản phẩm</h6>
+                            <div id="dtlProducts">
+                                <!-- Products rendered here -->
+                            </div>
+                        </div>
+
+                        <!-- Payment Method Card -->
+                        <div class="detail-card">
+                            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-credit-card text-cyan me-2"></i>Phương thức thanh toán</h6>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fw-medium text-dark" id="dtlPayment"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="col-lg-4">
+                        <div class="detail-card position-sticky" style="top: 2rem;">
+                            <h5 class="fw-bold text-dark mb-4 pb-3 border-bottom border-light">Tổng kết đơn hàng</h5>
+                            
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="text-muted-custom">Tạm tính</span>
+                                <span class="fw-semibold text-dark" id="dtlSubtotal"></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="text-muted-custom">Khuyến mãi (Sản phẩm)</span>
+                                <span class="fw-semibold text-danger" id="dtlProdDiscount"></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="text-muted-custom">Phí vận chuyển</span>
+                                <span class="fw-semibold text-dark" id="dtlShipping"></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-4 d-none" id="dtlCouponRow">
+                                <span class="text-muted-custom">Mã giảm giá</span>
+                                <span class="fw-semibold text-danger" id="dtlCoupon"></span>
+                            </div>
+                            
+                            <div class="border-top border-light pt-3 mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-bold text-dark fs-5">Tổng thanh toán</span>
+                                    <span class="fw-bold text-cyan fs-4" id="dtlTotal"></span>
+                                </div>
+                            </div>
+
+
+                            <a th:href="@{/orders/{id}/tracking(id=${orderId})}" class="btn btn-cyan text-white w-100 rounded-pill py-2 fw-bold mb-2 shadow-sm d-flex align-items-center justify-content-center gap-2">
+                                <i class="bi bi-truck"></i> Theo dõi đơn hàng
+                            </a>
+                            <button id="dtlCancelBtn" class="btn btn-outline-danger w-100 rounded-pill py-2 fw-bold d-none" onclick="openCancelModalDetail()">
+                                Yêu cầu hủy đơn hàng
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+
+        <!-- Detail Product Card Modal -->
+        <div class="modal fade" id="productDetailModal" tabindex="-1" aria-labelledby="productDetailModalLabel" aria-hidden="true" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-dialog-centered modal-xl modal-16-9">
+                <div class="modal-content border border-light shadow-lg d-flex flex-column" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(28px); border-radius: 1.5rem; overflow: hidden; max-height: 90vh;">
+                    <button type="button" class="btn-close position-absolute top-0 end-0 m-3 m-md-4 z-3 bg-white rounded-circle shadow-sm p-2" data-bs-dismiss="modal" aria-label="Đóng chi tiết sản phẩm"></button>
+                    
+                    <div class="modal-body p-4 p-md-5 d-flex flex-column flex-grow-1 overflow-hidden" style="min-height: 0;">
+                        <div class="row flex-grow-1 gx-0 gx-lg-5 gy-4 gy-lg-0 flex-column flex-lg-row overflow-hidden flex-nowrap" style="min-height: 0;">
+                            
+                            <!-- Left: Image Panel -->
+                            <div class="col-12 col-lg-5 d-flex flex-column pb-4 pb-lg-0 detail-divider-panel">
+                                <div class="bg-light position-relative d-flex align-items-center justify-content-center rounded-4 overflow-hidden h-100 detail-img-wrapper">
+                                    <span class="badge bg-danger position-absolute top-0 start-0 m-3 m-md-4 z-1 fw-bold fs-6">MỚI</span>
+                                    <i class="bi bi-image text-muted opacity-25" style="font-size: 6rem;"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Right: Information Panel -->
+                            <div class="col-12 col-lg position-relative d-flex flex-column overflow-hidden flex-grow-1 flex-shrink-1 pt-4 pt-lg-0" style="min-height: 0;">
+                                
+                                <!-- Scrollable Area -->
+                                <div class="flex-grow-1 overflow-y-auto pe-3 pb-2 custom-scrollbar">
+                                    
+                                    <div class="mb-2 mt-1">
+                                        <span class="badge text-cyan bg-cyan bg-opacity-10 fw-semibold fs-6 px-2 py-1">SNEAKER</span>
+                                        <span class="badge text-muted-custom bg-light fw-semibold fs-6 px-2 py-1 ms-2">T-WINKLE</span>
+                                    </div>
+                                    
+                                    <!-- HEADER ROW: Product Name & Actions (Cart -> Wishlist) -->
+                                    <div class="d-flex align-items-start justify-content-between gap-2 gap-sm-3 mb-3">
+                                        <h2 class="h2 fw-bold text-dark mb-0 flex-grow-1" id="productDetailModalLabel">Urban Runner 2026</h2>
+                                        
+                                        <!-- Actions: Top Right -->
+                                        <div class="d-flex gap-2 flex-shrink-0 z-3 position-relative">
+                                            <!-- Cart Button -->
+                                            <button id="modalAddToCartBtn" class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center text-white hover-scale" style="width: 56px; height: 56px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();">
+                                                <i class="bi bi-cart fs-4"></i>
+                                            </button>
+                                            <!-- Wishlist Button -->
+                                            <button class="btn btn-light rounded-circle shadow-sm wishlist-btn text-muted-custom d-flex align-items-center justify-content-center hover-scale" style="width: 56px; height: 56px;" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">
+                                                <i class="bi bi-heart fs-4"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex align-items-center gap-3 mb-4 fs-6">
+                                        <div style="color: #FACC15;">
+                                            <i class="bi bi-star-fill"></i> <i class="bi bi-star-fill"></i> <i class="bi bi-star-fill"></i> <i class="bi bi-star-fill"></i> <i class="bi bi-star-fill"></i>
+                                            <span class="text-dark fw-bold ms-1">5.0</span>
+                                        </div>
+                                        <span class="text-muted-custom">|</span>
+                                        <span class="text-muted-custom fw-medium">Đã bán 124</span>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <div class="fw-bold text-cyan" style="font-size: 2.5rem; line-height: 1;">2.450.000đ</div>
+                                    </div>
+                                    
+                                    <p class="text-muted-custom mb-4 fs-6">
+                                        Thiết kế hiện đại mang hơi thở thành thị, kết hợp công nghệ đệm êm ái và vật liệu thoáng khí cao cấp. Giúp bạn tự tin tỏa sáng trên mỗi bước đi.
+                                    </p>
+
+                                    <!-- Variants (Size) -->
+                                    <div class="mb-3">
+                                        <p class="fw-semibold text-dark mb-2 text-sm">CHỌN SIZE</p>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm size-btn" onclick="event.stopPropagation()">38</button>
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm size-btn" onclick="event.stopPropagation()">39</button>
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm size-btn" onclick="event.stopPropagation()">40</button>
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm size-btn" onclick="event.stopPropagation()">41</button>
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm disabled text-muted" disabled>42</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Variants (Color) -->
+                                    <div class="mb-4">
+                                        <p class="fw-semibold text-dark mb-2 text-sm">CHỌN MÀU</p>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <button class="btn btn-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">Đen</button>
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">Trắng</button>
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm disabled text-muted" disabled>Đỏ</button>
+                                        </div>
+                                        <div class="mt-2 text-xs text-muted-custom fst-italic">* Đang chọn: Đen / 39</div>
+                                    </div>
+
+                                    <!-- Store Availability -->
+                                    <div class="bg-light rounded-3 p-3 border mb-3">
+                                        <p class="fw-semibold text-dark mb-3 text-sm"><i class="bi bi-shop me-2"></i>Tình trạng tại cửa hàng</p>
+                                        <ul class="list-unstyled mb-0 text-sm">
+                                            <li class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary border-opacity-25">
+                                                <span class="text-muted-custom">T-Winkle Quận 1, TP.HCM</span>
+                                                <span class="badge bg-success bg-opacity-10 text-success px-2 py-1"><i class="bi bi-check-circle me-1"></i>Còn hàng</span>
+                                            </li>
+                                            <li class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary border-opacity-25">
+                                                <span class="text-muted-custom">T-Winkle Quận 3, TP.HCM</span>
+                                                <span class="badge bg-danger bg-opacity-10 text-danger px-2 py-1"><i class="bi bi-x-circle me-1"></i>Hết hàng</span>
+                                            </li>
+                                            <li class="d-flex justify-content-between align-items-center">
+                                                <span class="text-muted-custom">T-Winkle Cầu Giấy, Hà Nội</span>
+                                                <span class="badge bg-success bg-opacity-10 text-success px-2 py-1"><i class="bi bi-check-circle me-1"></i>Còn hàng</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Product Reviews -->
+                                    <div class="product-reviews-section mt-4 pt-4 border-top border-light" id="productReviewSection">
+                                        <h3 class="h5 fw-bold text-dark mb-4">Đánh giá sản phẩm</h3>
+                                        
+                                        <!-- Summary -->
+                                        <div class="glass-card rounded-4 p-3 p-md-4 mb-4 border shadow-sm">
+                                            <div class="row align-items-center gy-4">
+                                                <div class="col-12 col-md-5 text-center" style="border-right: 1px solid rgba(226, 232, 240, 0.6);">
+                                                    <div class="display-4 fw-bold text-dark mb-2" id="revAvgRating">0.0</div>
+                                                    <div style="color: #FACC15;" class="fs-5 mb-2" id="revAvgStars">
+                                                        <i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i>
+                                                    </div>
+                                                    <div class="text-muted-custom" id="revTotalCount">0 đánh giá</div>
+                                                </div>
+                                                <div class="col-12 col-md-7">
+                                                    <div class="d-flex flex-column gap-2" id="revDistBar">
+                                                        <!-- bars rendered by JS -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Review Action -->
+                                        <div class="mb-4 text-center" id="revActionContainer">
+                                            <!-- Rendered by JS -->
+                                        </div>
+
+                                        <!-- Review Form (Hidden by default) -->
+                                        <div class="glass-card rounded-4 p-4 mb-4 border shadow-sm" id="revFormContainer" style="display: none;">
+                                            <h4 class="h6 fw-bold text-dark mb-3">Viết đánh giá</h4>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-medium text-sm">Mức đánh giá <span class="text-danger">*</span></label>
+                                                <div class="d-flex gap-2 fs-4" id="revStarSelect" style="color: #CBD5E1; cursor: pointer;">
+                                                    <i class="bi bi-star rev-star-item" data-val="1" tabindex="0" role="button" aria-label="1 sao"></i>
+                                                    <i class="bi bi-star rev-star-item" data-val="2" tabindex="0" role="button" aria-label="2 sao"></i>
+                                                    <i class="bi bi-star rev-star-item" data-val="3" tabindex="0" role="button" aria-label="3 sao"></i>
+                                                    <i class="bi bi-star rev-star-item" data-val="4" tabindex="0" role="button" aria-label="4 sao"></i>
+                                                    <i class="bi bi-star rev-star-item" data-val="5" tabindex="0" role="button" aria-label="5 sao"></i>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="revComment" class="form-label fw-medium text-sm">Bình luận <span class="text-danger">*</span></label>
+                                                <textarea class="form-control bg-light border-light shadow-none" id="revComment" rows="3" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm..."></textarea>
+                                            </div>
+                                            <button class="btn btn-cyan text-white fw-bold px-4 rounded-pill shadow-sm" id="revSubmitBtn">Gửi đánh giá</button>
+                                        </div>
+
+                                        <!-- Sort -->
+                                        <div class="d-flex justify-content-between align-items-center mb-4" id="revSortContainer" style="display: none;">
+                                            <span class="fw-bold text-dark">Bình luận của khách hàng</span>
+                                            <select class="form-select form-select-sm w-auto shadow-none bg-light border-light rounded-pill px-3" id="revSortSelect">
+                                                <option value="newest">Mới nhất</option>
+                                                <option value="high">Điểm cao</option>
+                                                <option value="low">Điểm thấp</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Review List -->
+                                        <div class="d-flex flex-column gap-3" id="revList">
+                                            <!-- Rendered by JS -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cancellation Modal for Detail -->
+        <div class="modal fade" id="cancelOrderDetailModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(28px);">
+                    <div class="modal-header border-bottom border-light">
+                        <h5 class="modal-title fw-bold text-dark">Hủy đơn hàng <span id="cancelOrderDetailIdText" class="text-cyan"></span></h5>
+                        <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <p class="text-muted-custom mb-4">Vui lòng chọn lý do hủy đơn hàng:</p>
+                        
+                        <div class="d-flex flex-column gap-2 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="cancelReasonDetail" id="reason1d" value="Tôi muốn thay đổi thông tin nhận hàng" checked onchange="toggleCustomReasonDetail()">
+                                <label class="form-check-label" for="reason1d">Tôi muốn thay đổi thông tin nhận hàng</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="cancelReasonDetail" id="reason2d" value="Tôi muốn thay đổi sản phẩm / số lượng" onchange="toggleCustomReasonDetail()">
+                                <label class="form-check-label" for="reason2d">Tôi muốn thay đổi sản phẩm / số lượng</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="cancelReasonDetail" id="reason3d" value="Tôi muốn thay đổi phương thức thanh toán" onchange="toggleCustomReasonDetail()">
+                                <label class="form-check-label" for="reason3d">Tôi muốn thay đổi phương thức thanh toán</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="cancelReasonDetail" id="reason4d" value="Tôi không còn nhu cầu mua" onchange="toggleCustomReasonDetail()">
+                                <label class="form-check-label" for="reason4d">Tôi không còn nhu cầu mua</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="cancelReasonDetail" id="reason5d" value="Tìm được sản phẩm phù hợp hơn" onchange="toggleCustomReasonDetail()">
+                                <label class="form-check-label" for="reason5d">Tìm được sản phẩm phù hợp hơn</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="cancelReasonDetail" id="reason6d" value="Thời gian giao hàng không phù hợp" onchange="toggleCustomReasonDetail()">
+                                <label class="form-check-label" for="reason6d">Thời gian giao hàng không phù hợp</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="cancelReasonDetail" id="reason7d" value="Khác" onchange="toggleCustomReasonDetail()">
+                                <label class="form-check-label" for="reason7d">Khác</label>
+                            </div>
+                        </div>
+
+                        <textarea id="customReasonDetailInput" class="form-control rounded-3 shadow-none border-light bg-light" rows="3" placeholder="Vui lòng nhập lý do (Bắt buộc)..." style="display: none;"></textarea>
+                    </div>
+                    <div class="modal-footer border-top border-light p-3">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                        <button type="button" class="btn btn-danger rounded-pill px-4 shadow-sm" onclick="submitDetailCancellation()">Gửi yêu cầu hủy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="/js/order-handler.js"></script>
+        <script>
+            let cancelDetailModalInstance;
+            let currentOrderId = '';
+
+            document.addEventListener('DOMContentLoaded', () => {
+                currentOrderId = document.getElementById('pageOrderId').value;
+                if (typeof bootstrap !== 'undefined') {
+                    const modalEl = document.getElementById('cancelOrderDetailModal');
+                    if (modalEl) cancelDetailModalInstance = new bootstrap.Modal(modalEl);
+                }
+                renderOrderDetail();
+            });
+
+            function renderOrderDetail() {
+                const order = OrderHandler.getOrderById(currentOrderId);
+                const notFound = document.getElementById('orderNotFoundState');
+                const content = document.getElementById('orderDetailContent');
+
+                if (!order) {
+                    notFound.style.setProperty('display', 'flex', 'important');
+                    content.style.setProperty('display', 'none', 'important');
+                    document.getElementById('detailHeading').style.display = 'none';
+                    return;
+                }
+
+                notFound.style.setProperty('display', 'none', 'important');
+                content.style.setProperty('display', 'flex', 'important');
+
+                // Basic Info
+                document.getElementById('dtlOrderId').textContent = order.orderId;
+                document.getElementById('dtlDate').textContent = 'Đặt lúc: ' + OrderHandler.formatDate(order.createdAt);
+                
+                const statusInfo = OrderHandler.getStatusSemantics(order.status);
+                document.getElementById('dtlStatusContainer').innerHTML = \`<span class="badge bg-\${statusInfo.color} bg-opacity-10 text-\${statusInfo.color} px-3 py-2 border border-\${statusInfo.color} border-opacity-25 rounded-pill fs-6"><i class="bi \${statusInfo.icon} me-2"></i>\${statusInfo.text}</span>\`;
+
+                // Cancellation state
+                const pendingAlert = document.getElementById('dtlPendingCancel');
+                const cancelBtn = document.getElementById('dtlCancelBtn');
+                
+                if (order.cancellationRequest && order.cancellationRequest.status === 'PENDING_STORE_CONFIRMATION') {
+                    pendingAlert.style.display = 'block';
+                    cancelBtn.classList.add('d-none');
+                } else {
+                    pendingAlert.style.display = 'none';
+                    if (order.status === 'Chờ xác nhận') {
+                        cancelBtn.classList.remove('d-none');
+                    } else {
+                        cancelBtn.classList.add('d-none');
+                    }
+                }
+
+                // Address
+                const a = order.shippingAddress;
+                document.getElementById('dtlAddress').innerHTML = \`
+                    <div class="fw-bold mb-1">\${a.fullName} <span class="text-muted mx-2">|</span> \${a.phone}</div>
+                    <div class="text-muted-custom">\${a.detail}</div>
+                    <div class="text-muted-custom">\${a.ward}, \${a.district}, \${a.province}</div>
+                \`;
+
+                // Payment
+                const p = order.paymentMethod;
+                let pIcon = 'bi-cash';
+                if (p === 'VNPAY' || p === 'MOMO') pIcon = 'bi-phone';
+                document.getElementById('dtlPayment').innerHTML = \`<i class="bi \${pIcon} me-2 text-cyan"></i>\${p === 'COD' ? 'Thanh toán khi nhận hàng (COD)' : p}\`;
+
+                // Summary
+                document.getElementById('dtlSubtotal').textContent = OrderHandler.formatCurrency(order.subtotal);
+                document.getElementById('dtlProdDiscount').textContent = '-' + OrderHandler.formatCurrency(order.productDiscount);
+                document.getElementById('dtlShipping').textContent = OrderHandler.formatCurrency(order.shippingFee);
+                
+                const cr = document.getElementById('dtlCouponRow');
+                if (order.couponDiscount > 0) {
+                    cr.classList.remove('d-none');
+                    document.getElementById('dtlCoupon').textContent = '-' + OrderHandler.formatCurrency(order.couponDiscount);
+                } else {
+                    cr.classList.add('d-none');
+                }
+
+                document.getElementById('dtlTotal').textContent = OrderHandler.formatCurrency(order.total);
+
+                // Products (grouped by store)
+                const groups = {};
+                order.items.forEach(item => {
+                    if (!groups[item.storeId]) groups[item.storeId] = { storeName: item.storeName || 'Cửa hàng', items: [] };
+                    groups[item.storeId].items.push(item);
+                });
+
+                let prodHtml = '';
+                Object.values(groups).forEach(g => {
+                    prodHtml += \`<div class="mb-4 last-mb-0"><div class="store-group-header"><i class="bi bi-shop text-cyan"></i>\${g.storeName}</div><div class="px-2">\`;
+                    g.items.forEach((item, index) => {
+                        const isLast = index === g.items.length - 1;
+                        const bb = isLast ? '' : 'border-bottom: 1px dashed rgba(226, 232, 240, 0.8);';
+                        const varBadge = item.variantName ? \`<span class="badge bg-light text-dark border px-2 py-1 mb-2" style="width: fit-content;">\${item.variantName}</span>\` : '';
+                        
+                        const pHtml = item.effectivePrice < item.originalPrice ?
+                            `<div class="d-flex align-items-center gap-2">
+                                <span class="fw-bold text-danger">${OrderHandler.formatCurrency(item.effectivePrice)}</span>
+                                <span class="text-muted text-decoration-line-through text-sm">${OrderHandler.formatCurrency(item.originalPrice)}</span>
+                            </div>` :
+                            `<span class="fw-bold text-dark">${OrderHandler.formatCurrency(item.effectivePrice)}</span>`;
+
+                        let reviewBtnHtml = '';
+                        if (order.status === 'Đã giao') {
+                            reviewBtnHtml = `<button class="btn btn-outline-cyan btn-sm rounded-pill mt-2 fw-medium" data-bs-toggle="modal" data-bs-target="#productDetailModal" data-product-id="${item.productId || 1}">Đánh giá</button>`;
+                        }
+
+                        prodHtml += `
+                            <div class="d-flex gap-3 py-3" style="${bb}">
+                                <img src="${item.image || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200'}" alt="${item.productName}" style="width: 72px; height: 72px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(226, 232, 240, 0.5);">
+                                <div class="flex-grow-1 min-w-0 d-flex flex-column">
+                                    <h6 class="fw-semibold text-dark mb-1 text-truncate" style="font-size: 0.95rem;">${item.productName}</h6>
+                                    ${varBadge}
+                                    <div class="d-flex justify-content-between align-items-end mt-auto">
+                                        <div class="d-flex flex-column align-items-start">
+                                            ${pHtml}
+                                            ${reviewBtnHtml}
+                                        </div>
+                                        <div class="text-muted-custom text-sm fw-medium pb-1">SL: ${item.quantity}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                        prodHtml += \`
+                            <div class="d-flex gap-3 py-3" style="\${bb}">
+                                <img src="\${item.image || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200'}" alt="\${item.productName}" style="width: 72px; height: 72px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(226, 232, 240, 0.5);">
+                                <div class="flex-grow-1 min-w-0 d-flex flex-column">
+                                    <h6 class="fw-semibold text-dark mb-1 text-truncate" style="font-size: 0.95rem;">\${item.productName}</h6>
+                                    \${varBadge}
+                                    <div class="d-flex justify-content-between align-items-center mt-auto">
+                                        \${pHtml}
+                                        <div class="text-muted-custom text-sm fw-medium">SL: \${item.quantity}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        \`;
+                    });
+                    prodHtml += \`</div></div>\`;
+                });
+                document.getElementById('dtlProducts').innerHTML = prodHtml;
+            }
+
+            function openCancelModalDetail() {
+                document.getElementById('cancelOrderDetailIdText').textContent = currentOrderId;
+                document.getElementById('reason1d').checked = true;
+                toggleCustomReasonDetail();
+                document.getElementById('customReasonDetailInput').value = '';
+                if (cancelDetailModalInstance) cancelDetailModalInstance.show();
+            }
+
+            function toggleCustomReasonDetail() {
+                const isOther = document.getElementById('reason7d').checked;
+                const cInp = document.getElementById('customReasonDetailInput');
+                cInp.style.display = isOther ? 'block' : 'none';
+            }
+
+            function submitDetailCancellation() {
+                const sel = document.querySelector('input[name="cancelReasonDetail"]:checked');
+                const reason = sel ? sel.value : '';
+                
+                let custom = '';
+                if (reason === 'Khác') {
+                    custom = document.getElementById('customReasonDetailInput').value.trim();
+                    if (!custom) {
+                        alert('Vui lòng nhập lý do cụ thể.');
+                        return;
+                    }
+                }
+
+                if (OrderHandler.requestCancellation(currentOrderId, reason, custom)) {
+                    if (cancelDetailModalInstance) cancelDetailModalInstance.hide();
+                    if (window.showToast) window.showToast('Gửi yêu cầu hủy đơn thành công', 'success');
+                    else alert('Gửi yêu cầu hủy đơn thành công');
+                    renderOrderDetail();
+                } else {
+                    alert('Không thể hủy đơn hàng này.');
+                }
+            }
+        </script>
+    </div>
+</body>
+</html>

@@ -283,11 +283,11 @@
                                         <!-- Actions: Top Right -->
                                         <div class="d-flex gap-2 flex-shrink-0 z-3 position-relative">
                                             <!-- Cart Button -->
-                                            <button id="modalAddToCartBtn" class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center text-white hover-scale" style="width: 56px; height: 56px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();">
+                                            <button class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center text-white hover-scale" style="width: 56px; height: 56px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();">
                                                 <i class="bi bi-cart fs-4"></i>
                                             </button>
                                             <!-- Wishlist Button -->
-                                            <button class="btn btn-light rounded-circle shadow-sm wishlist-btn text-muted-custom d-flex align-items-center justify-content-center hover-scale" style="width: 56px; height: 56px;" aria-label="Thêm vào yêu thích" >
+                                            <button class="btn btn-light rounded-circle shadow-sm wishlist-btn text-muted-custom d-flex align-items-center justify-content-center hover-scale" style="width: 56px; height: 56px;" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">
                                                 <i class="bi bi-heart fs-4"></i>
                                             </button>
                                         </div>
@@ -314,10 +314,10 @@
                                     <div class="mb-3">
                                         <p class="fw-semibold text-dark mb-2 text-sm">CHỌN SIZE</p>
                                         <div class="d-flex flex-wrap gap-2">
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm size-btn" onclick="event.stopPropagation()">38</button>
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm size-btn" onclick="event.stopPropagation()">39</button>
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm size-btn" onclick="event.stopPropagation()">40</button>
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm size-btn" onclick="event.stopPropagation()">41</button>
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">38</button>
+                                            <button class="btn btn-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">39</button>
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">40</button>
+                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">41</button>
                                             <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm disabled text-muted" disabled>42</button>
                                         </div>
                                     </div>
@@ -525,11 +525,11 @@
                         
                         // Using old-school string concatenation to strictly avoid SpEL conflicts
                         col.innerHTML = 
-                            '<div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">' +
-                                '<button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" >' +
+                            '<div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">' +
+                                '<button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">' +
                                     '<i class="bi bi-heart"></i>' +
                                 '</button>' +
-                                '<div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">' +
+                                '<div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border);">' +
                                     badgeHtml +
                                     '<i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>' +
                                 '</div>' +
@@ -548,7 +548,7 @@
                                         '<div>' +
                                             priceHtml +
                                         '</div>' +
-                                        '<button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation(); CartHandler.addToCart({ productId: 1, variantId: &quot;V1&quot;, storeId: &quot;S1&quot;, storeName: &quot;T-Winkle Quận 1&quot;, productName: &quot;Urban Runner 2026&quot;, image: &quot;https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200&quot;, originalPrice: 2200000, effectivePrice: 1870000, variantName: &quot;Size 42 - Đen&quot; });"><i class="bi bi-cart fs-5"></i></button>' +
+                                        '<button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();"><i class="bi bi-cart fs-5"></i></button>' +
                                     '</div>' +
                                 '</div>' +
                             '</div>';

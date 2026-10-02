@@ -671,6 +671,69 @@
                                             </li>
                                         </ul>
                                     </div>
+
+                                    <!-- Product Reviews -->
+                                    <div class="product-reviews-section mt-4 pt-4 border-top border-light" id="productReviewSection">
+                                        <h3 class="h5 fw-bold text-dark mb-4">Đánh giá sản phẩm</h3>
+                                        
+                                        <!-- Summary -->
+                                        <div class="glass-card rounded-4 p-3 p-md-4 mb-4 border shadow-sm">
+                                            <div class="row align-items-center gy-4">
+                                                <div class="col-12 col-md-5 text-center" style="border-right: 1px solid rgba(226, 232, 240, 0.6);">
+                                                    <div class="display-4 fw-bold text-dark mb-2" id="revAvgRating">0.0</div>
+                                                    <div style="color: #FACC15;" class="fs-5 mb-2" id="revAvgStars">
+                                                        <i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i>
+                                                    </div>
+                                                    <div class="text-muted-custom" id="revTotalCount">0 đánh giá</div>
+                                                </div>
+                                                <div class="col-12 col-md-7">
+                                                    <div class="d-flex flex-column gap-2" id="revDistBar">
+                                                        <!-- bars rendered by JS -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Review Action -->
+                                        <div class="mb-4 text-center" id="revActionContainer">
+                                            <!-- Rendered by JS -->
+                                        </div>
+
+                                        <!-- Review Form (Hidden by default) -->
+                                        <div class="glass-card rounded-4 p-4 mb-4 border shadow-sm" id="revFormContainer" style="display: none;">
+                                            <h4 class="h6 fw-bold text-dark mb-3">Viết đánh giá</h4>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-medium text-sm">Mức đánh giá <span class="text-danger">*</span></label>
+                                                <div class="d-flex gap-2 fs-4" id="revStarSelect" style="color: #CBD5E1; cursor: pointer;">
+                                                    <i class="bi bi-star rev-star-item" data-val="1" tabindex="0" role="button" aria-label="1 sao"></i>
+                                                    <i class="bi bi-star rev-star-item" data-val="2" tabindex="0" role="button" aria-label="2 sao"></i>
+                                                    <i class="bi bi-star rev-star-item" data-val="3" tabindex="0" role="button" aria-label="3 sao"></i>
+                                                    <i class="bi bi-star rev-star-item" data-val="4" tabindex="0" role="button" aria-label="4 sao"></i>
+                                                    <i class="bi bi-star rev-star-item" data-val="5" tabindex="0" role="button" aria-label="5 sao"></i>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="revComment" class="form-label fw-medium text-sm">Bình luận <span class="text-danger">*</span></label>
+                                                <textarea class="form-control bg-light border-light shadow-none" id="revComment" rows="3" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm..."></textarea>
+                                            </div>
+                                            <button class="btn btn-cyan text-white fw-bold px-4 rounded-pill shadow-sm" id="revSubmitBtn">Gửi đánh giá</button>
+                                        </div>
+
+                                        <!-- Sort -->
+                                        <div class="d-flex justify-content-between align-items-center mb-4" id="revSortContainer" style="display: none;">
+                                            <span class="fw-bold text-dark">Bình luận của khách hàng</span>
+                                            <select class="form-select form-select-sm w-auto shadow-none bg-light border-light rounded-pill px-3" id="revSortSelect">
+                                                <option value="newest">Mới nhất</option>
+                                                <option value="high">Điểm cao</option>
+                                                <option value="low">Điểm thấp</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Review List -->
+                                        <div class="d-flex flex-column gap-3" id="revList">
+                                            <!-- Rendered by JS -->
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -39,12 +39,42 @@ public class StorefrontController {
         return "storefront/store/categories";
     }
 
+
     @GetMapping("/cart")
     public String cart(Principal principal, Model model) {
         if (principal == null) {
             return "redirect:/login";
         }
         return "storefront/cart/cart";
+    }
+
+
+
+    @GetMapping("/orders")
+    public String orders(Principal principal, Model model) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+        return "storefront/order/history";
+    }
+
+
+    @GetMapping("/orders/{id}/tracking")
+    public String orderTracking(@PathVariable String id, Principal principal, Model model) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("orderId", id);
+        return "storefront/order/tracking";
+    }
+
+    @GetMapping("/orders/{id}")
+    public String orderDetail(@PathVariable String id, Principal principal, Model model) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("orderId", id);
+        return "storefront/order/detail";
     }
 
     @GetMapping("/checkout")
@@ -82,16 +112,6 @@ public class StorefrontController {
             return "redirect:/login";
         }
         return "storefront/user/wishlist";
-    }
-
-    @GetMapping("/orders")
-    public String orderHistory(Model model) {
-        return "storefront/order/history";
-    }
-
-    @GetMapping("/orders/{id}")
-    public String orderDetail(@PathVariable String id, Model model) {
-        return "storefront/order/detail";
     }
 
     @GetMapping("/chat")

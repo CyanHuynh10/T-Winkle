@@ -97,7 +97,7 @@
 
         <main class="pt-3 mt-2 pb-4 position-relative z-1" style="min-height: 80vh;">
             <div class="container max-w-6xl mx-auto px-3 animate-fade-up">
-                <div class="mb-4">
+                <div class="mb-4 mb-md-5 mt-md-2">
                     <h1 class="h3 fw-bold text-dark mb-0 page-heading text-center">Giỏ hàng</h1>
                     
                 </div>
@@ -115,11 +115,14 @@
                 </div>
 
                 <!-- Cart Content -->
-                <div id="cartContent" class="row gy-4" style="display: none;">
-                    <!-- Left: Cart Items -->
-                    <div class="col-lg-8">
-                        <div class="cart-main-card" id="cartGroupsContainer">
+                <div id="cartContent" class="row gy-4 justify-content-center" style="display: none;">
+                    <div class="col-12" style="max-width: 800px; margin: 0 auto;">
+                        <div id="cartGroupsContainer">
                             <!-- JS will render store groups here -->
+                        </div>
+
+                        <!-- Pagination -->
+                        <div id="cartPaginationContainer" class="d-flex justify-content-center align-items-center gap-2 mt-4">
                         </div>
                         
                         <div class="d-flex justify-content-between mt-4">
@@ -132,32 +135,11 @@
                         </div>
                     </div>
 
-                    <!-- Right: Summary -->
-                    <div class="col-lg-4">
-                        <div class="cart-main-card position-sticky" style="top: 2rem;">
-                            <h5 class="fw-bold text-dark mb-4 pb-3 border-bottom border-light">Tóm tắt đơn hàng</h5>
-                            
-                            <div class="d-flex justify-content-between mb-3">
-                                <span class="text-muted-custom">Tạm tính</span>
-                                <span class="fw-semibold text-dark" id="summarySubtotal">0đ</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-4">
-                                <span class="text-muted-custom">Giảm giá</span>
-                                <span class="fw-semibold text-danger" id="summaryDiscount">- 0đ</span>
-                            </div>
-                            
-                            <div class="border-top border-light pt-3 mb-4">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="fw-bold text-dark fs-5">Tổng cộng</span>
-                                    <span class="fw-bold text-cyan fs-4" id="summaryTotal">0đ</span>
-                                </div>
-                                <small class="text-muted text-xs d-block text-end">(Đã bao gồm VAT nếu có)</small>
-                            </div>
-                            
-                            <button class="tw-btn btn-checkout-primary w-100 rounded-pill py-3 text-decoration-none fw-bold fs-6 d-flex justify-content-center align-items-center gap-2" onclick="proceedToCheckout()">
-                                Tiến hành thanh toán <i class="bi bi-arrow-right"></i>
-                            </button>
-                        </div>
+                                        <!-- Payment Button -->
+                    <div class="col-12 mt-4 text-center">
+                        <button id="checkoutBtn" class="tw-btn btn-checkout-primary rounded-pill py-3 px-5 fw-bold fs-5 shadow" onclick="proceedToCheckout()" disabled>
+                            Thanh toán
+                        </button>
                     </div>
                 </div>
             </div>
@@ -192,11 +174,14 @@
                 return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
             }
 
+            
+            
+            let cartCurrentPage = 1;
+
             function renderCartPage() {
                 const cart = CartHandler.getCart();
                 const emptyState = document.getElementById('cartEmptyState');
                 const cartContent = document.getElementById('cartContent');
-                const continueShoppingTop = document.getElementById('continueShoppingTop');
 
                 if (cart.length === 0) {
                     emptyState.style.setProperty('display', 'flex', 'important');
@@ -208,41 +193,49 @@
                 cartContent.style.setProperty('display', 'flex', 'important');
 
                 // Group by store
-                const groups = {};
-                let subtotal = 0;
-                let discountTotal = 0;
+                const groupsMap = {};
 
                 cart.forEach(item => {
-                    if (!groups[item.storeId]) {
-                        groups[item.storeId] = {
+                    if (!groupsMap[item.storeId]) {
+                        groupsMap[item.storeId] = {
+                            storeId: item.storeId,
                             storeName: item.storeName || 'Cửa hàng',
                             items: []
                         };
                     }
-                    groups[item.storeId].items.push(item);
-                    
-                    const itemSubtotal = item.originalPrice * item.quantity;
-                    subtotal += itemSubtotal;
-                    if (item.effectivePrice < item.originalPrice) {
-                        discountTotal += (item.originalPrice - item.effectivePrice) * item.quantity;
-                    }
+                    groupsMap[item.storeId].items.push(item);
                 });
+
+                const groupsArray = Object.values(groupsMap);
+                const totalPages = Math.ceil(groupsArray.length / 3) || 1;
+
+                if (cartCurrentPage > totalPages) {
+                    cartCurrentPage = totalPages;
+                }
+
+                const startIndex = (cartCurrentPage - 1) * 3;
+                const pageGroups = groupsArray.slice(startIndex, startIndex + 3);
 
                 const groupsContainer = document.getElementById('cartGroupsContainer');
                 groupsContainer.innerHTML = '';
 
-                Object.keys(groups).forEach(storeId => {
-                    const group = groups[storeId];
+                let anySelected = false;
+                cart.forEach(item => {
+                    if (item.selected !== false) anySelected = true;
+                });
+
+                pageGroups.forEach(group => {
                     let groupHtml = `
-                        <div class="store-group mb-4">
-                            <div class="store-group-header">
-                                <i class="bi bi-shop text-cyan"></i>
-                                ${group.storeName}
+                        <div class="cart-main-card mb-4" style="padding: 1.25rem;">
+                            <div class="store-group-header mb-3" style="background: rgba(248, 250, 252, 0.5); padding: 0.75rem 1rem; border-radius: 12px; display: flex; align-items: center; gap: 0.5rem; font-weight: 700; border: 1px solid rgba(226, 232, 240, 0.6);">
+                                <i class="bi bi-shop text-cyan fs-5"></i>
+                                <span class="text-dark fs-6">${group.storeName}</span>
                             </div>
-                            <div class="store-items px-2">
+                            <div class="store-items">
                     `;
 
-                    group.items.forEach(item => {
+                    group.items.forEach((item, index) => {
+                        const isChecked = item.selected !== false ? 'checked' : '';
                         const priceHtml = item.effectivePrice < item.originalPrice ?
                             `<div class="d-flex flex-column align-items-end">
                                 <span class="fw-bold text-danger">${formatCurrency(item.effectivePrice)}</span>
@@ -251,14 +244,20 @@
                             `<span class="fw-bold text-dark">${formatCurrency(item.effectivePrice)}</span>`;
 
                         const variantHtml = item.variantName ? 
-                            `<span class="badge bg-light text-dark border px-2 py-1 mb-1">${item.variantName}</span>` : '';
+                            `<span class="badge bg-light text-dark border px-2 py-1 mb-1" style="width: fit-content; align-self: flex-start; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis;">${item.variantName}</span>` : '';
+                            
+                        const isLast = index === group.items.length - 1;
+                        const borderBottom = isLast ? '' : 'border-bottom: 1px solid rgba(226, 232, 240, 0.6);';
 
                         groupHtml += `
-                            <div class="cart-item-row d-flex gap-3 align-items-start">
-                                <img src="${item.image || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200'}" alt="${item.productName}" class="item-image flex-shrink-0">
-                                <div class="flex-grow-1 min-w-0">
+                            <div class="cart-item-row d-flex gap-3 align-items-center py-3" style="${borderBottom}">
+                                <div class="form-check m-0 p-0 d-flex align-items-center">
+                                    <input class="form-check-input cursor-pointer shadow-none m-0" type="checkbox" style="width: 1.25rem; height: 1.25rem; border-color: #CBD5E1;" onchange="toggleItemSelect('${item.cartItemId}', this.checked)" ${isChecked}>
+                                </div>
+                                <img src="${item.image || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200'}" alt="${item.productName}" class="item-image flex-shrink-0" style="width: 72px; height: 72px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(226, 232, 240, 0.5);">
+                                <div class="flex-grow-1 min-w-0 d-flex flex-column justify-content-between h-100">
                                     <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
-                                        <h6 class="fw-bold text-dark mb-0 text-truncate">${item.productName}</h6>
+                                        <h6 class="fw-semibold text-dark mb-0 text-truncate" style="font-size: 0.95rem;">${item.productName}</h6>
                                         <button class="btn btn-link p-0 text-muted hover-cyan shadow-none border-0" onclick="removeItem('${item.cartItemId}')" aria-label="Xóa sản phẩm">
                                             <i class="bi bi-x-lg"></i>
                                         </button>
@@ -266,12 +265,12 @@
                                     ${variantHtml}
                                     <div class="d-flex justify-content-between align-items-end mt-2">
                                         ${priceHtml}
-                                        <div class="d-flex align-items-center gap-1">
-                                            <button class="qty-btn" onclick="updateQty('${item.cartItemId}', ${item.quantity - 1})" aria-label="Giảm số lượng">
+                                        <div class="d-flex align-items-center gap-1 bg-white rounded-2 border" style="padding: 2px;">
+                                            <button class="btn btn-sm btn-light border-0 shadow-none d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; padding: 0;" onclick="updateQty('${item.cartItemId}', ${item.quantity - 1})" aria-label="Giảm số lượng">
                                                 <i class="bi bi-dash"></i>
                                             </button>
-                                            <input type="text" class="qty-input" value="${item.quantity}" readonly>
-                                            <button class="qty-btn" onclick="updateQty('${item.cartItemId}', ${item.quantity + 1})" aria-label="Tăng số lượng">
+                                            <input type="text" class="text-center border-0 fw-semibold bg-transparent px-1" style="width: 30px; font-size: 0.85rem;" value="${item.quantity}" readonly>
+                                            <button class="btn btn-sm btn-light border-0 shadow-none d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; padding: 0;" onclick="updateQty('${item.cartItemId}', ${item.quantity + 1})" aria-label="Tăng số lượng">
                                                 <i class="bi bi-plus"></i>
                                             </button>
                                         </div>
@@ -285,10 +284,45 @@
                     groupsContainer.innerHTML += groupHtml;
                 });
 
-                // Update Summary
-                document.getElementById('summarySubtotal').textContent = formatCurrency(subtotal);
-                document.getElementById('summaryDiscount').textContent = '-' + formatCurrency(discountTotal);
-                document.getElementById('summaryTotal').textContent = formatCurrency(subtotal - discountTotal);
+                // Render Pagination
+                const pagContainer = document.getElementById('cartPaginationContainer');
+                pagContainer.innerHTML = '';
+                if (totalPages > 1) {
+                    let pagHtml = `<button class="btn btn-outline-secondary btn-sm shadow-none" ${cartCurrentPage === 1 ? 'disabled' : ''} onclick="changeCartPage(${cartCurrentPage - 1})"><i class="bi bi-chevron-left"></i></button>`;
+                    for (let i = 1; i <= totalPages; i++) {
+                        if (i === cartCurrentPage) {
+                            pagHtml += `<button class="btn btn-cyan text-white btn-sm shadow-none fw-bold">${i}</button>`;
+                        } else {
+                            pagHtml += `<button class="btn btn-outline-secondary btn-sm shadow-none" onclick="changeCartPage(${i})">${i}</button>`;
+                        }
+                    }
+                    pagHtml += `<button class="btn btn-outline-secondary btn-sm shadow-none" ${cartCurrentPage === totalPages ? 'disabled' : ''} onclick="changeCartPage(${cartCurrentPage + 1})"><i class="bi bi-chevron-right"></i></button>`;
+                    pagContainer.innerHTML = pagHtml;
+                }
+
+                const checkoutBtn = document.getElementById('checkoutBtn');
+                if (anySelected) {
+                    checkoutBtn.removeAttribute('disabled');
+                } else {
+                    checkoutBtn.setAttribute('disabled', 'true');
+                }
+            }
+
+            function changeCartPage(page) {
+                cartCurrentPage = page;
+                renderCartPage();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+
+            function toggleItemSelect(itemId, isSelected) {
+                let cart = CartHandler.getCart();
+                const item = cart.find(i => i.cartItemId === itemId);
+                if (item) {
+                    item.selected = isSelected;
+                    CartHandler.saveCart(cart);
+                }
+                renderCartPage();
             }
 
             function updateQty(id, newQty) {

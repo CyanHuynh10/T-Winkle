@@ -7,7 +7,7 @@
 window.OrderHandler = {
     getOrders: function() {
         try {
-            const data = localStorage.getItem('twinkle_orders');
+            const data = null; // Prototype data removed
             return data ? JSON.parse(data) : [];
         } catch (e) {
             console.error("Failed to parse twinkle_orders:", e);
@@ -16,7 +16,7 @@ window.OrderHandler = {
     },
     
     saveOrders: function(orders) {
-        localStorage.setItem('twinkle_orders', JSON.stringify(orders));
+        // localStorage.setItem removed
     },
 
     getOrderById: function(id) {
@@ -48,14 +48,14 @@ window.OrderHandler = {
         // Update Cart (Remove ONLY selected items)
         let cart = [];
         try {
-            const stored = localStorage.getItem('twinkle_cart');
+            const stored = null; // Prototype data removed
             if (stored) {
                 cart = JSON.parse(stored);
             }
         } catch(e) {}
 
         const unselectedItems = cart.filter(item => item.selected === false);
-        localStorage.setItem('twinkle_cart', JSON.stringify(unselectedItems));
+        // localStorage.setItem removed
 
         return order;
     },

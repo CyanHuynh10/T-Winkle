@@ -63,120 +63,45 @@
 
                         <!-- Product Grid (Exactly 3 Products) -->
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+<!-- Product Card 1 -->
+                    <div class="col" th:each="product : ${newestProducts}">
+                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
+                            <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" th:data-product-id="${product.productId}" th:classappend="${product.inWishlist} ? 'active text-danger' : ''">
+                                <i class="bi bi-heart"></i>
+                            </button>
+                            
+                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" th:data-product-id="${product.productId}" onclick="showProductDetail(this.getAttribute('data-product-id'))">
+                                <span class="badge bg-danger position-absolute top-0 start-0 m-2 z-1">MỚI</span>
+                                <img th:src="${product.primaryImagePath}" class="img-fluid w-100 h-100" style="object-fit: cover;" th:alt="${product.name}" th:if="${product.primaryImagePath != null}"/><i th:unless="${product.primaryImagePath != null}" class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
+                            </div>
+                            
+                            <div class="d-flex flex-column flex-grow-1">
+                                <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1" th:text="${product.categoryName}">SNEAKER</span>
+                                <h3 class="h5 fw-bold text-dark mb-1 text-truncate" th:title="${product.name}" th:text="${product.name}">Product Name</h3>
+                                
+                                <div class="d-flex align-items-center gap-2 mb-3 text-sm">
+                                    <div style="color: #FACC15;">
+                                        <i class="bi bi-star-fill"></i>
+                                        <span class="text-dark fw-bold ms-1" th:text="${product.ratingAverage != null ? #numbers.formatDecimal(product.ratingAverage, 1, 1) : '0.0'}">5.0</span>
+                                    </div>
+                                    <span class="text-muted-custom">|</span>
+                                    <span class="text-muted-custom" th:text="'Đã bán ' + (${product.soldCount != null ? product.soldCount : 0})">Đã bán 0</span>
+                                </div>
+                                
+                                <div class="mt-auto d-flex align-items-end pe-5">
+                                    <div>
+                                        <div th:classappend="${product.effectivePrice < product.originalPrice} ? 'fw-bold fs-4 text-danger' : 'fw-bold fs-4 text-cyan'" th:text="${#numbers.formatDecimal(product.effectivePrice, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</div>
+                                        <div th:if="${product.effectivePrice < product.originalPrice}" class="text-decoration-line-through text-muted text-sm" th:text="${#numbers.formatDecimal(product.originalPrice, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</div>
+                                    </div>
+                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Xem chi tiết" th:onclick="'event.stopPropagation(); showProductDetail(' + ${product.productId} + ');'">
+                                        <i class="bi bi-cart fs-5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     
-                    <!-- Product Card 1 -->
-                    <div class="col">
-                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
-                            <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" >
-                                <i class="bi bi-heart"></i>
-                            </button>
-                            
-                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
-                                <span class="badge bg-danger position-absolute top-0 start-0 m-2 z-1">MỚI</span>
-                                <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
-                            </div>
-                            
-                            <div class="d-flex flex-column flex-grow-1">
-                                <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1">SNEAKER</span>
-                                <h3 class="h5 fw-bold text-dark mb-1 text-truncate" title="Urban Runner 2026">Urban Runner 2026</h3>
-                                
-                                <div class="d-flex align-items-center gap-2 mb-3 text-sm">
-                                    <div style="color: #FACC15;">
-                                        <i class="bi bi-star-fill"></i>
-                                        <span class="text-dark fw-bold ms-1">5.0</span>
-                                    </div>
-                                    <span class="text-muted-custom">|</span>
-                                    <span class="text-muted-custom">Đã bán 124</span>
-                                </div>
-                                
-                                <div class="mt-auto d-flex align-items-end pe-5">
-                                    <div>
-                                        <div class="fw-bold fs-4 text-cyan">2.450.000đ</div>
-                                    </div>
-                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation(); CartHandler.addToCart({ productId: 1, variantId: &quot;V1&quot;, storeId: &quot;S1&quot;, storeName: &quot;T-Winkle Quận 1&quot;, productName: &quot;Urban Runner 2026&quot;, image: &quot;https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200&quot;, originalPrice: 2200000, effectivePrice: 1870000, variantName: &quot;Size 42 - Đen&quot; });"><i class="bi bi-cart fs-5"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Product Card 2 -->
-                    <div class="col">
-                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
-                            <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" >
-                                <i class="bi bi-heart"></i>
-                            </button>
-                            
-                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
-                                <span class="badge bg-danger position-absolute top-0 start-0 m-2 z-1">-15%</span>
-                                <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
-                            </div>
-                            
-                            <div class="d-flex flex-column flex-grow-1">
-                                <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1">LIFESTYLE</span>
-                                <h3 class="h5 fw-bold text-dark mb-1 text-truncate" title="T-Winkle Classic Low">T-Winkle Classic Low</h3>
-                                
-                                <div class="d-flex align-items-center gap-2 mb-3 text-sm">
-                                    <div style="color: #FACC15;">
-                                        <i class="bi bi-star-fill"></i>
-                                        <span class="text-dark fw-bold ms-1">4.8</span>
-                                    </div>
-                                    <span class="text-muted-custom">|</span>
-                                    <span class="text-muted-custom">Đã bán 892</span>
-                                </div>
-                                
-                                <div class="mt-auto d-flex align-items-end pe-5">
-                                    <div>
-                                        <div class="fw-bold fs-4 text-cyan">1.870.000đ</div>
-                                        <div class="text-muted text-decoration-line-through text-xs">2.200.000đ</div>
-                                    </div>
-                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation(); CartHandler.addToCart({ productId: 1, variantId: &quot;V1&quot;, storeId: &quot;S1&quot;, storeName: &quot;T-Winkle Quận 1&quot;, productName: &quot;Urban Runner 2026&quot;, image: &quot;https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200&quot;, originalPrice: 2200000, effectivePrice: 1870000, variantName: &quot;Size 42 - Đen&quot; });"><i class="bi bi-cart fs-5"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Product Card 3 -->
-                    <div class="col">
-                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
-                            <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" >
-                                <i class="bi bi-heart"></i>
-                            </button>
-                            
-                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
-                                <span class="badge bg-danger position-absolute top-0 start-0 m-2 z-1">MỚI</span>
-                                <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
-                            </div>
-                            
-                            <div class="d-flex flex-column flex-grow-1">
-                                <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1">TRAINING</span>
-                                <h3 class="h5 fw-bold text-dark mb-1 text-truncate" title="Aero Boost Pro">Aero Boost Pro</h3>
-                                
-                                <div class="d-flex align-items-center gap-2 mb-3 text-sm">
-                                    <div style="color: #FACC15;">
-                                        <i class="bi bi-star-fill"></i>
-                                        <span class="text-dark fw-bold ms-1">4.9</span>
-                                    </div>
-                                    <span class="text-muted-custom">|</span>
-                                    <span class="text-muted-custom">Đã bán 56</span>
-                                </div>
-                                
-                                <div class="mt-auto d-flex align-items-end pe-5">
-                                    <div>
-                                        <div class="fw-bold fs-4 text-cyan">3.150.000đ</div>
-                                    </div>
-                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation(); CartHandler.addToCart({ productId: 1, variantId: &quot;V1&quot;, storeId: &quot;S1&quot;, storeName: &quot;T-Winkle Quận 1&quot;, productName: &quot;Urban Runner 2026&quot;, image: &quot;https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200&quot;, originalPrice: 2200000, effectivePrice: 1870000, variantName: &quot;Size 42 - Đen&quot; });"><i class="bi bi-cart fs-5"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-                
-                <!-- Mobile Only View All Button -->
-                <div class="mt-4 text-center d-block d-md-none">
-                    <a th:href="@{/categories}" class="tw-btn tw-btn-outline w-100">Xem tất cả sản phẩm</a>
-                </div>
-            </div>
+</div>
+</div>
         </div>
     </section>
 
@@ -197,120 +122,45 @@
 
                         <!-- Product Grid (Exactly 3 Products) -->
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+<!-- Product Card 1 -->
+                    <div class="col" th:each="product, iterStat : ${popularProducts}" th:if="${iterStat.index < 3}">
+                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
+                            <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" th:data-product-id="${product.productId}" th:classappend="${product.inWishlist} ? 'active text-danger' : ''">
+                                <i class="bi bi-heart"></i>
+                            </button>
+                            
+                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" th:data-product-id="${product.productId}" onclick="showProductDetail(this.getAttribute('data-product-id'))">
+                                
+                                <img th:src="${product.primaryImagePath}" class="img-fluid w-100 h-100" style="object-fit: cover;" th:alt="${product.name}" th:if="${product.primaryImagePath != null}"/><i th:unless="${product.primaryImagePath != null}" class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
+                            </div>
+                            
+                            <div class="d-flex flex-column flex-grow-1">
+                                <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1" th:text="${product.categoryName}">CATEGORY</span>
+                                <h3 class="h5 fw-bold text-dark mb-1 text-truncate" th:title="${product.name}" th:text="${product.name}">Product Name</h3>
+                                
+                                <div class="d-flex align-items-center gap-2 mb-3 text-sm">
+                                    <div style="color: #FACC15;">
+                                        <i class="bi bi-star-fill"></i>
+                                        <span class="text-dark fw-bold ms-1" th:text="${product.ratingAverage != null ? #numbers.formatDecimal(product.ratingAverage, 1, 1) : '0.0'}">5.0</span>
+                                    </div>
+                                    <span class="text-muted-custom">|</span>
+                                    <span class="text-muted-custom" th:text="'Đã bán ' + (${product.soldCount != null ? product.soldCount : 0})">Đã bán 0</span>
+                                </div>
+                                
+                                <div class="mt-auto d-flex align-items-end pe-5">
+                                    <div>
+                                        <div th:classappend="${product.effectivePrice < product.originalPrice} ? 'fw-bold fs-4 text-danger' : 'fw-bold fs-4 text-cyan'" th:text="${#numbers.formatDecimal(product.effectivePrice, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</div>
+                                        <div th:if="${product.effectivePrice < product.originalPrice}" class="text-decoration-line-through text-muted text-sm" th:text="${#numbers.formatDecimal(product.originalPrice, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</div>
+                                    </div>
+                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Xem chi tiết" th:onclick="'event.stopPropagation(); showProductDetail(' + ${product.productId} + ');'">
+                                        <i class="bi bi-cart fs-5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     
-                    <!-- Product Card 1 -->
-                    <div class="col">
-                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
-                            <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" >
-                                <i class="bi bi-heart"></i>
-                            </button>
-                            
-                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
-                                <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-2 z-1">HOT</span>
-                                <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
-                            </div>
-                            
-                            <div class="d-flex flex-column flex-grow-1">
-                                <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1">SNEAKER</span>
-                                <h3 class="h5 fw-bold text-dark mb-1 text-truncate" title="Street Classic 24">Street Classic 24</h3>
-                                
-                                <div class="d-flex align-items-center gap-2 mb-3 text-sm">
-                                    <div style="color: #FACC15;">
-                                        <i class="bi bi-star-fill"></i>
-                                        <span class="text-dark fw-bold ms-1">5.0</span>
-                                    </div>
-                                    <span class="text-muted-custom">|</span>
-                                    <span class="text-muted-custom">Đã bán 124</span>
-                                </div>
-                                
-                                <div class="mt-auto d-flex align-items-end pe-5">
-                                    <div>
-                                        <div class="fw-bold fs-4 text-cyan">2.450.000đ</div>
-                                    </div>
-                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation(); CartHandler.addToCart({ productId: 1, variantId: &quot;V1&quot;, storeId: &quot;S1&quot;, storeName: &quot;T-Winkle Quận 1&quot;, productName: &quot;Urban Runner 2026&quot;, image: &quot;https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200&quot;, originalPrice: 2200000, effectivePrice: 1870000, variantName: &quot;Size 42 - Đen&quot; });"><i class="bi bi-cart fs-5"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Product Card 2 -->
-                    <div class="col">
-                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
-                            <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" >
-                                <i class="bi bi-heart"></i>
-                            </button>
-                            
-                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
-                                <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-2 z-1">HOT</span>
-                                <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
-                            </div>
-                            
-                            <div class="d-flex flex-column flex-grow-1">
-                                <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1">LIFESTYLE</span>
-                                <h3 class="h5 fw-bold text-dark mb-1 text-truncate" title="T-Winkle Classic Low">T-Winkle Classic Low</h3>
-                                
-                                <div class="d-flex align-items-center gap-2 mb-3 text-sm">
-                                    <div style="color: #FACC15;">
-                                        <i class="bi bi-star-fill"></i>
-                                        <span class="text-dark fw-bold ms-1">4.8</span>
-                                    </div>
-                                    <span class="text-muted-custom">|</span>
-                                    <span class="text-muted-custom">Đã bán 892</span>
-                                </div>
-                                
-                                <div class="mt-auto d-flex align-items-end pe-5">
-                                    <div>
-                                        <div class="fw-bold fs-4 text-cyan">1.870.000đ</div>
-                                        <div class="text-muted text-decoration-line-through text-xs">2.200.000đ</div>
-                                    </div>
-                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation(); CartHandler.addToCart({ productId: 1, variantId: &quot;V1&quot;, storeId: &quot;S1&quot;, storeName: &quot;T-Winkle Quận 1&quot;, productName: &quot;Urban Runner 2026&quot;, image: &quot;https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200&quot;, originalPrice: 2200000, effectivePrice: 1870000, variantName: &quot;Size 42 - Đen&quot; });"><i class="bi bi-cart fs-5"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Product Card 3 -->
-                    <div class="col">
-                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
-                            <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" >
-                                <i class="bi bi-heart"></i>
-                            </button>
-                            
-                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
-                                <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-2 z-1">HOT</span>
-                                <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
-                            </div>
-                            
-                            <div class="d-flex flex-column flex-grow-1">
-                                <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1">TRAINING</span>
-                                <h3 class="h5 fw-bold text-dark mb-1 text-truncate" title="Velocity Max">Velocity Max</h3>
-                                
-                                <div class="d-flex align-items-center gap-2 mb-3 text-sm">
-                                    <div style="color: #FACC15;">
-                                        <i class="bi bi-star-fill"></i>
-                                        <span class="text-dark fw-bold ms-1">4.9</span>
-                                    </div>
-                                    <span class="text-muted-custom">|</span>
-                                    <span class="text-muted-custom">Đã bán 56</span>
-                                </div>
-                                
-                                <div class="mt-auto d-flex align-items-end pe-5">
-                                    <div>
-                                        <div class="fw-bold fs-4 text-cyan">3.150.000đ</div>
-                                    </div>
-                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation(); CartHandler.addToCart({ productId: 1, variantId: &quot;V1&quot;, storeId: &quot;S1&quot;, storeName: &quot;T-Winkle Quận 1&quot;, productName: &quot;Urban Runner 2026&quot;, image: &quot;https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200&quot;, originalPrice: 2200000, effectivePrice: 1870000, variantName: &quot;Size 42 - Đen&quot; });"><i class="bi bi-cart fs-5"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-                
-                <!-- Mobile Only View All Button -->
-                <div class="mt-4 text-center d-block d-md-none">
-                    <a th:href="@{/categories}" class="tw-btn tw-btn-outline w-100">Xem tất cả sản phẩm</a>
-                </div>
-            </div>
+</div>
+</div>
         </div>
     </section>
 
@@ -331,120 +181,45 @@
 
                         <!-- Product Grid (Exactly 3 Products) -->
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+<!-- Product Card 1 -->
+                    <div class="col" th:each="product, iterStat : ${saleProducts}" th:if="${iterStat.index < 3}">
+                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
+                            <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" th:data-product-id="${product.productId}" th:classappend="${product.inWishlist} ? 'active text-danger' : ''">
+                                <i class="bi bi-heart"></i>
+                            </button>
+                            
+                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" th:data-product-id="${product.productId}" onclick="showProductDetail(this.getAttribute('data-product-id'))">
+                                
+                                <img th:src="${product.primaryImagePath}" class="img-fluid w-100 h-100" style="object-fit: cover;" th:alt="${product.name}" th:if="${product.primaryImagePath != null}"/><i th:unless="${product.primaryImagePath != null}" class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
+                            </div>
+                            
+                            <div class="d-flex flex-column flex-grow-1">
+                                <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1" th:text="${product.categoryName}">CATEGORY</span>
+                                <h3 class="h5 fw-bold text-dark mb-1 text-truncate" th:title="${product.name}" th:text="${product.name}">Product Name</h3>
+                                
+                                <div class="d-flex align-items-center gap-2 mb-3 text-sm">
+                                    <div style="color: #FACC15;">
+                                        <i class="bi bi-star-fill"></i>
+                                        <span class="text-dark fw-bold ms-1" th:text="${product.ratingAverage != null ? #numbers.formatDecimal(product.ratingAverage, 1, 1) : '0.0'}">5.0</span>
+                                    </div>
+                                    <span class="text-muted-custom">|</span>
+                                    <span class="text-muted-custom" th:text="'Đã bán ' + (${product.soldCount != null ? product.soldCount : 0})">Đã bán 0</span>
+                                </div>
+                                
+                                <div class="mt-auto d-flex align-items-end pe-5">
+                                    <div>
+                                        <div th:classappend="${product.effectivePrice < product.originalPrice} ? 'fw-bold fs-4 text-danger' : 'fw-bold fs-4 text-cyan'" th:text="${#numbers.formatDecimal(product.effectivePrice, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</div>
+                                        <div th:if="${product.effectivePrice < product.originalPrice}" class="text-decoration-line-through text-muted text-sm" th:text="${#numbers.formatDecimal(product.originalPrice, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</div>
+                                    </div>
+                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Xem chi tiết" th:onclick="'event.stopPropagation(); showProductDetail(' + ${product.productId} + ');'">
+                                        <i class="bi bi-cart fs-5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     
-                    <!-- Product Card 1 -->
-                    <div class="col">
-                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
-                            <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" >
-                                <i class="bi bi-heart"></i>
-                            </button>
-                            
-                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
-                                <span class="badge bg-danger position-absolute top-0 start-0 m-2 z-1">-30%</span>
-                                <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
-                            </div>
-                            
-                            <div class="d-flex flex-column flex-grow-1">
-                                <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1">SNEAKER</span>
-                                <h3 class="h5 fw-bold text-dark mb-1 text-truncate" title="Urban Runner 2026">Urban Runner 2026</h3>
-                                
-                                <div class="d-flex align-items-center gap-2 mb-3 text-sm">
-                                    <div style="color: #FACC15;">
-                                        <i class="bi bi-star-fill"></i>
-                                        <span class="text-dark fw-bold ms-1">5.0</span>
-                                    </div>
-                                    <span class="text-muted-custom">|</span>
-                                    <span class="text-muted-custom">Đã bán 124</span>
-                                </div>
-                                
-                                <div class="mt-auto d-flex align-items-end pe-5">
-                                    <div>
-                                        <div class="text-muted-custom text-decoration-line-through text-sm mb-1">3.500.000₫</div><div class="fw-bold fs-4 text-danger">2.450.000đ</div>
-                                    </div>
-                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation(); CartHandler.addToCart({ productId: 1, variantId: &quot;V1&quot;, storeId: &quot;S1&quot;, storeName: &quot;T-Winkle Quận 1&quot;, productName: &quot;Urban Runner 2026&quot;, image: &quot;https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200&quot;, originalPrice: 2200000, effectivePrice: 1870000, variantName: &quot;Size 42 - Đen&quot; });"><i class="bi bi-cart fs-5"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Product Card 2 -->
-                    <div class="col">
-                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
-                            <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" >
-                                <i class="bi bi-heart"></i>
-                            </button>
-                            
-                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
-                                <span class="badge bg-danger position-absolute top-0 start-0 m-2 z-1">-30%</span>
-                                <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
-                            </div>
-                            
-                            <div class="d-flex flex-column flex-grow-1">
-                                <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1">LIFESTYLE</span>
-                                <h3 class="h5 fw-bold text-dark mb-1 text-truncate" title="T-Winkle Classic Low">T-Winkle Classic Low</h3>
-                                
-                                <div class="d-flex align-items-center gap-2 mb-3 text-sm">
-                                    <div style="color: #FACC15;">
-                                        <i class="bi bi-star-fill"></i>
-                                        <span class="text-dark fw-bold ms-1">4.8</span>
-                                    </div>
-                                    <span class="text-muted-custom">|</span>
-                                    <span class="text-muted-custom">Đã bán 892</span>
-                                </div>
-                                
-                                <div class="mt-auto d-flex align-items-end pe-5">
-                                    <div>
-                                        <div class="text-muted-custom text-decoration-line-through text-sm mb-1">3.500.000₫</div><div class="fw-bold fs-4 text-danger">1.870.000đ</div>
-                                        <div class="text-muted text-decoration-line-through text-xs">2.200.000đ</div>
-                                    </div>
-                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation(); CartHandler.addToCart({ productId: 1, variantId: &quot;V1&quot;, storeId: &quot;S1&quot;, storeName: &quot;T-Winkle Quận 1&quot;, productName: &quot;Urban Runner 2026&quot;, image: &quot;https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200&quot;, originalPrice: 2200000, effectivePrice: 1870000, variantName: &quot;Size 42 - Đen&quot; });"><i class="bi bi-cart fs-5"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Product Card 3 -->
-                    <div class="col">
-                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
-                            <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" >
-                                <i class="bi bi-heart"></i>
-                            </button>
-                            
-                            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productDetailModal">
-                                <span class="badge bg-danger position-absolute top-0 start-0 m-2 z-1">-30%</span>
-                                <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
-                            </div>
-                            
-                            <div class="d-flex flex-column flex-grow-1">
-                                <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1">TRAINING</span>
-                                <h3 class="h5 fw-bold text-dark mb-1 text-truncate" title="Aero Boost Pro">Aero Boost Pro</h3>
-                                
-                                <div class="d-flex align-items-center gap-2 mb-3 text-sm">
-                                    <div style="color: #FACC15;">
-                                        <i class="bi bi-star-fill"></i>
-                                        <span class="text-dark fw-bold ms-1">4.9</span>
-                                    </div>
-                                    <span class="text-muted-custom">|</span>
-                                    <span class="text-muted-custom">Đã bán 56</span>
-                                </div>
-                                
-                                <div class="mt-auto d-flex align-items-end pe-5">
-                                    <div>
-                                        <div class="text-muted-custom text-decoration-line-through text-sm mb-1">3.500.000₫</div><div class="fw-bold fs-4 text-danger">3.150.000đ</div>
-                                    </div>
-                                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation(); CartHandler.addToCart({ productId: 1, variantId: &quot;V1&quot;, storeId: &quot;S1&quot;, storeName: &quot;T-Winkle Quận 1&quot;, productName: &quot;Urban Runner 2026&quot;, image: &quot;https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200&quot;, originalPrice: 2200000, effectivePrice: 1870000, variantName: &quot;Size 42 - Đen&quot; });"><i class="bi bi-cart fs-5"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-                
-                <!-- Mobile Only View All Button -->
-                <div class="mt-4 text-center d-block d-md-none">
-                    <a th:href="@{/categories}" class="tw-btn tw-btn-outline w-100">Xem tất cả sản phẩm</a>
-                </div>
-            </div>
+</div>
+</div>
         </div>
     </section>
         </main>

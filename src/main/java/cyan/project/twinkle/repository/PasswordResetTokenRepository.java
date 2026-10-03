@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface PasswordResetTokenRepository extends JpaRepository<PasswordResetToken, Long> {
-    List<PasswordResetToken> findByUserAndIsUsedFalseOrderByCreatedAtDesc(User user);
+    List<PasswordResetToken> findByUserAndIsUsedFalseOrderByIdDesc(User user);
 }

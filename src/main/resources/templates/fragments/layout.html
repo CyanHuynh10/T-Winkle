@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${title}">T-Winkle</title>
 
+    <!-- CSRF Tokens -->
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/T-Winkle_LogoNoBG.png">
 
@@ -365,8 +369,8 @@
     <!-- Bootstrap & JS Foundation -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script th:src="@{/js/main.js}"></script>
-    <script th:src="@{/js/cart-handler.js}"></script>
-    <script th:src="@{/js/wishlist-handler.js}"></script>
+    
+    
 
     
 

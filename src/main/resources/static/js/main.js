@@ -227,3 +227,35 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 });
+
+window.showProductDetail = function(productId) {
+    if (!productId) return;
+    const loader = document.getElementById('twinkle-global-transition');
+    if (loader) loader.classList.add('active'); 
+
+    fetch('/products/' + productId)
+        .then(res => res.text())
+        .then(html => {
+            if (loader) loader.classList.remove('active');
+            
+            // Create a temp div to parse the fragment
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            
+            const newModal = tempDiv.querySelector('#productDetailModal');
+            if (newModal) {
+                let existingModal = document.getElementById('productDetailModal');
+                if (existingModal) {
+                    existingModal.innerHTML = newModal.innerHTML;
+                    
+                    // Show it if not already shown
+                    const bsModal = bootstrap.Modal.getInstance(existingModal) || new bootstrap.Modal(existingModal);
+                    bsModal.show();
+                }
+            }
+        })
+        .catch(err => {
+            console.error('Failed to load product details', err);
+            if (loader) loader.classList.remove('active');
+        });
+};

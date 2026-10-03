@@ -102,48 +102,100 @@
                     
                 </div>
                 
+                
                 <!-- Empty State -->
-                <div id="cartEmptyState" class="cart-main-card d-flex flex-column align-items-center justify-content-center text-center py-5" style="display: none; min-height: 400px;">
-                    <div class="mb-4">
-                        <i class="bi bi-cart-x text-muted-custom" style="font-size: 4rem; opacity: 0.4;"></i>
+                <div id="cartEmptyState" class="text-center py-5 animate-fade-up" th:if="${#maps.isEmpty(groupedCart)}">
+                    <div class="mb-4 d-flex justify-content-center">
+                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center shadow-inner" style="width: 140px; height: 140px; position: relative;">
+                            <i class="bi bi-cart-x text-muted-custom" style="font-size: 4rem;"></i>
+                        </div>
                     </div>
-                    <h4 class="fw-bold text-dark mb-3">Giỏ hàng của bạn đang trống</h4>
-                    <p class="text-muted-custom mb-4 max-w-md mx-auto">Khám phá các sản phẩm và thêm sản phẩm bạn yêu thích vào giỏ hàng để tiến hành thanh toán.</p>
-                    <a th:href="@{/categories}" class="tw-btn btn-checkout-primary rounded-pill px-5 py-3 text-decoration-none fw-bold d-inline-flex align-items-center justify-content-center">
+                    <h3 class="h4 fw-bold text-dark mb-3">Giỏ hàng trống</h3>
+                    <p class="text-muted-custom mb-4 max-w-md mx-auto">Có vẻ như bạn chưa thêm sản phẩm nào vào giỏ. Hãy khám phá các bộ sưu tập mới nhất của chúng tôi!</p>
+                    <a th:href="@{/categories}" class="tw-btn tw-btn-primary rounded-pill px-5 py-3 text-decoration-none d-inline-flex align-items-center gap-2 shadow-sm hover-lift fw-bold">
                         Khám phá sản phẩm
                     </a>
                 </div>
 
-                <!-- Cart Content -->
-                <div id="cartContent" class="row gy-4 justify-content-center" style="display: none;">
+<!-- Cart Content -->
+                <div id="cartContent" class="row gy-4 justify-content-center" th:if="${not #maps.isEmpty(groupedCart)}">
                     <div class="col-12" style="max-width: 800px; margin: 0 auto;">
                         <div id="cartGroupsContainer">
-                            <!-- JS will render store groups here -->
+                            <!-- Loop through each store group -->
+                            <div th:each="entry : ${groupedCart}" class="cart-main-card mb-4" style="padding: 1.25rem;">
+                                <div class="store-group-header mb-3" style="background: rgba(248, 250, 252, 0.5); padding: 0.75rem 1rem; border-radius: 12px; display: flex; align-items: center; gap: 0.5rem; font-weight: 700; border: 1px solid rgba(226, 232, 240, 0.6);">
+                                    <i class="bi bi-shop text-cyan fs-5"></i>
+                                    <span class="text-dark fs-6" th:text="${entry.key.name}">Store Name</span>
+                                </div>
+                                <div class="store-items">
+                                    <div th:each="item, stat : ${entry.value}" class="cart-item-row d-flex gap-3 align-items-center py-3" th:style="${not stat.last} ? 'border-bottom: 1px solid rgba(226, 232, 240, 0.6);' : ''">
+                                        <!-- Select Checkbox -->
+                                        <div class="form-check m-0 p-0 d-flex align-items-center">
+                                            <form th:action="@{/cart/toggle-select}" method="POST" class="m-0 p-0" th:id="'toggleForm_' + ${item.id}">
+                                                <input type="hidden" name="cartItemId" th:value="${item.id}" />
+                                                <input type="hidden" name="isSelected" th:value="${!item.selected}" />
+                                                <input class="form-check-input cursor-pointer shadow-none m-0" type="checkbox" style="width: 1.25rem; height: 1.25rem; border-color: #CBD5E1;" th:checked="${item.selected}" th:onchange="'document.getElementById('toggleForm_' + ${item.id} + '').submit();'">
+                                            </form>
+                                        </div>
+                                        
+                                        <!-- Image -->
+                                        <div class="cart-item-img rounded-3 overflow-hidden border bg-white flex-shrink-0" style="width: 80px; height: 80px; cursor: pointer;" th:onclick="'window.location.href=\'/categories/p?keyword=' + ${item.product.name} + '\''">
+                                            <img th:src="${item.product.primaryImagePath}" class="w-100 h-100" style="object-fit: cover;" th:if="${item.product.primaryImagePath != null}"/>
+                                            <i th:unless="${item.product.primaryImagePath != null}" class="bi bi-image text-muted opacity-25" style="font-size: 2rem;"></i>
+                                        </div>
+                                        
+                                        <!-- Info -->
+                                        <div class="d-flex flex-column flex-grow-1 min-w-0">
+                                            <h3 class="h6 fw-bold text-dark mb-1 text-truncate" th:text="${item.product.name}" style="cursor: pointer;" th:onclick="'window.location.href=\'/categories/p?keyword=' + ${item.product.name} + '\''">Product</h3>
+                                            <span class="badge bg-light text-dark border px-2 py-1 mb-1" style="width: fit-content; align-self: flex-start;" th:text="${item.variant.size} + ' - ' + ${item.variant.color}">Variant</span>
+                                            
+                                            <div class="d-flex align-items-center justify-content-between mt-2 flex-wrap gap-2">
+                                                <div class="d-flex flex-column">
+                                                    <span class="fw-bold text-dark" th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span>
+                                                </div>
+                                                
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <!-- Quantity Update -->
+                                                    <form th:action="@{/cart/update}" method="POST" class="d-flex align-items-center rounded-pill border bg-white overflow-hidden p-1 shadow-sm" style="height: 36px; width: 100px;">
+                                                        <input type="hidden" name="cartItemId" th:value="${item.id}" />
+                                                        <button type="button" class="btn btn-sm btn-link text-dark text-decoration-none px-2 py-0 border-0 fs-5 d-flex align-items-center justify-content-center" style="height: 100%;" th:onclick="'if(this.nextElementSibling.value > 1) { this.nextElementSibling.value--; this.form.submit(); }'">-</button>
+                                                        <input type="number" name="quantity" class="form-control form-control-sm text-center border-0 p-0 fw-bold bg-white text-dark shadow-none" th:value="${item.quantity}" style="width: 30px; font-size: 0.9rem;" readonly>
+                                                        <button type="button" class="btn btn-sm btn-link text-dark text-decoration-none px-2 py-0 border-0 fs-5 d-flex align-items-center justify-content-center" style="height: 100%;" th:onclick="'this.previousElementSibling.value++; this.form.submit();'">+</button>
+                                                    </form>
+                                                    
+                                                    <!-- Remove Button -->
+                                                    <form th:action="@{/cart/remove}" method="POST" class="m-0 p-0">
+                                                        <input type="hidden" name="cartItemId" th:value="${item.id}" />
+                                                        <button type="submit" class="btn btn-sm btn-light text-danger rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale" style="width: 36px; height: 36px;">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Pagination -->
-                        <div id="cartPaginationContainer" class="d-flex justify-content-center align-items-center gap-2 mt-4">
-                        </div>
-                        
                         <div class="d-flex justify-content-between mt-4">
                             <a th:href="@{/categories}" class="btn btn-link text-decoration-none text-muted hover-cyan px-0 fw-medium">
                                 <i class="bi bi-arrow-left me-2"></i>Tiếp tục mua sắm
                             </a>
-                            <button class="btn btn-link text-decoration-none text-danger px-0 fw-medium" onclick="promptClearCart()">
-                                <i class="bi bi-trash me-2"></i>Xóa toàn bộ giỏ hàng
-                            </button>
                         </div>
                     </div>
 
-                                        <!-- Payment Button -->
+                    <!-- Payment Button -->
+                    <!-- Calculate selected total sum inside thymeleaf? Since we can't easily loop here without setting variables, we just always show the checkout button if there are items, but disable if none selected -->
                     <div class="col-12 mt-4 text-center">
-                        <button id="checkoutBtn" class="tw-btn btn-checkout-primary rounded-pill py-3 px-5 fw-bold fs-5 shadow" onclick="proceedToCheckout()" disabled>
+                        <a th:href="@{/checkout}" id="checkoutBtn" class="tw-btn btn-checkout-primary rounded-pill py-3 px-5 fw-bold fs-5 shadow text-decoration-none d-inline-block">
                             Thanh toán
-                        </button>
+                        </a>
                     </div>
                 </div>
-            </div>
-        </main>
+
+</div>
+</main>
 
         <!-- Clear Cart Confirmation Modal -->
         <div class="modal fade" id="clearCartModal" tabindex="-1" aria-hidden="true">
@@ -162,195 +214,7 @@
             </div>
         </div>
 
-        <script>
-            let bsClearCartModal;
-            
-            document.addEventListener('DOMContentLoaded', () => {
-                bsClearCartModal = new bootstrap.Modal(document.getElementById('clearCartModal'));
-                renderCartPage();
-            });
-
-            function formatCurrency(amount) {
-                return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
-            }
-
-            
-            
-            let cartCurrentPage = 1;
-
-            function renderCartPage() {
-                const cart = CartHandler.getCart();
-                const emptyState = document.getElementById('cartEmptyState');
-                const cartContent = document.getElementById('cartContent');
-
-                if (cart.length === 0) {
-                    emptyState.style.setProperty('display', 'flex', 'important');
-                    cartContent.style.setProperty('display', 'none', 'important');
-                    return;
-                }
-
-                emptyState.style.setProperty('display', 'none', 'important');
-                cartContent.style.setProperty('display', 'flex', 'important');
-
-                // Group by store
-                const groupsMap = {};
-
-                cart.forEach(item => {
-                    if (!groupsMap[item.storeId]) {
-                        groupsMap[item.storeId] = {
-                            storeId: item.storeId,
-                            storeName: item.storeName || 'Cửa hàng',
-                            items: []
-                        };
-                    }
-                    groupsMap[item.storeId].items.push(item);
-                });
-
-                const groupsArray = Object.values(groupsMap);
-                const totalPages = Math.ceil(groupsArray.length / 3) || 1;
-
-                if (cartCurrentPage > totalPages) {
-                    cartCurrentPage = totalPages;
-                }
-
-                const startIndex = (cartCurrentPage - 1) * 3;
-                const pageGroups = groupsArray.slice(startIndex, startIndex + 3);
-
-                const groupsContainer = document.getElementById('cartGroupsContainer');
-                groupsContainer.innerHTML = '';
-
-                let anySelected = false;
-                cart.forEach(item => {
-                    if (item.selected !== false) anySelected = true;
-                });
-
-                pageGroups.forEach(group => {
-                    let groupHtml = `
-                        <div class="cart-main-card mb-4" style="padding: 1.25rem;">
-                            <div class="store-group-header mb-3" style="background: rgba(248, 250, 252, 0.5); padding: 0.75rem 1rem; border-radius: 12px; display: flex; align-items: center; gap: 0.5rem; font-weight: 700; border: 1px solid rgba(226, 232, 240, 0.6);">
-                                <i class="bi bi-shop text-cyan fs-5"></i>
-                                <span class="text-dark fs-6">${group.storeName}</span>
-                            </div>
-                            <div class="store-items">
-                    `;
-
-                    group.items.forEach((item, index) => {
-                        const isChecked = item.selected !== false ? 'checked' : '';
-                        const priceHtml = item.effectivePrice < item.originalPrice ?
-                            `<div class="d-flex flex-column align-items-end">
-                                <span class="fw-bold text-danger">${formatCurrency(item.effectivePrice)}</span>
-                                <span class="text-muted text-decoration-line-through" style="font-size: 0.75rem;">${formatCurrency(item.originalPrice)}</span>
-                             </div>` :
-                            `<span class="fw-bold text-dark">${formatCurrency(item.effectivePrice)}</span>`;
-
-                        const variantHtml = item.variantName ? 
-                            `<span class="badge bg-light text-dark border px-2 py-1 mb-1" style="width: fit-content; align-self: flex-start; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis;">${item.variantName}</span>` : '';
-                            
-                        const isLast = index === group.items.length - 1;
-                        const borderBottom = isLast ? '' : 'border-bottom: 1px solid rgba(226, 232, 240, 0.6);';
-
-                        groupHtml += `
-                            <div class="cart-item-row d-flex gap-3 align-items-center py-3" style="${borderBottom}">
-                                <div class="form-check m-0 p-0 d-flex align-items-center">
-                                    <input class="form-check-input cursor-pointer shadow-none m-0" type="checkbox" style="width: 1.25rem; height: 1.25rem; border-color: #CBD5E1;" onchange="toggleItemSelect('${item.cartItemId}', this.checked)" ${isChecked}>
-                                </div>
-                                <img src="${item.image || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200'}" alt="${item.productName}" class="item-image flex-shrink-0" style="width: 72px; height: 72px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(226, 232, 240, 0.5);">
-                                <div class="flex-grow-1 min-w-0 d-flex flex-column justify-content-between h-100">
-                                    <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
-                                        <h6 class="fw-semibold text-dark mb-0 text-truncate" style="font-size: 0.95rem;">${item.productName}</h6>
-                                        <button class="btn btn-link p-0 text-muted hover-cyan shadow-none border-0" onclick="removeItem('${item.cartItemId}')" aria-label="Xóa sản phẩm">
-                                            <i class="bi bi-x-lg"></i>
-                                        </button>
-                                    </div>
-                                    ${variantHtml}
-                                    <div class="d-flex justify-content-between align-items-end mt-2">
-                                        ${priceHtml}
-                                        <div class="d-flex align-items-center gap-1 bg-white rounded-2 border" style="padding: 2px;">
-                                            <button class="btn btn-sm btn-light border-0 shadow-none d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; padding: 0;" onclick="updateQty('${item.cartItemId}', ${item.quantity - 1})" aria-label="Giảm số lượng">
-                                                <i class="bi bi-dash"></i>
-                                            </button>
-                                            <input type="text" class="text-center border-0 fw-semibold bg-transparent px-1" style="width: 30px; font-size: 0.85rem;" value="${item.quantity}" readonly>
-                                            <button class="btn btn-sm btn-light border-0 shadow-none d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; padding: 0;" onclick="updateQty('${item.cartItemId}', ${item.quantity + 1})" aria-label="Tăng số lượng">
-                                                <i class="bi bi-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    });
-
-                    groupHtml += `</div></div>`;
-                    groupsContainer.innerHTML += groupHtml;
-                });
-
-                // Render Pagination
-                const pagContainer = document.getElementById('cartPaginationContainer');
-                pagContainer.innerHTML = '';
-                if (totalPages > 1) {
-                    let pagHtml = `<button class="btn btn-outline-secondary btn-sm shadow-none" ${cartCurrentPage === 1 ? 'disabled' : ''} onclick="changeCartPage(${cartCurrentPage - 1})"><i class="bi bi-chevron-left"></i></button>`;
-                    for (let i = 1; i <= totalPages; i++) {
-                        if (i === cartCurrentPage) {
-                            pagHtml += `<button class="btn btn-cyan text-white btn-sm shadow-none fw-bold">${i}</button>`;
-                        } else {
-                            pagHtml += `<button class="btn btn-outline-secondary btn-sm shadow-none" onclick="changeCartPage(${i})">${i}</button>`;
-                        }
-                    }
-                    pagHtml += `<button class="btn btn-outline-secondary btn-sm shadow-none" ${cartCurrentPage === totalPages ? 'disabled' : ''} onclick="changeCartPage(${cartCurrentPage + 1})"><i class="bi bi-chevron-right"></i></button>`;
-                    pagContainer.innerHTML = pagHtml;
-                }
-
-                const checkoutBtn = document.getElementById('checkoutBtn');
-                if (anySelected) {
-                    checkoutBtn.removeAttribute('disabled');
-                } else {
-                    checkoutBtn.setAttribute('disabled', 'true');
-                }
-            }
-
-            function changeCartPage(page) {
-                cartCurrentPage = page;
-                renderCartPage();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-
-
-            function toggleItemSelect(itemId, isSelected) {
-                let cart = CartHandler.getCart();
-                const item = cart.find(i => i.cartItemId === itemId);
-                if (item) {
-                    item.selected = isSelected;
-                    CartHandler.saveCart(cart);
-                }
-                renderCartPage();
-            }
-
-            function updateQty(id, newQty) {
-                if (newQty < 1) return;
-                CartHandler.updateQuantity(id, newQty);
-                renderCartPage();
-            }
-
-            function removeItem(id) {
-                CartHandler.removeItem(id);
-                renderCartPage();
-            }
-
-            function promptClearCart() {
-                bsClearCartModal.show();
-            }
-
-            function executeClearCart() {
-                CartHandler.clearCart();
-                bsClearCartModal.hide();
-                renderCartPage();
-            }
-
-            function proceedToCheckout() {
-                // Future phase integration
-                window.location.href = '/checkout';
-            }
-        </script>
+        
     </div>
 </body>
 </html>

@@ -1,28 +1,37 @@
 package cyan.project.twinkle.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "USERS")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
-
-    
-
-    @Column(nullable = false, length = 50)
-    private String username;
-
     @Id
-    @Column(nullable = false, length = 100)
+    @Column(name = "email", length = 100, nullable = false)
     private String email;
 
-    @Column(name = "password_hash", nullable = false)
+    @Column(name = "username", length = 50, nullable = false)
+    private String username;
+
+    @Column(name = "full_name", length = 100)
+    private String fullName;
+
+    @Column(name = "phone", length = 20)
+    private String phone;
+
+    @Column(name = "password_hash", length = 255, nullable = false)
     private String passwordHash;
 
     @Column(name = "is_enabled", nullable = false)
-    private Boolean isEnabled = false;
+    private Boolean isEnabled;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -33,44 +42,21 @@ public class User {
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "USER_ROLES",
-        joinColumns = @JoinColumn(name = "user_email"),
+        joinColumns = @JoinColumn(name = "user_email", referencedColumnName = "email"),
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
+    @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        if (isEnabled == null) isEnabled = true;
     }
 
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-
-    public User() {}
-
-    
-
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-
-    public String getPasswordHash() { return passwordHash; }
-    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
-
-    public Boolean getIsEnabled() { return isEnabled; }
-    public void setIsEnabled(Boolean isEnabled) { this.isEnabled = isEnabled; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-
-    public Set<Role> getRoles() { return roles; }
-    public void setRoles(Set<Role> roles) { this.roles = roles; }
 }

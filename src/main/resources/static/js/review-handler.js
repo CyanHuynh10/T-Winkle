@@ -48,18 +48,18 @@ function initReviewSystem() {
 
 function getReviews() {
     try {
-        const data = localStorage.getItem('twinkle_reviews');
+        const data = null; // Prototype data removed
         return data ? JSON.parse(data) : [];
     } catch(e) { return []; }
 }
 
 function saveReviews(reviews) {
-    localStorage.setItem('twinkle_reviews', JSON.stringify(reviews));
+    // localStorage.setItem removed
 }
 
 function getOrders() {
     try {
-        const data = localStorage.getItem('twinkle_orders');
+        const data = null; // Prototype data removed
         return data ? JSON.parse(data) : [];
     } catch(e) { return []; }
 }
@@ -314,33 +314,37 @@ function submitReview() {
         return;
     }
 
-    const reviews = getReviews();
-    
-    // Safety duplicate check again
-    const existing = reviews.find(r => r.productId === ReviewState.currentProductId && r.username === ReviewState.currentUser);
-    if (existing) {
-        if (window.showToast) window.showToast('Bạn đã đánh giá sản phẩm này rồi.', 'error');
-        return;
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/reviews/add';
+
+    const csrfToken = document.querySelector('meta[name="_csrf"]');
+    if (csrfToken) {
+        const inputCsrf = document.createElement('input');
+        inputCsrf.type = 'hidden';
+        inputCsrf.name = '_csrf';
+        inputCsrf.value = csrfToken.content;
+        form.appendChild(inputCsrf);
     }
 
-    const newReview = {
-        reviewId: 'REV-' + Date.now(),
-        productId: ReviewState.currentProductId,
-        orderId: ReviewState.eligibleOrderId,
-        username: ReviewState.currentUser,
-        rating: ReviewState.selectedRating,
-        comment: comment,
-        variantSnapshot: ReviewState.eligibleVariant,
-        createdAt: new Date().toISOString()
-    };
+    const inputProductId = document.createElement('input');
+    inputProductId.type = 'hidden';
+    inputProductId.name = 'productId';
+    inputProductId.value = ReviewState.currentProductId;
+    form.appendChild(inputProductId);
 
-    reviews.push(newReview);
-    saveReviews(reviews);
+    const inputRating = document.createElement('input');
+    inputRating.type = 'hidden';
+    inputRating.name = 'rating';
+    inputRating.value = ReviewState.selectedRating;
+    form.appendChild(inputRating);
 
-    if (window.showToast) window.showToast('Đã gửi đánh giá thành công.', 'success');
-    else alert('Đã gửi đánh giá thành công.');
+    const inputComment = document.createElement('input');
+    inputComment.type = 'hidden';
+    inputComment.name = 'comment';
+    inputComment.value = comment;
+    form.appendChild(inputComment);
 
-    ReviewState.hasReviewed = true;
-    resetReviewForm();
-    checkEligibilityAndRender();
+    document.body.appendChild(form);
+    form.submit();
 }

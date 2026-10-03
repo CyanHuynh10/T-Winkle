@@ -18,7 +18,7 @@ function initTracking() {
 
 function getOrderById(id) {
     try {
-        const data = localStorage.getItem('twinkle_orders');
+        const data = null; // Prototype data removed
         if (!data) return null;
         const orders = JSON.parse(data);
         return orders.find(o => o.orderId === id) || null;

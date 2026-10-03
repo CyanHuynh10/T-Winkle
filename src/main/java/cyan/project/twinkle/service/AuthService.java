@@ -84,7 +84,7 @@ public class AuthService {
 
     @Transactional
     public void generateAndSendOtp(User user, String type) throws Exception {
-        List<OtpVerification> oldOtps = otpRepository.findByUserAndTypeAndIsUsedFalseOrderByCreatedAtDesc(user, type);
+        List<OtpVerification> oldOtps = otpRepository.findByUserAndTypeAndIsUsedFalseOrderByIdDesc(user, type);
         for (OtpVerification otp : oldOtps) {
             if (otp.getCreatedAt().plusSeconds(60).isAfter(LocalDateTime.now())) {
                 throw new Exception("Vui lòng đợi 60 giây trước khi yêu cầu gửi lại OTP.");
@@ -112,7 +112,7 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new Exception("Thông tin xác thực không hợp lệ.")); // Generic message
 
-        List<OtpVerification> otps = otpRepository.findByUserAndTypeAndIsUsedFalseOrderByCreatedAtDesc(user, expectedType);
+        List<OtpVerification> otps = otpRepository.findByUserAndTypeAndIsUsedFalseOrderByIdDesc(user, expectedType);
         if (otps.isEmpty()) {
             throw new Exception("Không tìm thấy mã OTP hoặc mã đã hết hạn.");
         }
@@ -166,7 +166,7 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new Exception("Lỗi hệ thống."));
         
-        List<PasswordResetToken> oldTokens = resetTokenRepository.findByUserAndIsUsedFalseOrderByCreatedAtDesc(user);
+        List<PasswordResetToken> oldTokens = resetTokenRepository.findByUserAndIsUsedFalseOrderByIdDesc(user);
         for (PasswordResetToken token : oldTokens) {
             token.setIsUsed(true);
             resetTokenRepository.save(token);
@@ -192,7 +192,7 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new Exception("Token hoặc email không hợp lệ.")); // Generic message
 
-        List<PasswordResetToken> tokens = resetTokenRepository.findByUserAndIsUsedFalseOrderByCreatedAtDesc(user);
+        List<PasswordResetToken> tokens = resetTokenRepository.findByUserAndIsUsedFalseOrderByIdDesc(user);
         if (tokens.isEmpty()) {
             throw new Exception("Token không hợp lệ hoặc đã hết hạn.");
         }

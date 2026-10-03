@@ -90,7 +90,11 @@
                 <!-- Profile Card -->
                 <div class="profile-main-card rounded-4 overflow-hidden">
                     <div class="p-3 p-md-4">
-                        <form id="profileForm" novalidate onsubmit="return false;">
+                        <div th:if="" class="alert alert-success alert-dismissible fade show" role="alert">
+                            Cập nhật thông tin thành công!
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <form id="profileForm" novalidate th:action="@{/profile/update}" method="POST">
                             <!-- Top Section: Avatar & Identity -->
                             <div class="d-flex flex-column flex-md-row align-items-center align-items-md-start gap-3 mb-3 pb-3 profile-header-separator">
                                 <div class="position-relative">
@@ -120,7 +124,7 @@
                                         <label for="fullName" class="form-label text-sm fw-semibold mb-1" style="color: #64748B;">Họ và tên</label>
                                         <div class="view-mode-text fw-medium fs-5" style="color: #0F172A;" id="viewFullName">Nguyễn Văn A</div>
                                         <div class="edit-mode-field" style="display: none;">
-                                            <input type="text" class="form-control profile-input shadow-none" id="fullName" value="Nguyễn Văn A" required>
+                                            <input type="text" name="fullName" class="form-control profile-input shadow-none" id="fullName" th:value="${user.fullName}" required>
                                             <div class="invalid-feedback">Vui lòng nhập họ và tên.</div>
                                         </div>
                                     </div>
@@ -140,7 +144,7 @@
                                         <label for="phone" class="form-label text-sm fw-semibold mb-1" style="color: #64748B;">Số điện thoại</label>
                                         <div class="view-mode-text fw-medium fs-5 text-muted-fallback" id="viewPhone">Chưa cập nhật</div>
                                         <div class="edit-mode-field" style="display: none;">
-                                            <input type="tel" class="form-control profile-input shadow-none" id="phone" value="" pattern="[0-9]{10,11}">
+                                            <input type="tel" name="phone" class="form-control profile-input shadow-none" id="phone" th:value="${user.phone}" pattern="[0-9]{10,11}">
                                             <div class="invalid-feedback">Vui lòng nhập số điện thoại hợp lệ (10-11 số).</div>
                                         </div>
                                     </div>
@@ -152,7 +156,7 @@
                                         <label for="username" class="form-label text-sm fw-semibold mb-1" style="color: #64748B;">Username</label>
                                         <div class="view-mode-text fw-medium fs-5" style="color: #0F172A;" id="viewUsername" th:text="${currentUsername != null ? currentUsername : 'user'}">user</div>
                                         <div class="edit-mode-field" style="display: none;">
-                                            <input type="text" class="form-control profile-input shadow-none" id="username" th:value="${currentUsername != null ? currentUsername : 'user'}" required>
+                                            <input type="text" name="username" class="form-control profile-input shadow-none" id="username" th:value="${user.username}" required>
                                             <div class="invalid-feedback">Vui lòng nhập Username.</div>
                                         </div>
                                     </div>
@@ -245,49 +249,16 @@
                 });
 
                 saveBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    
                     if (!form.checkValidity()) {
+                        e.preventDefault();
                         e.stopPropagation();
                         form.classList.add('was-validated');
                         return;
                     }
-
                     const originalText = saveBtn.textContent;
                     saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Đang lưu...';
                     saveBtn.disabled = true;
-
-                    setTimeout(() => {
-                        originalData.fullName = fullNameInput.value;
-                        originalData.phone = phoneInput.value;
-                        originalData.username = usernameInput.value;
-                        
-                        viewFullName.textContent = originalData.fullName;
-                        viewUsername.textContent = originalData.username;
-                        
-                        if(originalData.phone.trim() === '') {
-                            viewPhone.textContent = 'Chưa cập nhật';
-                            viewPhone.className = 'view-mode-text fw-medium fs-5 text-muted-fallback';
-                            viewPhone.style.color = '';
-                        } else {
-                            viewPhone.textContent = originalData.phone;
-                            viewPhone.className = 'view-mode-text fw-medium fs-5';
-                            viewPhone.style.color = '#0F172A';
-                        }
-                        
-                        // Identity Display updates based on Username, NOT Họ và tên
-                        displayUsername.textContent = originalData.username;
-                        
-                        const initialSpan = document.querySelector('.auth-avatar-initial');
-                        if (initialSpan && originalData.username.length > 0) {
-                            initialSpan.textContent = originalData.username.charAt(0).toUpperCase();
-                        }
-                        
-                        saveBtn.textContent = 'Lưu thay đổi';
-                        saveBtn.disabled = false;
-                        
-                        toggleMode(false);
-                    }, 800);
+                    form.submit();
                 });
             });
         </script>

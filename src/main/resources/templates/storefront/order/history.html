@@ -32,7 +32,7 @@
                 </div>
                 
                 <!-- Empty State -->
-                <div id="orderEmptyState" class="order-card align-items-center justify-content-center text-center py-5 mx-auto" style="display: none; min-height: 400px; max-width: 800px;">
+                <div id="orderEmptyState" class="order-card align-items-center justify-content-center text-center py-5 mx-auto" th:if="${orderPage.empty}" style=" min-height: 400px; max-width: 800px;">
                     <div class="mb-4">
                         <i class="bi bi-box-seam text-muted-custom" style="font-size: 4rem; opacity: 0.4;"></i>
                     </div>
@@ -44,13 +44,46 @@
                 </div>
 
                 <!-- Order Grid -->
-                <div id="orderGrid" class="row g-4" style="display: none;">
-                    <!-- JS will render order cards here -->
+                <div id="orderGrid" class="row g-4" th:unless="${orderPage.empty}">
+                    <div class="col-12 col-md-6 col-lg-4" th:each="order : ${orderPage.content}">
+                        <div class="order-card">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <div class="fw-bold text-dark fs-5" th:text="${order.orderCode}">TW-123456</div>
+                                    <div class="text-muted text-sm mt-1" th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">Date</div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <span class="badge px-2 py-1 border rounded-pill"
+                                      th:classappend="${order.status == 'Đã hủy'} ? 'bg-danger bg-opacity-10 text-danger border-danger border-opacity-25' : 
+                                      (${order.status == 'Đã giao'} ? 'bg-success bg-opacity-10 text-success border-success border-opacity-25' : 
+                                      'bg-info bg-opacity-10 text-info border-info border-opacity-25')">
+                                    <i class="bi me-1" th:classappend="${order.status == 'Đã hủy'} ? 'bi-x-circle' : (${order.status == 'Đã giao'} ? 'bi-box-seam' : 'bi-info-circle')"></i>
+                                    <span th:text="${order.status}">Status</span>
+                                </span>
+                            </div>
+                            <div class="mt-auto pt-3 border-top border-light">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="text-muted-custom">Tổng sản phẩm</span>
+                                    <span class="fw-semibold text-dark" th:text="${#lists.size(order.orderItems)}">0</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <span class="text-muted-custom">Tổng tiền</span>
+                                    <span class="fw-bold text-cyan fs-5" th:text="${#numbers.formatDecimal(order.total, 0, 'COMMA', 0, 'POINT')} + 'đ'">0₫</span>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a th:href="@{'/orders/' + ${order.id}}" class="btn btn-light text-dark rounded-pill flex-grow-1 fw-medium border shadow-sm">Xem chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Pagination -->
-                <div id="orderPaginationContainer" class="d-flex justify-content-center align-items-center gap-2 mt-5">
-                    <!-- JS will render pagination here -->
+                <div id="orderPaginationContainer" class="d-flex justify-content-center align-items-center gap-2 mt-5" th:if="${orderPage.totalPages > 1}">
+                    <a th:href="@{/orders(page=${orderPage.number - 1})}" th:classappend="${orderPage.first} ? 'disabled' : ''" class="btn btn-outline-cyan rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;"><i class="bi bi-chevron-left"></i></a>
+                    <span class="text-muted-custom fw-medium">Trang <span th:text="${orderPage.number + 1}"></span> / <span th:text="${orderPage.totalPages}"></span></span>
+                    <a th:href="@{/orders(page=${orderPage.number + 1})}" th:classappend="${orderPage.last} ? 'disabled' : ''" class="btn btn-outline-cyan rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;"><i class="bi bi-chevron-right"></i></a>
                 </div>
 
             </div>
@@ -108,166 +141,8 @@
             </div>
         </div>
 
-        <script src="/js/order-handler.js"></script>
-        <script>
-            let currentOrderPage = 1;
-            const ORDERS_PER_PAGE = 9;
-            let cancelModalInstance;
-            let orderToCancel = null;
-
-            document.addEventListener('DOMContentLoaded', () => {
-                if (typeof bootstrap !== 'undefined') {
-                    const modalEl = document.getElementById('cancelOrderModal');
-                    if (modalEl) cancelModalInstance = new bootstrap.Modal(modalEl);
-                }
-                renderOrderHistory();
-            });
-
-            function renderOrderHistory() {
-                const orders = OrderHandler.getOrders();
-                const emptyState = document.getElementById('orderEmptyState');
-                const grid = document.getElementById('orderGrid');
-                const pagContainer = document.getElementById('orderPaginationContainer');
-
-                if (orders.length === 0) {
-                    emptyState.style.setProperty('display', 'flex', 'important');
-                    grid.style.setProperty('display', 'none', 'important');
-                    pagContainer.innerHTML = '';
-                    return;
-                }
-
-                emptyState.style.setProperty('display', 'none', 'important');
-                grid.style.setProperty('display', 'flex', 'important');
-
-                const totalPages = Math.ceil(orders.length / ORDERS_PER_PAGE) || 1;
-                if (currentOrderPage > totalPages) {
-                    currentOrderPage = totalPages;
-                }
-
-                const startIndex = (currentOrderPage - 1) * ORDERS_PER_PAGE;
-                const pageOrders = orders.slice(startIndex, startIndex + ORDERS_PER_PAGE);
-
-                let html = '';
-                pageOrders.forEach(order => {
-                    const statusInfo = OrderHandler.getStatusSemantics(order.status);
-                    
-                    let statusBadgeHtml = \`<span class="badge bg-\${statusInfo.color} bg-opacity-10 text-\${statusInfo.color} px-2 py-1 border border-\${statusInfo.color} border-opacity-25 rounded-pill"><i class="bi \${statusInfo.icon} me-1"></i>\${statusInfo.text}</span>\`;
-                    
-                    let cancelPendingHtml = '';
-                    if (order.cancellationRequest && order.cancellationRequest.status === 'PENDING_STORE_CONFIRMATION') {
-                        cancelPendingHtml = \`<div class="text-warning text-sm fw-medium mt-2"><i class="bi bi-info-circle me-1"></i>Đang chờ cửa hàng xác nhận hủy</div>\`;
-                    }
-
-                    let cancelActionHtml = '';
-                    if (order.status === 'Chờ xác nhận' && !order.cancellationRequest) {
-                        cancelActionHtml = \`<button class="btn btn-outline-danger btn-sm rounded-pill flex-grow-1" onclick="openCancelModal('\${order.orderId}')">Hủy đơn</button>\`;
-                    }
-
-                    const totalQty = order.items.reduce((sum, item) => sum + item.quantity, 0);
-
-                    html += \`
-                        <div class="col-12 col-md-6 col-lg-4">
-                            <div class="order-card">
-                                <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <div>
-                                        <div class="fw-bold text-dark fs-5">\${order.orderId}</div>
-                                        <div class="text-muted text-sm mt-1">\${OrderHandler.formatDate(order.createdAt)}</div>
-                                    </div>
-                                </div>
-                                <div class="mb-4">
-                                    \${statusBadgeHtml}
-                                    \${cancelPendingHtml}
-                                </div>
-                                <div class="mt-auto pt-3 border-top border-light">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="text-muted-custom">Tổng sản phẩm</span>
-                                        <span class="fw-semibold text-dark">\${totalQty}</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center mb-4">
-                                        <span class="text-muted-custom">Tổng tiền</span>
-                                        <span class="fw-bold text-cyan fs-5">\${OrderHandler.formatCurrency(order.total)}</span>
-                                    </div>
-                                    <div class="d-flex gap-2">
-                                        <a href="/orders/\${order.orderId}" class="btn btn-light text-dark rounded-pill flex-grow-1 fw-medium border shadow-sm">Xem chi tiết</a>
-                                        \${cancelActionHtml}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    \`;
-                });
-
-                grid.innerHTML = html;
-
-                pagContainer.innerHTML = '';
-                if (totalPages > 1) {
-                    let pagHtml = \`<button class="btn btn-outline-secondary btn-sm shadow-none" \${currentOrderPage === 1 ? 'disabled' : ''} onclick="changeOrderPage(\${currentOrderPage - 1})"><i class="bi bi-chevron-left"></i></button>\`;
-                    for (let i = 1; i <= totalPages; i++) {
-                        if (i === currentOrderPage) {
-                            pagHtml += \`<button class="btn btn-cyan text-white btn-sm shadow-none fw-bold">\${i}</button>\`;
-                        } else {
-                            pagHtml += \`<button class="btn btn-outline-secondary btn-sm shadow-none" onclick="changeOrderPage(\${i})">\${i}</button>\`;
-                        }
-                    }
-                    pagHtml += \`<button class="btn btn-outline-secondary btn-sm shadow-none" \${currentOrderPage === totalPages ? 'disabled' : ''} onclick="changeOrderPage(\${currentOrderPage + 1})"><i class="bi bi-chevron-right"></i></button>\`;
-                    pagContainer.innerHTML = pagHtml;
-                }
-            }
-
-            function changeOrderPage(page) {
-                currentOrderPage = page;
-                renderOrderHistory();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-
-            function openCancelModal(orderId) {
-                orderToCancel = orderId;
-                document.getElementById('cancelOrderIdText').textContent = orderId;
-                
-                // Reset form
-                document.getElementById('reason1').checked = true;
-                toggleCustomReason();
-                document.getElementById('customReasonInput').value = '';
-
-                if (cancelModalInstance) cancelModalInstance.show();
-            }
-
-            function toggleCustomReason() {
-                const isOther = document.getElementById('reason7').checked;
-                const customInput = document.getElementById('customReasonInput');
-                customInput.style.display = isOther ? 'block' : 'none';
-            }
-
-            function submitCancellation() {
-                if (!orderToCancel) return;
-
-                const selectedReasonEl = document.querySelector('input[name="cancelReason"]:checked');
-                const reason = selectedReasonEl ? selectedReasonEl.value : '';
-                
-                let customReason = '';
-                if (reason === 'Khác') {
-                    customReason = document.getElementById('customReasonInput').value.trim();
-                    if (!customReason) {
-                        alert('Vui lòng nhập lý do cụ thể.');
-                        return;
-                    }
-                }
-
-                const success = OrderHandler.requestCancellation(orderToCancel, reason, customReason);
-                
-                if (success) {
-                    if (cancelModalInstance) cancelModalInstance.hide();
-                    if (window.showToast) {
-                        window.showToast('Gửi yêu cầu hủy đơn thành công', 'success');
-                    } else {
-                        alert('Gửi yêu cầu hủy đơn thành công');
-                    }
-                    renderOrderHistory();
-                } else {
-                    alert('Không thể hủy đơn hàng này.');
-                }
-            }
-        </script>
+        
+        
     </div>
 </body>
 </html>

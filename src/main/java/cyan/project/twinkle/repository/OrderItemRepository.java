@@ -10,6 +10,9 @@ import java.util.List;
 
 @Repository
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
+    @Query("SELECT oi.variant.id, SUM(oi.quantity) FROM OrderItem oi WHERE oi.product.id = :productId AND oi.order.status = 'Đã giao' GROUP BY oi.variant.id")
+    List<Object[]> getVariantSales(@Param("productId") Integer productId);
+    boolean existsByOrderUserEmailAndProductIdAndOrderStatus(String email, Integer productId, String status);
     @Query("SELECT COALESCE(SUM(oi.quantity), 0) FROM OrderItem oi JOIN oi.order o WHERE oi.product.id = :productId AND o.status = :deliveredStatus")
     Long getSoldCountForProduct(@Param("productId") Integer productId, @Param("deliveredStatus") String deliveredStatus);
 

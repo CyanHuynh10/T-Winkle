@@ -27,6 +27,7 @@ public class StorefrontUserController {
     private final StorefrontUserService userService;
     private final CustomUserDetailsService userDetailsService;
     private final SecurityContextRepository securityContextRepository;
+    private final cyan.project.twinkle.service.StorefrontProductService productService;
 
     @GetMapping("/profile")
     public String profile(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
@@ -36,13 +37,27 @@ public class StorefrontUserController {
     }
 
     @PostMapping("/profile/update")
-    public String updateProfile(@ModelAttribute ProfileUpdateForm form,
+    public String updateProfile(@jakarta.validation.Valid @ModelAttribute ProfileUpdateForm form,
+                                org.springframework.validation.BindingResult binding,
+                                @RequestParam(required = false) org.springframework.web.multipart.MultipartFile avatar,
                                 @AuthenticationPrincipal CustomUserDetails userDetails,
                                 HttpServletRequest request,
-                                HttpServletResponse response) {
+                                HttpServletResponse response,
+                                org.springframework.web.servlet.mvc.support.RedirectAttributes flash) {
         if (userDetails == null) return "redirect:/login";
-
-        userService.updateProfile(userDetails.getUsername(), form);
+        if (binding.hasErrors()) {
+            flash.addFlashAttribute("error", binding.getAllErrors().get(0).getDefaultMessage());
+            return "redirect:/profile";
+        }
+        try {
+            userService.updateProfile(userDetails.getUsername(), form, avatar);
+        } catch (cyan.project.twinkle.exception.BusinessRuleException ex) {
+            flash.addFlashAttribute("error", ex.getMessage());
+            return "redirect:/profile";
+        } catch (org.springframework.dao.DataIntegrityViolationException ex) {
+            flash.addFlashAttribute("error", "Không thể cập nhật hồ sơ. Username có thể đã tồn tại.");
+            return "redirect:/profile";
+        }
 
         UserDetails updatedUserDetails =
                 userDetailsService.loadUserByUsername(userDetails.getUsername());
@@ -63,7 +78,8 @@ public class StorefrontUserController {
 
         securityContextRepository.saveContext(context, request, response);
 
-        return "redirect:/profile?success";
+        flash.addFlashAttribute("success", "Cập nhật thông tin thành công!");
+        return "redirect:/profile";
     }
 
     @GetMapping("/addresses")
@@ -102,7 +118,7 @@ public class StorefrontUserController {
                            @AuthenticationPrincipal CustomUserDetails userDetails,
                            Model model) {
         if (userDetails == null) return "redirect:/login";
-        model.addAttribute("wishlistPage", userService.getWishlist(userDetails.getUsername(), page));
+        model.addAttribute("wishlistPage", productService.getWishlistProducts(userDetails.getUsername(), page));
         return "storefront/user/wishlist";
     }
 
@@ -112,5 +128,19 @@ public class StorefrontUserController {
         if (userDetails == null) return "redirect:/login";
         userService.toggleWishlist(userDetails.getUsername(), productId);
         return "redirect:/wishlist";
+    }
+
+    @PostMapping(value = "/wishlist/toggle", produces = "application/json")
+    @ResponseBody
+    public java.util.Map<String, Boolean> toggleWishlistJson(@RequestParam Integer productId,
+                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
+        if (userDetails == null) throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.UNAUTHORIZED);
+        return java.util.Map.of("inWishlist", userService.toggleWishlist(userDetails.getUsername(), productId));
+    }
+
+    @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
+    public String oversizedAvatar(org.springframework.web.servlet.mvc.support.RedirectAttributes flash) {
+        flash.addFlashAttribute("error", "Ảnh đại diện tối đa 5 MB.");
+        return "redirect:/profile";
     }
 }

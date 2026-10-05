@@ -15,14 +15,16 @@ import java.util.Optional;
 
 @Repository
 public interface StoreInventoryRepository extends JpaRepository<StoreInventory, StoreInventoryId> {
+    @Query("SELECT ci.id, si.quantity FROM CartItem ci JOIN StoreInventory si ON si.store = ci.store AND si.variant = ci.variant WHERE ci.id IN :ids")
+    List<Object[]> findCartStock(@Param("ids") List<Long> ids);
     
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT si FROM StoreInventory si WHERE si.id = :id")
     Optional<StoreInventory> findByIdForUpdate(@Param("id") StoreInventoryId id);
 
     @Query("SELECT new cyan.project.twinkle.dto.ProductDetailDTO$StoreInventoryDTO(" +
-           "st.id, st.name, st.addressLine, v.id, si.quantity) " +
+           "st.id, st.name, st.addressLine, v.id, si.quantity, st.status) " +
            "FROM StoreInventory si JOIN si.store st JOIN si.variant v " +
-           "WHERE v.product.id = :productId AND si.quantity > 0 AND st.status = 'OPEN' AND v.status = 'ACTIVE'")
+           "WHERE v.product.id = :productId AND v.status = 'ACTIVE' ORDER BY st.id, v.id")
     List<ProductDetailDTO.StoreInventoryDTO> findAvailableInventoryByProductId(@Param("productId") Integer productId);
 }

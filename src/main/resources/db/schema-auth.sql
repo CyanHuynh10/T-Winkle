@@ -11,6 +11,7 @@ IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='USERS' and xtype='U')
 CREATE TABLE USERS (
     email VARCHAR(100) PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
+    avatar_url NVARCHAR(500) NULL,
     password_hash VARCHAR(255) NOT NULL,
     is_enabled BIT DEFAULT 0,
     created_at DATETIME2 DEFAULT GETDATE(),

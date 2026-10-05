@@ -12,6 +12,7 @@ import java.util.Optional;
 
 @Repository
 public interface CouponRepository extends JpaRepository<Coupon, Integer> {
+    Optional<Coupon> findByCode(String code);
     
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT c FROM Coupon c WHERE c.code = :code AND c.isActive = true")

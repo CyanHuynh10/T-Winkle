@@ -95,26 +95,21 @@
             }
         </style>
 
-        <main class="pt-3 mt-2 pb-4 position-relative z-1" style="min-height: 80vh;">
+        <main class="pt-3 mt-2 pb-4 position-relative z-1 storefront-page-main" style="min-height: 80vh;">
             <div class="container max-w-6xl mx-auto px-3 animate-fade-up">
                 <div class="mb-4 mb-md-5 mt-md-2">
-                    <h1 class="h3 fw-bold text-dark mb-0 page-heading text-center">Giỏ hàng</h1>
+                    <h1 class="h3 fw-bold text-dark mb-0 page-heading text-center storefront-page-title">Giỏ hàng</h1>
                     
                 </div>
                 
                 
+                <div class="mb-4"><a href="/categories" class="text-decoration-none text-muted hover-cyan fw-medium"><i class="bi bi-arrow-left me-2"></i>Tiếp tục mua sắm</a></div>
                 <!-- Empty State -->
-                <div id="cartEmptyState" class="text-center py-5 animate-fade-up" th:if="${#maps.isEmpty(groupedCart)}">
-                    <div class="mb-4 d-flex justify-content-center">
-                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center shadow-inner" style="width: 140px; height: 140px; position: relative;">
-                            <i class="bi bi-cart-x text-muted-custom" style="font-size: 4rem;"></i>
-                        </div>
-                    </div>
-                    <h3 class="h4 fw-bold text-dark mb-3">Giỏ hàng trống</h3>
-                    <p class="text-muted-custom mb-4 max-w-md mx-auto">Có vẻ như bạn chưa thêm sản phẩm nào vào giỏ. Hãy khám phá các bộ sưu tập mới nhất của chúng tôi!</p>
-                    <a th:href="@{/categories}" class="tw-btn tw-btn-primary rounded-pill px-5 py-3 text-decoration-none d-inline-flex align-items-center gap-2 shadow-sm hover-lift fw-bold">
-                        Khám phá sản phẩm
-                    </a>
+                <div id="cartEmptyState" class="align-items-center justify-content-center text-center py-5 mx-auto d-flex flex-column" th:classappend="${!#maps.isEmpty(groupedCart)} ? 'd-none' : ''" style="min-height: 400px; max-width: 800px; background: rgba(255,255,255,0.85); backdrop-filter: blur(28px); border: 1px solid rgba(226,232,240,0.8); border-radius: 16px; padding: 1.5rem; box-shadow: 0 18px 50px rgba(15,23,42,0.08), inset 0 1px 0 rgba(255,255,255,0.9);">
+                    <div class="mb-4"><i class="bi bi-cart-x text-muted-custom" style="font-size: 4rem; opacity: 0.4;"></i></div>
+                    <h4 class="fw-bold text-dark mb-3">Giỏ hàng trống</h4>
+                    <p class="text-muted-custom mb-4 max-w-md mx-auto">Hãy khám phá các bộ sưu tập mới nhất và thêm sản phẩm vào giỏ hàng.</p>
+                    <a th:href="@{/categories}" class="tw-btn tw-btn-primary text-white rounded-pill px-5 py-3 text-decoration-none fw-bold d-inline-flex align-items-center justify-content-center shadow-sm">Khám phá sản phẩm</a>
                 </div>
 
 <!-- Cart Content -->
@@ -125,46 +120,48 @@
                             <div th:each="entry : ${groupedCart}" class="cart-main-card mb-4" style="padding: 1.25rem;">
                                 <div class="store-group-header mb-3" style="background: rgba(248, 250, 252, 0.5); padding: 0.75rem 1rem; border-radius: 12px; display: flex; align-items: center; gap: 0.5rem; font-weight: 700; border: 1px solid rgba(226, 232, 240, 0.6);">
                                     <i class="bi bi-shop text-cyan fs-5"></i>
-                                    <span class="text-dark fs-6" th:text="${entry.key.name}">Store Name</span>
+                                    <span class="text-dark fs-6" th:text="${entry.key.name}">Store Name</span><span th:if="${entry.key.status != 'OPEN'}" class="badge bg-danger bg-opacity-10 text-danger">Đã đóng</span>
                                 </div>
                                 <div class="store-items">
-                                    <div th:each="item, stat : ${entry.value}" class="cart-item-row d-flex gap-3 align-items-center py-3" th:style="${not stat.last} ? 'border-bottom: 1px solid rgba(226, 232, 240, 0.6);' : ''">
+                                    <div th:each="item, stat : ${entry.value}" th:data-cart-item-id="${item.id}" th:data-unavailable="${!cartAvailability[item.id].available}" th:data-product-id="${item.product.id}" th:data-variant-id="${item.variant.id}" th:data-store-id="${item.store.id}" class="cart-item-row d-flex gap-3 align-items-center py-3" th:style="${not stat.last} ? 'border-bottom: 1px solid rgba(226, 232, 240, 0.6);' : ''">
                                         <!-- Select Checkbox -->
                                         <div class="form-check m-0 p-0 d-flex align-items-center">
-                                            <form th:action="@{/cart/toggle-select}" method="POST" class="m-0 p-0" th:id="'toggleForm_' + ${item.id}">
+                                            <form th:action="@{/cart/toggle-select}" method="POST" class="m-0 p-0" th:id="'toggleForm_' + ${item.id}" data-cart-operation="select">
                                                 <input type="hidden" name="cartItemId" th:value="${item.id}" />
                                                 <input type="hidden" name="isSelected" th:value="${!item.selected}" />
-                                                <input class="form-check-input cursor-pointer shadow-none m-0" type="checkbox" style="width: 1.25rem; height: 1.25rem; border-color: #CBD5E1;" th:checked="${item.selected}" th:onchange="'document.getElementById('toggleForm_' + ${item.id} + '').submit();'">
+                                                <input class="form-check-input cursor-pointer shadow-none m-0" type="checkbox" style="width: 1.25rem; height: 1.25rem; border-color: #CBD5E1;" th:checked="${item.selected and cartAvailability[item.id].available}" th:disabled="${!cartAvailability[item.id].available}" data-cart-select>
                                             </form>
                                         </div>
                                         
+                                        
                                         <!-- Image -->
-                                        <div class="cart-item-img rounded-3 overflow-hidden border bg-white flex-shrink-0" style="width: 80px; height: 80px; cursor: pointer;" th:onclick="'window.location.href=\'/categories/p?keyword=' + ${item.product.name} + '\''">
-                                            <img th:src="${item.product.primaryImagePath}" class="w-100 h-100" style="object-fit: cover;" th:if="${item.product.primaryImagePath != null}"/>
-                                            <i th:unless="${item.product.primaryImagePath != null}" class="bi bi-image text-muted opacity-25" style="font-size: 2rem;"></i>
+                                        <div class="cart-item-img rounded-3 overflow-hidden border bg-white flex-shrink-0" style="width: 80px; height: 80px; cursor: pointer;" th:data-product-id="${item.product.id}" onclick="showProductDetail(this.dataset.productId)">
+                                            <img th:src="${cartImages[item.product.id]}" class="w-100 h-100" style="object-fit: cover;" th:if="${cartImages[item.product.id] != null}"/>
+                                            <i th:unless="${cartImages[item.product.id] != null}" class="bi bi-image text-muted opacity-25" style="font-size: 2rem;"></i>
                                         </div>
                                         
                                         <!-- Info -->
                                         <div class="d-flex flex-column flex-grow-1 min-w-0">
-                                            <h3 class="h6 fw-bold text-dark mb-1 text-truncate" th:text="${item.product.name}" style="cursor: pointer;" th:onclick="'window.location.href=\'/categories/p?keyword=' + ${item.product.name} + '\''">Product</h3>
+                                            <h3 class="h6 fw-bold text-dark mb-1 text-truncate" th:text="${item.product.name}" style="cursor: pointer;" th:data-product-id="${item.product.id}" onclick="showProductDetail(this.dataset.productId)">Product</h3>
                                             <span class="badge bg-light text-dark border px-2 py-1 mb-1" style="width: fit-content; align-self: flex-start;" th:text="${item.variant.size} + ' - ' + ${item.variant.color}">Variant</span>
                                             
+                                            <p class="cart-unavailable-reason text-danger text-sm mb-0" th:classappend="${cartAvailability[item.id].available} ? 'd-none' : ''" th:text="${cartAvailability[item.id].reason}"></p>
                                             <div class="d-flex align-items-center justify-content-between mt-2 flex-wrap gap-2">
                                                 <div class="d-flex flex-column">
-                                                    <span class="fw-bold text-dark" th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span>
+                                                    <span data-cart-price class="fw-bold text-dark" th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span>
                                                 </div>
                                                 
                                                 <div class="d-flex align-items-center gap-3">
                                                     <!-- Quantity Update -->
-                                                    <form th:action="@{/cart/update}" method="POST" class="d-flex align-items-center rounded-pill border bg-white overflow-hidden p-1 shadow-sm" style="height: 36px; width: 100px;">
+                                                    <form th:action="@{/cart/update}" method="POST" class="quantity-control d-flex align-items-center gap-2" data-cart-operation="update">
                                                         <input type="hidden" name="cartItemId" th:value="${item.id}" />
-                                                        <button type="button" class="btn btn-sm btn-link text-dark text-decoration-none px-2 py-0 border-0 fs-5 d-flex align-items-center justify-content-center" style="height: 100%;" th:onclick="'if(this.nextElementSibling.value > 1) { this.nextElementSibling.value--; this.form.submit(); }'">-</button>
-                                                        <input type="number" name="quantity" class="form-control form-control-sm text-center border-0 p-0 fw-bold bg-white text-dark shadow-none" th:value="${item.quantity}" style="width: 30px; font-size: 0.9rem;" readonly>
-                                                        <button type="button" class="btn btn-sm btn-link text-dark text-decoration-none px-2 py-0 border-0 fs-5 d-flex align-items-center justify-content-center" style="height: 100%;" th:onclick="'this.previousElementSibling.value++; this.form.submit();'">+</button>
+                                                        <button type="button" class="btn btn-light border" aria-label="Giảm số lượng" th:disabled="${item.quantity <= 1 or !cartAvailability[item.id].available}" data-cart-step="-1">−</button>
+                                                        <input type="number" name="quantity" min="1" step="1" required inputmode="numeric" class="form-control text-center fw-bold" th:value="${item.quantity}" th:max="${cartStock[item.id] != null ? cartStock[item.id] : 0}" th:disabled="${!cartAvailability[item.id].available}" data-cart-quantity>
+                                                        <button type="button" class="btn btn-light border" aria-label="Tăng số lượng" th:disabled="${cartStock[item.id] == null or item.quantity >= cartStock[item.id] or !cartAvailability[item.id].available}" data-cart-step="1">+</button>
                                                     </form>
                                                     
                                                     <!-- Remove Button -->
-                                                    <form th:action="@{/cart/remove}" method="POST" class="m-0 p-0">
+                                                    <form th:action="@{/cart/remove}" method="POST" class="m-0 p-0" data-cart-operation="remove">
                                                         <input type="hidden" name="cartItemId" th:value="${item.id}" />
                                                         <button type="submit" class="btn btn-sm btn-light text-danger rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale" style="width: 36px; height: 36px;">
                                                             <i class="bi bi-trash"></i>
@@ -177,18 +174,12 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div class="d-flex justify-content-between mt-4">
-                            <a th:href="@{/categories}" class="btn btn-link text-decoration-none text-muted hover-cyan px-0 fw-medium">
-                                <i class="bi bi-arrow-left me-2"></i>Tiếp tục mua sắm
-                            </a>
-                        </div>
                     </div>
 
                     <!-- Payment Button -->
                     <!-- Calculate selected total sum inside thymeleaf? Since we can't easily loop here without setting variables, we just always show the checkout button if there are items, but disable if none selected -->
                     <div class="col-12 mt-4 text-center">
-                        <a th:href="@{/checkout}" id="checkoutBtn" class="tw-btn btn-checkout-primary rounded-pill py-3 px-5 fw-bold fs-5 shadow text-decoration-none d-inline-block">
+                        <a th:href="@{/checkout}" id="checkoutBtn" th:classappend="${!cartState.checkoutEligible} ? 'disabled' : ''" th:attr="aria-disabled=${!cartState.checkoutEligible}" class="tw-btn btn-checkout-primary rounded-pill py-3 px-5 fw-bold fs-5 shadow text-decoration-none d-inline-flex align-items-center justify-content-center">
                             Thanh toán
                         </a>
                     </div>
@@ -197,6 +188,7 @@
 </div>
 </main>
 
+        <script src="/js/cart-page.js"></script>
         <!-- Clear Cart Confirmation Modal -->
         <div class="modal fade" id="clearCartModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-sm">

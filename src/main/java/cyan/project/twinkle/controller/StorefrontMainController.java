@@ -22,8 +22,8 @@ public class StorefrontMainController {
     public String home(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         String email = userDetails != null ? userDetails.getUsername() : null;
         model.addAttribute("newestProducts", productService.getNewestProducts(3, email));
-        model.addAttribute("popularProducts", productService.getProducts(null, null, null, "popular", 0, email).getContent());
-        model.addAttribute("saleProducts", productService.getProducts(null, null, null, "priceAsc", 0, email).getContent());
+        model.addAttribute("popularProducts", productService.getProducts(null, null, null, "popular", 0, email, 3).getContent());
+        model.addAttribute("saleProducts", productService.getSaleProducts(3, email));
         model.addAttribute("categories", categoryRepository.findAll());
         return "index";
     }
@@ -40,6 +40,7 @@ public class StorefrontMainController {
         model.addAttribute("products", productService.getProducts(keyword, null, brand, sort, page, email));
         model.addAttribute("categories", categoryRepository.findAll());
         model.addAttribute("brands", brandRepository.findAll());
+        model.addAttribute("currentUri", "/categories");
         return "storefront/category/list";
     }
 
@@ -57,6 +58,8 @@ public class StorefrontMainController {
         model.addAttribute("categories", categoryRepository.findAll());
         model.addAttribute("brands", brandRepository.findAll());
         model.addAttribute("currentCategory", slug);
+        model.addAttribute("selectedCategory", slug);
+        model.addAttribute("currentUri", "/categories/" + slug);
         return "storefront/category/list";
     }
 

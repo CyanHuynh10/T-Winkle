@@ -9,6 +9,9 @@ import java.util.Optional;
 
 @Repository
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
+    @org.springframework.data.jpa.repository.Query("SELECT COALESCE(SUM(ci.quantity),0) FROM CartItem ci WHERE ci.cart.user.email = :email AND ci.cart.status = 'ACTIVE'")
+    long sumActiveQuantity(@org.springframework.data.repository.query.Param("email") String email);
+    @EntityGraph(attributePaths = {"variant", "product", "product.category", "store"})
     List<CartItem> findByCartId(Long cartId);
     
     // LOẠI BỎ N+1 QUERIES: Fetch ngay lập tức Variant, Product, Store của CartItem

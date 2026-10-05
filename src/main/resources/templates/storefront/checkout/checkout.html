@@ -85,15 +85,17 @@
             }
         </style>
 
-        <main class="pt-3 mt-2 pb-5 position-relative z-1" style="min-height: 80vh;">
+        <main class="pt-3 mt-2 pb-5 position-relative z-1 storefront-page-main" style="min-height: 80vh;">
             <div class="container max-w-6xl mx-auto px-3 animate-fade-up">
                 
                 <div class="mb-4 mb-md-5 mt-md-2">
-                    <h1 class="h3 fw-bold text-dark mb-0 page-heading text-center">Thanh toán</h1>
+                    <h1 class="h3 fw-bold text-dark mb-0 page-heading text-center storefront-page-title">Thanh toán</h1>
                 </div>
                 
 
 
+                <div class="mb-4"><a href="/cart" class="tw-back-link"><i class="bi bi-arrow-left me-2"></i>Quay lại giỏ hàng</a></div>
+                <div th:each="item : ${blockedItems}" class="alert alert-warning" th:text="${item.reason}"></div>
                 <!-- Checkout Content -->
                 <div id="checkoutContent" class="row gy-4">
                     
@@ -105,7 +107,7 @@
 <div class="checkout-card">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h5 class="fw-bold text-dark mb-0"><i class="bi bi-geo-alt text-cyan me-2"></i>Địa chỉ nhận hàng</h5>
-        <button type="button" class="btn btn-sm btn-outline-cyan rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addressModal">Thay đổi</button>
+        <button type="button" class="btn btn-link text-cyan hover-cyan text-decoration-none fw-semibold px-0" data-bs-toggle="modal" data-bs-target="#addressModal">Thay đổi</button>
     </div>
     <div id="checkoutAddressContainer">
         <!-- Render the selected address -->
@@ -132,18 +134,20 @@
 <div class="checkout-card">
     <h5 class="fw-bold text-dark mb-4"><i class="bi bi-box-seam text-cyan me-2"></i>Sản phẩm đơn hàng</h5>
     <div id="checkoutItemsContainer">
-        <div th:each="item : ${selectedItems}" class="d-flex gap-3 mb-3 border-bottom border-light pb-3">
+        <div th:each="group : ${groupedItems}"><div class="store-group-header"><i class="bi bi-shop text-cyan"></i><span th:text="${group.key}"></span></div>
+        <div th:each="item : ${group.value}" class="d-flex gap-3 mb-3 border-bottom border-light pb-3">
             <div class="checkout-item-img rounded-3 overflow-hidden border bg-white flex-shrink-0" style="width: 70px; height: 70px;">
-                <img th:src="${item.product.primaryImagePath}" class="w-100 h-100" style="object-fit: cover;"/>
+                <img th:src="${item.imageUrl}" class="w-100 h-100" style="object-fit: cover;"/>
             </div>
             <div class="d-flex flex-column flex-grow-1 min-w-0">
-                <h3 class="h6 fw-bold text-dark mb-1 text-truncate" th:text="${item.product.name}">Product Name</h3>
-                <span class="text-muted text-sm mb-1" th:text="${item.variant.size} + ' - ' + ${item.variant.color} + ' | ' + ${item.store.name}">Variant | Store</span>
+                <h3 class="h6 fw-bold text-dark mb-1 text-truncate" th:text="${item.productName}">Product Name</h3>
+                <span class="text-muted text-sm mb-1" th:text="${item.variantName}">Variant | Store</span>
                 <div class="d-flex justify-content-between align-items-center mt-auto">
-                    <span class="fw-bold text-dark" th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span>
+                    <span class="fw-bold text-dark" th:text="${#numbers.formatDecimal(item.effectiveUnitPrice, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span>
                     <span class="text-muted-custom fw-medium" th:text="'x' + ${item.quantity}">x1</span>
                 </div>
             </div>
+        </div>
         </div>
     </div>
 </div>
@@ -153,28 +157,20 @@
                         <div class="checkout-card">
                             <h5 class="fw-bold text-dark mb-4"><i class="bi bi-credit-card text-cyan me-2"></i>Phương thức thanh toán</h5>
                             <div class="d-flex flex-column gap-3">
-                                <div class="payment-option active" onclick="selectPayment('COD')" id="pay-cod">
+                                <div class="payment-option active" role="radio" aria-checked="true" tabindex="0" onclick="selectPayment('COD')" id="pay-cod">
                                     <div class="payment-radio"></div>
-                                    <img src="https://cdn-icons-png.flaticon.com/512/2800/2800164.png" alt="COD" width="32" height="32" class="object-fit-contain">
+                                    <i class="bi bi-cash d-flex align-items-center justify-content-center text-warning" style="width:32px;height:32px;font-size:1.5rem" aria-hidden="true"></i>
                                     <div>
                                         <div class="fw-semibold text-dark">Thanh toán khi nhận hàng (COD)</div>
                                         <div class="text-muted text-sm">Thanh toán bằng tiền mặt khi giao hàng</div>
                                     </div>
                                 </div>
-                                <div class="payment-option" onclick="selectPayment('VNPAY')" id="pay-vnpay">
+                                <div class="payment-option" role="radio" aria-checked="false" tabindex="0" onclick="selectPayment('BANKING')" id="pay-banking" th:aria-disabled="${!bankingAvailable}">
                                     <div class="payment-radio"></div>
-                                    <img src="https://vnpay.vn/s1/cdn/vnpay/vnpay-qr/vnpay-qr-logo.png" alt="VNPay" width="32" height="32" class="object-fit-contain">
+                                    <i class="bi bi-bank d-flex align-items-center justify-content-center text-cyan" style="width:32px;height:32px;font-size:1.5rem" aria-hidden="true"></i>
                                     <div>
-                                        <div class="fw-semibold text-dark">VNPay</div>
-                                        <div class="text-muted text-sm">Thanh toán qua ví điện tử VNPay</div>
-                                    </div>
-                                </div>
-                                <div class="payment-option" onclick="selectPayment('MOMO')" id="pay-momo">
-                                    <div class="payment-radio"></div>
-                                    <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" alt="MoMo" width="32" height="32" class="object-fit-contain">
-                                    <div>
-                                        <div class="fw-semibold text-dark">MoMo</div>
-                                        <div class="text-muted text-sm">Thanh toán qua ví điện tử MoMo</div>
+                                        <div class="fw-semibold text-dark">Chuyển khoản ngân hàng</div>
+                                        <div class="text-muted text-sm" th:text="${bankingAvailable ? 'Quét mã VietQR để thanh toán' : 'Chưa cấu hình chuyển khoản. Vui lòng chọn COD.'}"></div>
                                     </div>
                                 </div>
                             </div>
@@ -185,8 +181,9 @@
                             <h5 class="fw-bold text-dark mb-4"><i class="bi bi-ticket-perforated text-cyan me-2"></i>Mã giảm giá</h5>
                             <div class="d-flex gap-2">
                                 <input type="text" id="couponInput" class="form-control rounded-pill px-4 shadow-none border-light bg-light" placeholder="Nhập mã giảm giá...">
-                                <button class="btn btn-outline-cyan rounded-pill px-4 fw-medium flex-shrink-0" onclick="applyCoupon()">Áp dụng</button>
+                                <button id="applyCouponBtn" type="button" class="tw-btn tw-btn-primary rounded-pill px-4 fw-medium flex-shrink-0" onclick="applyCoupon()">Áp dụng</button>
                             </div>
+                            <button type="button" id="browseCouponsBtn" class="btn btn-link text-cyan hover-cyan text-decoration-none px-0 mt-2 fw-semibold" data-bs-toggle="modal" data-bs-target="#couponBrowser">Xem mã giảm giá</button>
                             <div id="couponMessage" class="mt-2 text-sm ms-2"></div>
                             <div id="appliedCouponContainer" class="mt-3"></div>
                         </div>
@@ -207,6 +204,8 @@
                                 <span class="text-muted-custom">Tạm tính</span>
                                 <span class="fw-semibold text-dark" id="summarySubtotal" th:text="${#numbers.formatDecimal(subtotal, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span>
                             </div>
+                            <div class="d-flex justify-content-between mb-3"><span class="text-muted-custom">Giảm giá sản phẩm</span><span id="summaryProductDiscount" class="text-danger" th:text="${#numbers.formatDecimal(productDiscount,0,'COMMA',0,'POINT')} + '₫'"></span></div>
+                            <div class="d-flex justify-content-between mb-3"><span class="text-muted-custom">Mã giảm giá</span><span id="summaryCouponDiscount" class="text-danger">0₫</span></div>
                             <div class="d-flex justify-content-between mb-3">
                                 <span class="text-muted-custom">Phí vận chuyển</span>
                                 <span class="fw-semibold text-dark" id="summaryShipping" th:text="${#numbers.formatDecimal(shippingFee, 0, 'COMMA', 0, 'POINT')} + '₫'">30.000₫</span>
@@ -221,13 +220,9 @@
                             </div>
 
                             
-                                                        <button type="submit" id="placeOrderBtn" class="tw-btn btn-checkout-primary w-100 rounded-pill py-3 text-decoration-none fw-bold fs-6 d-flex justify-content-center align-items-center gap-2 mb-3">
+                                                        <button type="submit" id="placeOrderBtn" th:disabled="${!placementAllowed}" class="tw-btn btn-checkout-primary w-100 rounded-pill py-3 text-decoration-none fw-bold fs-6 d-flex justify-content-center align-items-center gap-2 mb-3">
                                 Đặt hàng
                             </button>
-
-                            <a th:href="@{/cart}" class="btn btn-light w-100 rounded-pill py-2 fw-medium text-muted hover-cyan shadow-none border-0">
-                                <i class="bi bi-arrow-left me-2"></i>Quay lại giỏ hàng
-                            </a>
                         </div>
                     </form>
 
@@ -244,7 +239,7 @@
                         <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Đóng"></button>
                     </div>
                     <div class="modal-body p-4" id="addressModalBody">
-                        <div th:each="addr : ${addresses}" class="p-3 mb-3 border rounded-4 cursor-pointer" th:classappend="${addr.isDefault ? 'border-primary bg-light' : 'border-light'}" th:onclick="'selectCheckoutAddress(' + ${addr.id} + ')'">  
+                        <div th:each="addr : ${addresses}" class="p-3 mb-3 border rounded-4 cursor-pointer" th:classappend="${addr.isDefault ? 'border-primary bg-light' : 'border-light'}" th:onclick="'selectCheckoutAddress(this,' + ${addr.id} + ')'">  
                             <div class="d-flex align-items-center mb-2">
                                 <span class="fw-bold text-dark" th:text="${addr.fullName}">Name</span>
                                 <span class="text-muted mx-2">|</span>
@@ -258,6 +253,7 @@
             </div>
         </div>
 
+        <div class="modal fade" id="couponBrowser" tabindex="-1" aria-labelledby="couponBrowserTitle" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content rounded-4 p-4 coupon-browser-content"><div class="d-flex align-items-center justify-content-between mb-3"><h5 id="couponBrowserTitle" class="fw-bold mb-0">Mã giảm giá</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button></div><div id="couponBrowserList" class="coupon-browser-list" role="list"><p>Đang tải mã giảm giá…</p></div></div></div></div>
         <script src="/js/checkout-handler.js"></script>
     </div>
 </body>

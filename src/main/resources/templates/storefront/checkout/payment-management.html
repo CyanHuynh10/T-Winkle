@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: base('Xác nhận chuyển khoản - T-Winkle', ~{::div.payment-management})}"><body>
+<div class="payment-management position-relative"><div th:replace="~{fragments/navbar :: navbar}"></div>
+<main class="storefront-page-main pb-5"><div class="container">
+<h1 class="h3 fw-bold storefront-page-title">Xác nhận chuyển khoản</h1>
+<p class="text-muted">Chỉ xác nhận sau khi kiểm tra tiền đã vào tài khoản nhận.</p>
+<div th:if="${#lists.isEmpty(payments)}" class="glass-card rounded-4 p-4">Chưa có thanh toán chuyển khoản thuộc quyền quản lý.</div>
+<article th:each="payment : ${payments}" class="glass-card rounded-4 p-4 mb-3" th:data-payment-id="${payment.id}">
+<div class="d-flex flex-wrap justify-content-between gap-3 align-items-center">
+<div><h2 class="h5 fw-bold text-cyan" th:text="${payment.order.orderCode}"></h2>
+<p class="mb-1" th:text="${#numbers.formatDecimal(payment.amount,0,'COMMA',0,'POINT')} + '₫'"></p>
+<span class="badge rounded-pill" th:classappend="${payment.status == 'PAID' ? 'bg-success' : 'bg-warning text-dark'}" th:text="${payment.status == 'PAID' ? 'Đã thanh toán' : payment.status == 'PENDING' ? 'Chờ xác nhận thanh toán' : payment.status}"></span></div>
+<form th:if="${payment.status == 'PENDING'}" method="post" th:action="@{/payments/manage/{id}/confirm(id=${payment.id})}">
+<button type="submit" class="tw-btn tw-btn-primary">Xác nhận đã nhận tiền</button></form>
+</div></article></div></main></div></body></html>

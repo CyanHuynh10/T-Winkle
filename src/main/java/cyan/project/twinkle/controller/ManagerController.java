@@ -8,7 +8,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/manager")
+@lombok.RequiredArgsConstructor
 public class ManagerController {
+    private final cyan.project.twinkle.service.OrderFulfillmentService fulfillmentService;
+
+    @org.springframework.web.bind.annotation.PostMapping("/orders/{id}/status")
+    public String updateOrderStatus(@PathVariable Long id, @org.springframework.web.bind.annotation.RequestParam String status,
+            @org.springframework.security.core.annotation.AuthenticationPrincipal cyan.project.twinkle.security.CustomUserDetails actor,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes flash) {
+        try {fulfillmentService.transition(id, actor.getUsername(), status);flash.addFlashAttribute("success", "Đã cập nhật trạng thái đơn hàng.");}
+        catch(cyan.project.twinkle.exception.BusinessRuleException ex) {flash.addFlashAttribute("error", ex.getMessage());}
+        return "redirect:/manager/orders/" + id;
+    }
 
     @GetMapping({"", "/", "/dashboard"})
     public String dashboard(Model model) {

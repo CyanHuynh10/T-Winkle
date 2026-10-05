@@ -41,6 +41,12 @@ public class StorefrontProductService {
     private final OrderItemRepository orderItemRepository;
     private final WishlistItemRepository wishlistItemRepository;
     private final StoreInventoryRepository storeInventoryRepository;
+    private final InventoryStateService inventoryStateService;
+
+    @Transactional(readOnly = true)
+    public Page<ProductDTO> getWishlistProducts(String email, int page) {
+        return mapToProductDTOPage(productRepository.findWishlistProducts(email, PageRequest.of(page, 12)), email, LocalDateTime.now());
+    }
 
     @Transactional(readOnly = true)
     public Page<ProductDTO> getProducts(
@@ -51,6 +57,11 @@ public class StorefrontProductService {
             int page,
             String email) {
 
+        return getProducts(keyword, categorySlug, brandSlug, sortRule, page, email, 12);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProductDTO> getProducts(String keyword, String categorySlug, String brandSlug, String sortRule, int page, String email, int limit) {
         LocalDateTime now = LocalDateTime.now();
         Page<Product> productsPage;
 
@@ -59,8 +70,8 @@ public class StorefrontProductService {
                     normalize(keyword),
                     normalize(categorySlug),
                     normalize(brandSlug),
-                    "ÄÃ£ giao",
-                    PageRequest.of(page, 12)
+                    "Đã giao",
+                    PageRequest.of(page, limit)
             );
         } else if ("price-asc".equals(sortRule)) {
             productsPage = productRepository.findProductsPriceAsc(
@@ -68,7 +79,7 @@ public class StorefrontProductService {
                     normalize(categorySlug),
                     normalize(brandSlug),
                     now,
-                    PageRequest.of(page, 12)
+                    PageRequest.of(page, limit)
             );
         } else if ("price-desc".equals(sortRule)) {
             productsPage = productRepository.findProductsPriceDesc(
@@ -76,14 +87,14 @@ public class StorefrontProductService {
                     normalize(categorySlug),
                     normalize(brandSlug),
                     now,
-                    PageRequest.of(page, 12)
+                    PageRequest.of(page, limit)
             );
         } else {
             productsPage = productRepository.findProducts(
                     normalize(keyword),
                     normalize(categorySlug),
                     normalize(brandSlug),
-                    PageRequest.of(page, 12, Sort.by(Sort.Direction.DESC, "createdAt"))
+                    PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "createdAt"))
             );
         }
 
@@ -97,9 +108,18 @@ public class StorefrontProductService {
                 null,
                 null,
                 null,
-                PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"))
+                PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt").and(Sort.by("id")))
         );
         return mapToProductDTOPage(productsPage, email, now).getContent();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductDTO> getSaleProducts(int limit, String email) {
+        var now = LocalDateTime.now();
+        var ids = productRepository.findCurrentSaleProductIds(now, PageRequest.of(0, limit));
+        var byId = productRepository.findByIdIn(ids).stream().collect(Collectors.toMap(Product::getId, p -> p));
+        var rows = ids.stream().map(byId::get).toList();
+        return mapToProductDTOPage(new PageImpl<>(rows), email, now).getContent();
     }
 
     @Transactional(readOnly = true)
@@ -110,7 +130,13 @@ public class StorefrontProductService {
             int page,
             String email) {
 
+        return getStoreProducts(storeSlug, categorySlug, null, sortRule, page, email);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProductDTO> getStoreProducts(String storeSlug, String categorySlug, String keyword, String sortRule, int page, String email) {
         LocalDateTime now = LocalDateTime.now();
+        String search = normalize(keyword) == null ? null : "%" + normalize(keyword) + "%";
         String normalizedCategory = normalize(categorySlug);
         Page<Product> productsPage;
 
@@ -118,6 +144,7 @@ public class StorefrontProductService {
             productsPage = productRepository.findProductsByStoreSlugPriceAsc(
                     storeSlug,
                     normalizedCategory,
+                    search,
                     now,
                     PageRequest.of(page, 12)
             );
@@ -125,13 +152,17 @@ public class StorefrontProductService {
             productsPage = productRepository.findProductsByStoreSlugPriceDesc(
                     storeSlug,
                     normalizedCategory,
+                    search,
                     now,
                     PageRequest.of(page, 12)
             );
+        } else if (sortRule == null || "popular".equals(sortRule)) {
+            productsPage = productRepository.findStoreProductsPopular(storeSlug, normalizedCategory, search, "Đã giao", PageRequest.of(page, 12));
         } else {
             productsPage = productRepository.findProductsByStoreSlug(
                     storeSlug,
                     normalizedCategory,
+                    search,
                     PageRequest.of(page, 12, Sort.by(Sort.Direction.DESC, "createdAt"))
             );
         }
@@ -147,7 +178,7 @@ public class StorefrontProductService {
                 .orElseThrow(() -> new IllegalArgumentException("Sáº£n pháº©m khÃ´ng tá»“n táº¡i."));
 
         if (!"ACTIVE".equals(product.getStatus())) {
-            throw new IllegalArgumentException("Sáº£n pháº©m ngá»«ng kinh doanh.");
+            throw new IllegalArgumentException("Sản phẩm ngừng kinh doanh.");
         }
 
         ProductDetailDTO dto = new ProductDetailDTO();
@@ -161,7 +192,7 @@ public class StorefrontProductService {
         dto.setEffectivePrice(pricingService.calculateEffectivePrice(product, now));
 
         Double avgRating = reviewRepository.getAverageRatingForProduct(id);
-        Long sold = orderItemRepository.getSoldCountForProduct(id, "ÄÃ£ giao");
+        Long sold = orderItemRepository.getSoldCountForProduct(id, "Đã giao");
         dto.setRatingAverage(avgRating != null ? avgRating : 0.0);
         dto.setSoldCount(sold != null ? sold : 0L);
         dto.setInWishlist(
@@ -170,6 +201,9 @@ public class StorefrontProductService {
         );
 
         dto.setImages(product.getImages().stream()
+                .sorted(java.util.Comparator.comparing((ProductImage image) -> !Boolean.TRUE.equals(image.getIsPrimary()))
+                        .thenComparing(ProductImage::getSortOrder, java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder()))
+                        .thenComparing(ProductImage::getId))
                 .map(image -> {
                     ProductDetailDTO.ImageDTO imageDTO = new ProductDetailDTO.ImageDTO();
                     imageDTO.setImageUrl(image.getImageUrl());
@@ -179,6 +213,10 @@ public class StorefrontProductService {
                 })
                 .collect(Collectors.toList()));
 
+        var variantSales = new HashMap<Long, Long>();
+        orderItemRepository.getVariantSales(id).forEach(row -> variantSales.put(((Number) row[0]).longValue(), ((Number) row[1]).longValue()));
+        var variantRatings = new HashMap<Long, Object[]>();
+        reviewRepository.getVariantRatings(id).forEach(row -> variantRatings.put(((Number) row[0]).longValue(), row));
         dto.setVariants(product.getVariants().stream()
                 .filter(v -> "ACTIVE".equals(v.getStatus()))
                 .map(variant -> {
@@ -189,6 +227,12 @@ public class StorefrontProductService {
                     variantDTO.setSku(variant.getSku());
                     variantDTO.setPriceAdjustment(variant.getPriceAdjustment());
                     variantDTO.setImageUrl(variant.getImageUrl());
+                    variantDTO.setSoldCount(variantSales.getOrDefault(variant.getId(), 0L));
+                    var stats = variantRatings.get(variant.getId());
+                    variantDTO.setRatingAverage(stats == null ? 0.0 : ((Number) stats[1]).doubleValue());
+                    variantDTO.setReviewCount(stats == null ? 0L : ((Number) stats[2]).longValue());
+                    variantDTO.setStarCounts(java.util.stream.IntStream.range(3, 8)
+                            .mapToObj(index -> stats == null ? 0L : ((Number) stats[index]).longValue()).toList());
                     return variantDTO;
                 })
                 .collect(Collectors.toList()));
@@ -196,6 +240,13 @@ public class StorefrontProductService {
         dto.setStoreAvailability(
                 storeInventoryRepository.findAvailableInventoryByProductId(id)
         );
+        dto.getStoreAvailability().forEach(row -> row.setStockState(inventoryStateService.state(row.getQuantity())));
+        dto.setReviews(reviewRepository.findStorefrontReviews(id));
+        dto.setCanReview(email != null && !reviewRepository.existsByUserEmailAndProductId(email, id)
+                && orderItemRepository.existsByOrderUserEmailAndProductIdAndOrderStatus(email, id, "Đã giao"));
+        dto.setReviewCounts(java.util.stream.IntStream.iterate(5, star -> star - 1).limit(5)
+                .mapToObj(star -> dto.getReviews().stream().filter(review -> review.getRating() == star).count())
+                .toList());
 
         return dto;
     }
@@ -217,6 +268,11 @@ public class StorefrontProductService {
                 .stream()
                 .map(Product::getId)
                 .collect(Collectors.toList());
+
+        // Aggregate/sorted queries return lazy relations: hydrate them in one batch, not per card.
+        Map<Integer, Product> hydrated = productsPage.getContent().stream().anyMatch(p ->
+                !org.hibernate.Hibernate.isInitialized(p.getCategory()) || !org.hibernate.Hibernate.isInitialized(p.getBrand()))
+                ? productRepository.findByIdIn(productIds).stream().collect(Collectors.toMap(Product::getId, p -> p)) : Map.of();
 
         Map<Integer, BigDecimal> effectivePrices =
                 pricingService.calculateEffectivePricesBatch(productsPage.getContent(), now);
@@ -249,7 +305,7 @@ public class StorefrontProductService {
         });
 
         Map<Integer, Long> soldMap = new HashMap<>();
-        orderItemRepository.getSoldCountsForProducts(productIds, "ÄÃ£ giao").forEach(row -> {
+        orderItemRepository.getSoldCountsForProducts(productIds, "Đã giao").forEach(row -> {
             soldMap.put((Integer) row[0], ((Number) row[1]).longValue());
         });
 
@@ -260,6 +316,7 @@ public class StorefrontProductService {
 
         List<ProductDTO> dtoList = productsPage.getContent()
                 .stream()
+                .map(p -> hydrated.getOrDefault(p.getId(), p))
                 .map(product -> {
                     Double rating = ratingMap.getOrDefault(product.getId(), 0.0);
                     Long sold = soldMap.getOrDefault(product.getId(), 0L);

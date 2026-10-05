@@ -26,6 +26,27 @@ public class StorefrontCheckoutController {
     private final CheckoutService checkoutService;
     private final CartService cartService;
     private final UserAddressRepository userAddressRepository;
+    private final cyan.project.twinkle.service.VietQrService vietQr;
+
+    @ExceptionHandler(cyan.project.twinkle.exception.BusinessRuleException.class)
+    public String failure(cyan.project.twinkle.exception.BusinessRuleException ex, org.springframework.web.servlet.mvc.support.RedirectAttributes flash) {
+        flash.addFlashAttribute("error", ex.getMessage()); return "redirect:/checkout";
+    }
+
+    @GetMapping("/quote")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<?> quote(@RequestParam(required=false) String couponCode,
+                                                           @AuthenticationPrincipal CustomUserDetails user) {
+        if (user == null) return org.springframework.http.ResponseEntity.status(401).build();
+        try {return org.springframework.http.ResponseEntity.ok(checkoutService.quote(user.getUsername(), couponCode));}
+        catch(cyan.project.twinkle.exception.BusinessRuleException ex) {return org.springframework.http.ResponseEntity.badRequest().body(java.util.Map.of("error", ex.getMessage()));}
+    }
+
+    @GetMapping("/coupons")
+    @ResponseBody
+    public java.util.List<cyan.project.twinkle.dto.CouponOption> coupons(@AuthenticationPrincipal CustomUserDetails user) {
+        return checkoutService.couponOptions(user.getUsername());
+    }
 
     @GetMapping
     public String checkoutPage(
@@ -42,13 +63,19 @@ public class StorefrontCheckoutController {
                 model.addAttribute("selectedItems", selectedItems);
         model.addAttribute("addresses", addresses);
         model.addAttribute("checkoutForm", new CheckoutForm());
+        model.addAttribute("bankingAvailable", vietQr.available());
+        var blocked = cartService.state(userDetails.getUsername()).items().stream().filter(i -> i.selected() && !i.available()).toList();
+        model.addAttribute("blockedItems", blocked);
+        model.addAttribute("placementAllowed", blocked.isEmpty() && !addresses.isEmpty());
         
-        java.math.BigDecimal subtotal = selectedItems.stream()
-                .map(item -> item.getUnitPrice().multiply(java.math.BigDecimal.valueOf(item.getQuantity())))
-                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
-        model.addAttribute("subtotal", subtotal);
-        model.addAttribute("shippingFee", java.math.BigDecimal.valueOf(30000));
-        model.addAttribute("total", subtotal.add(java.math.BigDecimal.valueOf(30000)));
+        var quote = checkoutService.quote(userDetails.getUsername(), null);
+        model.addAttribute("quote", quote);
+        model.addAttribute("subtotal", quote.subtotal());
+        model.addAttribute("productDiscount", quote.productDiscount());
+        model.addAttribute("shippingFee", quote.shippingFee());
+        model.addAttribute("total", quote.total());
+        model.addAttribute("groupedItems", quote.items().stream().collect(java.util.stream.Collectors.groupingBy(
+                cyan.project.twinkle.dto.CheckoutQuote.Item::storeName, java.util.LinkedHashMap::new, java.util.stream.Collectors.toList())));
 
         return "storefront/checkout/checkout";
     }
@@ -66,6 +93,6 @@ public class StorefrontCheckoutController {
                 form
         );
 
-        return "redirect:/orders/" + order.getId();
+        return "COD".equals(order.getPaymentMethod()) ? "redirect:/orders" : "redirect:/payments/" + order.getId();
     }
 }

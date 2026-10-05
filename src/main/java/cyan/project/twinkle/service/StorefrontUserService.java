@@ -28,9 +28,10 @@ public class StorefrontUserService {
     private final UserAddressRepository userAddressRepository;
     private final WishlistItemRepository wishlistItemRepository;
     private final ProductRepository productRepository;
+    private final AvatarStorageService avatarStorageService;
 
     @Transactional
-    public void updateProfile(String email, ProfileUpdateForm form) {
+    public void updateProfile(String email, ProfileUpdateForm form, org.springframework.web.multipart.MultipartFile avatar) {
         User user = userRepository.findByEmail(email).orElseThrow();
         if (form.getUsername() != null && !form.getUsername().trim().isEmpty() && !form.getUsername().equals(user.getUsername())) {
             if (userRepository.existsByUsername(form.getUsername().trim())) {
@@ -38,9 +39,10 @@ public class StorefrontUserService {
             }
             user.setUsername(form.getUsername().trim());
         }
-        user.setFullName(form.getFullName());
-        user.setPhone(form.getPhone());
-        userRepository.save(user);
+        user.setFullName(form.getFullName().trim());
+        user.setPhone(form.getPhone() == null ? null : form.getPhone().trim());
+        if (avatar != null && !avatar.isEmpty()) user.setAvatarUrl(avatarStorageService.store(avatar));
+        userRepository.saveAndFlush(user);
     }
 
     @Transactional(readOnly = true)
@@ -121,7 +123,7 @@ public class StorefrontUserService {
     }
 
     @Transactional
-    public void toggleWishlist(String email, Integer productId) {
+    public boolean toggleWishlist(String email, Integer productId) {
         User user = userRepository.findByEmail(email).orElseThrow();
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new BusinessRuleException("Sản phẩm không tồn tại."));
@@ -129,6 +131,7 @@ public class StorefrontUserService {
         WishlistItemId id = new WishlistItemId(email, productId);
         if (wishlistItemRepository.existsById(id)) {
             wishlistItemRepository.deleteById(id);
+            return false;
         } else {
             WishlistItem item = WishlistItem.builder()
                     .id(id)
@@ -136,6 +139,7 @@ public class StorefrontUserService {
                     .product(product)
                     .build();
             wishlistItemRepository.save(item);
+            return true;
         }
     }
     @Transactional(readOnly = true)

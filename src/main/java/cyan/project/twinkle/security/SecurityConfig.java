@@ -58,6 +58,7 @@ public class SecurityConfig {
                 .securityContextRepository(securityContextRepository())
             )
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/payments/manage", "/payments/manage/**").hasAnyRole("MANAGER", "ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/manager/**").hasRole("MANAGER")
                 .requestMatchers("/shipper/**").hasRole("SHIPPER")
@@ -70,7 +71,8 @@ public class SecurityConfig {
                     "/profile/**",
                     "/addresses/**",
                     "/wishlist/**",
-                    "/reviews/**"
+                    "/reviews/**",
+                    "/payments/**"
                 ).authenticated()
                 .anyRequest().permitAll()
             )

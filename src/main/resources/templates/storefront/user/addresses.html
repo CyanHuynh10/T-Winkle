@@ -79,10 +79,10 @@
             }
         </style>
 
-        <main class="pt-3 mt-2 pb-4 position-relative z-1" style="min-height: 80vh;">
+        <main class="pt-3 mt-2 pb-4 position-relative z-1 storefront-page-main" style="min-height: 80vh;">
             <div class="container max-w-4xl mx-auto px-3 animate-fade-up">
                 
-                <h1 class="h3 fw-bold text-dark mb-3 page-heading text-center">Địa chỉ giao hàng</h1>
+                <h1 class="h3 fw-bold text-dark mb-3 page-heading text-center storefront-page-title">Địa chỉ giao hàng</h1>
                 
                 <div class="profile-main-card rounded-4 overflow-hidden mb-4">
                     <div class="p-3 p-md-4">
@@ -103,6 +103,38 @@
                             </div>
                             <h5 class="fw-bold text-dark">Bạn chưa có địa chỉ nào</h5>
                             <p class="text-muted-custom text-sm max-w-sm mx-auto">Thêm địa chỉ giao hàng để thanh toán nhanh chóng và dễ dàng hơn.</p>
+                        </div>
+
+                        <!-- Address List -->
+                        <div id="addressList" class="d-flex flex-column gap-3" th:unless="${#lists.isEmpty(addresses)}">
+                            <div class="info-mini-surface p-3 p-md-4" th:each="addr : ${addresses}" th:classappend="${addr.isDefault ? 'is-default' : ''}">
+                                <div class="d-flex justify-content-between align-items-start mb-2 gap-2 flex-column flex-md-row">
+                                    <div>
+                                        <h5 class="fw-bold text-dark mb-1" style="font-size: 1.1rem;">
+                                            <span th:text="${addr.fullName}">Name</span> 
+                                            <span class="fw-normal text-muted ms-1 me-1">|</span> 
+                                            <span th:text="${addr.phone}">Phone</span>
+                                        </h5>
+                                    </div>
+                                    <span th:if="${addr.isDefault}" class="badge px-3 py-2 rounded-pill fw-medium profile-identity-badge flex-shrink-0 text-nowrap">Địa chỉ mặc định</span>
+                                </div>
+                                <p class="mb-1 text-dark fw-medium" th:text="${addr.addressLine}">Detail</p>
+                                <p class="mb-2 text-muted text-sm" th:text="${addr.ward + ', ' + addr.district + ', ' + addr.city}">Location</p>
+                                <p class="mb-2 text-muted text-sm fst-italic" th:if="${addr.note != null and !addr.note.isEmpty()}" th:text="'Ghi chú: ' + ${addr.note}">Note</p>
+                                
+                                <div class="d-flex flex-wrap gap-3 mt-3 pt-3 border-top border-light">
+                                    <button type="button" class="btn btn-link text-decoration-none p-0 fw-semibold text-cyan hover-cyan text-sm" 
+                                            th:onclick="openAddressModal([[${addr.id}]], [[${addr.fullName}]], [[${addr.phone}]], [[${addr.city}]], [[${addr.district}]], [[${addr.ward}]], [[${addr.addressLine}]], [[${addr.note}]], [[${addr.isDefault}]])">Chỉnh sửa</button>
+                                            
+                                    <form th:unless="${addr.isDefault}" th:action="@{/addresses/delete/{id}(id=${addr.id})}" method="POST" style="display:inline;">
+                                        <button type="submit" class="btn btn-link text-decoration-none p-0 fw-semibold text-danger text-sm" onclick="return confirm('Xóa địa chỉ này?');">Xóa</button>
+                                    </form>
+                                    
+                                    <form th:unless="${addr.isDefault}" class="ms-auto" th:action="@{/addresses/default/{id}(id=${addr.id})}" method="POST" style="display:inline;">
+                                        <button type="submit" class="btn btn-link text-decoration-none p-0 fw-semibold text-muted hover-cyan text-sm">Đặt làm mặc định</button>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
 
 </div>

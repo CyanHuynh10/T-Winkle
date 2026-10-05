@@ -13,10 +13,12 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final OrderItemRepository orderItemRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public Long submitReview(String email, Long orderItemId, Integer rating, String comment) {
         if (rating == null || rating < 1 || rating > 5) throw new BusinessRuleException("Đánh giá phải từ 1 đến 5 sao.");
+        userRepository.findForUpdateByEmail(email);
 
         OrderItem orderItem = orderItemRepository.findById(orderItemId)
                 .orElseThrow(() -> new BusinessRuleException("Sản phẩm không tồn tại trong đơn hàng."));

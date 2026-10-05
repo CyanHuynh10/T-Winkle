@@ -13,6 +13,14 @@ import jakarta.servlet.http.HttpServletRequest;
 @ControllerAdvice
 public class GlobalModelAttributes {
 
+    @ModelAttribute("currentAvatarUrl")
+    public String currentAvatarUrl(Authentication authentication) {
+        if (isAuthenticated(authentication) && authentication.getPrincipal() instanceof CustomUserDetails user) {
+            return user.getAvatarUrl();
+        }
+        return null;
+    }
+
     @Autowired
     private CartService cartService;
     
@@ -52,13 +60,11 @@ public class GlobalModelAttributes {
 
 
     @ModelAttribute("cartCount")
-    public int cartCount(Authentication authentication) {
+    public long cartCount(Authentication authentication) {
         if (isAuthenticated(authentication)) {
             Object principal = authentication.getPrincipal();
             if (principal instanceof CustomUserDetails customUserDetails) {
-                return cartService.getCartItems(customUserDetails.getUsername()).stream()
-                        .mapToInt(cyan.project.twinkle.entity.CartItem::getQuantity)
-                        .sum();
+                return cartService.quantityCount(customUserDetails.getUsername());
             }
         }
         return 0;

@@ -228,34 +228,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-window.showProductDetail = function(productId) {
+let productDetailRequest = null;
+window.showProductDetail = async function(productId, preferredStoreId, focusSelection = false) {
     if (!productId) return;
-    const loader = document.getElementById('twinkle-global-transition');
-    if (loader) loader.classList.add('active'); 
-
-    fetch('/products/' + productId)
-        .then(res => res.text())
-        .then(html => {
-            if (loader) loader.classList.remove('active');
-            
-            // Create a temp div to parse the fragment
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = html;
-            
-            const newModal = tempDiv.querySelector('#productDetailModal');
-            if (newModal) {
-                let existingModal = document.getElementById('productDetailModal');
-                if (existingModal) {
-                    existingModal.innerHTML = newModal.innerHTML;
-                    
-                    // Show it if not already shown
-                    const bsModal = bootstrap.Modal.getInstance(existingModal) || new bootstrap.Modal(existingModal);
-                    bsModal.show();
-                }
-            }
-        })
-        .catch(err => {
-            console.error('Failed to load product details', err);
-            if (loader) loader.classList.remove('active');
-        });
+    if (productDetailRequest) productDetailRequest.abort();
+    const request = new AbortController(); productDetailRequest = request;
+    try {
+        const response = await fetch('/products/' + encodeURIComponent(productId), {signal: request.signal});
+        if (!response.ok) throw new Error('Product detail request failed');
+        const fragment = new DOMParser().parseFromString(await response.text(), 'text/html');
+        const replacement = fragment.querySelector('#productDetailModal');
+        if (!replacement) throw new Error('Product detail missing');
+        let modal = document.getElementById('productDetailModal');
+        if (!modal) {
+            modal = replacement; document.body.appendChild(modal);
+        } else {
+            modal.innerHTML = replacement.innerHTML; modal.dataset.productId = replacement.dataset.productId;
+        }
+        // Keep the modal out of page stacking contexts and clipped/animated ancestors.
+        if (modal.parentElement !== document.body) document.body.appendChild(modal);
+        window.initializeProductSelection(modal, preferredStoreId);
+        if (focusSelection) modal.addEventListener('shown.bs.modal', () => {
+            const first = modal.querySelector('#modalSizes button');
+            first?.scrollIntoView({block:'nearest'}); first?.focus({preventScroll:true});
+        }, {once:true});
+        bootstrap.Modal.getOrCreateInstance(modal).show();
+    } catch (error) {
+        if (error.name !== 'AbortError') window.showToast('Không thể tải chi tiết sản phẩm.', 'error');
+    }
 };
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.modal').forEach(modal => document.body.appendChild(modal));
+});

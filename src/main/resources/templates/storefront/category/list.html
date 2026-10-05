@@ -9,17 +9,12 @@
 
         
 
-        <main class="pt-4 mt-2 pb-5 position-relative z-1" style="min-height: 80vh;">
+        <main class="pt-4 mt-2 pb-5 position-relative z-1 storefront-page-main" style="min-height: 80vh;">
             
             <!-- Page Heading & Search Bar -->
-            <section class="container mb-4 mb-md-5 pt-4">
+            <section class="container mb-4 mb-md-5 pt-4 storefront-heading-section">
                 <div class="max-w-4xl mx-auto text-center px-3 animate-fade-up">
                     <h1 class="h3 fw-bold text-dark mb-4 text-center" th:text="${(selectedCategory == 'sneaker' ? 'Sneaker' : (selectedCategory == 'sandals' ? 'Sandals' : (selectedCategory == 'sports' ? 'Sports' : 'Bộ sưu tập')))}">Bộ sưu tập</h1>
-                    
-                    
-                    
-                    
-                    
                     <!-- Search Input Wrapper (Glassmorphism) -->
                     <div class="glass-search-wrapper p-2 rounded-pill mx-auto position-relative" style="max-width: 680px; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: all 0.3s ease;">
                         <div class="d-flex align-items-center bg-white rounded-pill pe-2 ps-4 py-2 position-relative z-1" style="box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
@@ -59,19 +54,14 @@
                     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3 mb-4 animate-fade-up position-relative" style="animation-delay: 0.1s; z-index: 20;">
                         
                         <!-- Categories (Pills) -->
-                        <div class="d-flex gap-2 overflow-auto hide-scrollbar pb-2 pb-lg-0 w-100 w-lg-auto" style="white-space: nowrap; -webkit-overflow-scrolling: touch;">
-                            <button class="tw-btn tw-btn-primary rounded-pill px-4" aria-label="Danh mục Tất cả">Tất cả</button>
-                            <button class="tw-btn tw-btn-outline rounded-pill px-4 bg-white" aria-label="Danh mục Sneaker">Sneaker</button>
-                            <button class="tw-btn tw-btn-outline rounded-pill px-4 bg-white" aria-label="Danh mục Sport">Sport</button>
-                            <button class="tw-btn tw-btn-outline rounded-pill px-4 bg-white" aria-label="Danh mục Casual">Casual</button>
-                            <button class="tw-btn tw-btn-outline rounded-pill px-4 bg-white" aria-label="Danh mục Phụ kiện">Phụ kiện</button>
+                        <div class="d-flex gap-2 overflow-auto hide-scrollbar pb-2 pb-lg-0" id="catalogCategories">
+                            <a class="tw-btn rounded-pill px-4" th:classappend="${selectedCategory == null ? 'tw-btn-primary' : 'tw-btn-outline bg-white'}" th:href="@{${store != null ? '/stores/' + store.slug + '/catagories' : '/categories'}(keyword=${param.keyword},sort=${param.sort})}">Tất cả</a>
+                            <a th:each="cat : ${categories}" class="tw-btn rounded-pill px-4" th:classappend="${selectedCategory == cat.slug ? 'tw-btn-primary' : 'tw-btn-outline bg-white'}" th:href="@{${store != null ? '/stores/' + store.slug + '/catagories/' + cat.slug : '/categories/' + cat.slug}(keyword=${param.keyword},sort=${param.sort})}" th:text="${cat.name}"></a>
                         </div>
                         
                         <!-- Filter & Sort -->
                         <div class="d-flex gap-2 align-items-center flex-shrink-0 w-100 w-lg-auto justify-content-end">
-                            <button class="tw-btn control-btn bg-white rounded-pill d-flex align-items-center gap-2 px-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterOffcanvas" aria-label="Bộ lọc sản phẩm">
-                                <i class="bi bi-funnel"></i> <span class="d-none d-sm-inline">Bộ lọc</span>
-                            </button>
+                            
                             
                             <style>
                                 /* Control Buttons (Filter, Sort) */
@@ -149,10 +139,10 @@
                     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 animate-fade-up position-relative" style="animation-delay: 0.2s; z-index: 10;" id="productGridList">
     <div class="col" th:each="product : ${products.content}">
         <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
-            <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" th:data-product-id="${product.productId}" th:classappend="${product.inWishlist} ? 'active text-danger' : ''">
-                <i class="bi bi-heart"></i>
+            <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-4 z-3 wishlist-btn text-muted-custom" aria-label="Thêm vào yêu thích" th:data-product-id="${product.productId}" th:classappend="${product.inWishlist ? 'active text-danger' : ''}">
+                <i th:class="${product.inWishlist ? 'bi bi-heart-fill' : 'bi bi-heart'}"></i>
             </button>
-            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" th:data-product-id="${product.productId}" onclick="showProductDetail(this.getAttribute('data-product-id'))">
+            <div class="product-img-wrapper bg-white rounded-3 mb-3 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="aspect-ratio: 1; border: 1px solid var(--color-border); cursor: pointer;" th:data-product-id="${product.productId}" th:data-store-id="${store?.id}" onclick="showProductDetail(this.dataset.productId, this.dataset.storeId)">
                 <img th:src="${product.primaryImagePath}" class="img-fluid w-100 h-100" style="object-fit: cover;" th:alt="${product.name}" th:if="${product.primaryImagePath != null}"/>
                 <i th:unless="${product.primaryImagePath != null}" class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
             </div>
@@ -170,9 +160,9 @@
                 <div class="mt-auto d-flex align-items-end pe-5">
                     <div>
                         <div class="text-muted-custom text-decoration-line-through text-sm mb-1" th:if="${product.effectivePrice < product.originalPrice}" th:text="${#numbers.formatDecimal(product.originalPrice, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</div>
-                        <div th:classappend="${product.effectivePrice < product.originalPrice} ? 'fw-bold fs-4 text-danger' : 'fw-bold fs-4 text-cyan'" th:text="${#numbers.formatDecimal(product.effectivePrice, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</div>
+                        <div th:classappend="${product.effectivePrice < product.originalPrice ? 'fw-bold fs-4 text-danger' : 'fw-bold fs-4 text-cyan'}" th:text="${#numbers.formatDecimal(product.effectivePrice, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</div>
                     </div>
-                    <button class="btn btn-primary rounded-circle shadow-sm position-absolute bottom-0 end-0 m-3 m-md-4 z-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" aria-label="Thêm vào giỏ hàng" th:data-product-id="${product.productId}" onclick="event.stopPropagation(); submitToCart();"><i class="bi bi-cart fs-5"></i></button>
+                    
                 </div>
             </div>
         </div>
@@ -183,16 +173,16 @@
     <nav aria-label="Phân trang sản phẩm">
         <ul class="pagination pagination-glass gap-2 mb-0 d-flex flex-wrap justify-content-center">
             <li class="page-item" th:classappend="${products.first ? 'disabled' : ''}">
-                <a class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm" th:href="@{${#httpServletRequest.requestURI}(page=${products.number - 1})}" aria-label="Trang trước" style="width: 40px; height: 40px;"><i class="bi bi-chevron-left"></i></a>
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm" th:href="@{${currentUri}(page=${products.number - 1},keyword=${param.keyword},sort=${param.sort},brand=${param.brand})}" aria-label="Trang trước" style="width: 40px; height: 40px;"><i class="bi bi-chevron-left"></i></a>
             </li>
             
             <li class="page-item" th:each="i : ${#numbers.sequence(0, products.totalPages - 1)}" th:classappend="${i == products.number ? 'active' : ''}">
                 <a th:if="${i == products.number}" class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm bg-primary text-white border-primary" href="#" style="width: 40px; height: 40px;" th:text="${i + 1}">1</a>
-                <a th:unless="${i == products.number}" class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm bg-white text-dark" th:href="@{${#httpServletRequest.requestURI}(page=${i})}" style="width: 40px; height: 40px;" th:text="${i + 1}">2</a>
+                <a th:unless="${i == products.number}" class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm bg-white text-dark" th:href="@{${currentUri}(page=${i},keyword=${param.keyword},sort=${param.sort},brand=${param.brand})}" style="width: 40px; height: 40px;" th:text="${i + 1}">2</a>
             </li>
             
             <li class="page-item" th:classappend="${products.last ? 'disabled' : ''}">
-                <a class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm" th:href="@{${#httpServletRequest.requestURI}(page=${products.number + 1})}" aria-label="Trang sau" style="width: 40px; height: 40px;"><i class="bi bi-chevron-right"></i></a>
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm" th:href="@{${currentUri}(page=${products.number + 1},keyword=${param.keyword},sort=${param.sort},brand=${param.brand})}" aria-label="Trang sau" style="width: 40px; height: 40px;"><i class="bi bi-chevron-right"></i></a>
             </li>
         </ul>
     </nav>
@@ -201,91 +191,8 @@
 </section>
         </main>
         
-        <!-- Offcanvas Filter -->
-        <div class="bg-white shadow-lg offcanvas offcanvas-end  border-0" tabindex="-1" id="filterOffcanvas" aria-labelledby="filterOffcanvasLabel" style="width: 320px;">
-            <div class="offcanvas-header border-bottom border-light px-4 py-3">
-                <h5 class="offcanvas-title fw-bold" id="filterOffcanvasLabel"><i class="bi bi-funnel me-2"></i>Bộ lọc</h5>
-                <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" aria-label="Đóng"></button>
-            </div>
-            <div class="offcanvas-body px-4 custom-scrollbar">
-                
-                <div class="mb-4">
-                    <h6 class="fw-bold mb-3 text-dark">Thương hiệu</h6>
-                    <div class="d-flex flex-column gap-2">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="brand1">
-                            <label class="form-check-label text-muted-custom" for="brand1">T-Winkle (24)</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="brand2" checked>
-                            <label class="form-check-label text-muted-custom" for="brand2">Nike (12)</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="brand3">
-                            <label class="form-check-label text-muted-custom" for="brand3">Adidas (8)</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <h6 class="fw-bold mb-3 text-dark">Khoảng giá</h6>
-                    <div class="d-flex flex-column gap-2">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="priceRange" id="price1" checked>
-                            <label class="form-check-label text-muted-custom" for="price1">Tất cả</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="priceRange" id="price2">
-                            <label class="form-check-label text-muted-custom" for="price2">Dưới 1 triệu</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="priceRange" id="price3">
-                            <label class="form-check-label text-muted-custom" for="price3">1 - 2 triệu</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="priceRange" id="price4">
-                            <label class="form-check-label text-muted-custom" for="price4">Trên 2 triệu</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <h6 class="fw-bold mb-3 text-dark">Đánh giá</h6>
-                    <div class="d-flex flex-column gap-2">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="rating5" checked>
-                            <label class="form-check-label text-muted-custom d-flex align-items-center" for="rating5">
-                                <span style="color: #FACC15;"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></span>
-                                <span class="ms-2">5 Sao</span>
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="rating4">
-                            <label class="form-check-label text-muted-custom d-flex align-items-center" for="rating4">
-                                <span style="color: #FACC15;"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i></span>
-                                <span class="ms-2">Từ 4 Sao</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <h6 class="fw-bold mb-3 text-dark">Tình trạng</h6>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="inStock" checked>
-                        <label class="form-check-label text-muted-custom" for="inStock">Chỉ hiện sản phẩm còn hàng</label>
-                    </div>
-                </div>
-                
-            </div>
-            <div class="offcanvas-footer p-4 border-top border-light d-flex gap-2 bg-white rounded-bottom-4">
-                <button class="tw-btn control-btn flex-grow-1 bg-white" data-bs-dismiss="offcanvas">Xóa bộ lọc</button>
-                <button class="tw-btn tw-btn-primary flex-grow-1" data-bs-dismiss="offcanvas">Áp dụng</button>
-            </div>
-        </div>
-
         <!-- Detail Product Card Modal -->
-        <div class="modal fade" id="productDetailModal" th:fragment="product-detail-modal" tabindex="-1" aria-labelledby="productDetailModalLabel" aria-hidden="true" aria-modal="true" role="dialog">
+        <div class="modal fade" id="productDetailModal" th:fragment="product-detail-modal" th:data-product-id="${productDTO?.id}" tabindex="-1" aria-labelledby="productDetailModalLabel" aria-hidden="true" aria-modal="true" role="dialog">
             <div class="modal-dialog modal-dialog-centered modal-xl modal-16-9">
                 <div class="modal-content border border-light shadow-lg d-flex flex-column" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(28px); border-radius: 1.5rem; overflow: hidden; max-height: 90vh;">
                     <button type="button" class="btn-close position-absolute top-0 end-0 m-3 m-md-4 z-3 bg-white rounded-circle shadow-sm p-2" data-bs-dismiss="modal" aria-label="Đóng chi tiết sản phẩm"></button>
@@ -296,8 +203,8 @@
                             <!-- Left: Image Panel -->
                             <div class="col-12 col-lg-5 d-flex flex-column pb-4 pb-lg-0 detail-divider-panel">
                                 <div class="bg-light position-relative d-flex align-items-center justify-content-center rounded-4 overflow-hidden h-100 detail-img-wrapper">
-                                    <span class="badge bg-danger position-absolute top-0 start-0 m-3 m-md-4 z-1 fw-bold fs-6">MỚI</span>
-                                    <i class="bi bi-image text-muted opacity-25" style="font-size: 6rem;"></i>
+                                    <img th:if="${productDTO != null and !#lists.isEmpty(productDTO.images)}" th:src="${productDTO.images[0].imageUrl}" th:alt="${productDTO.images[0].altText}" id="modalProductImage" class="w-100 h-100 object-fit-contain">
+                                    <i th:unless="${productDTO != null and !#lists.isEmpty(productDTO.images)}" class="bi bi-image text-muted opacity-25" style="font-size: 6rem;"></i>
                                 </div>
                             </div>
                             
@@ -305,7 +212,7 @@
                             <div class="col-12 col-lg position-relative d-flex flex-column overflow-hidden flex-grow-1 flex-shrink-1 pt-4 pt-lg-0" style="min-height: 0;">
                                 
                                 <!-- Scrollable Area -->
-                                <div class="flex-grow-1 overflow-y-auto pe-3 pb-2 custom-scrollbar">
+                                <div class="flex-grow-1 overflow-y-auto pe-3 pb-2 custom-scrollbar" id="modalSelectionScroll">
                                     
                                     <div class="mb-2 mt-1">
                                         <span class="badge text-cyan bg-cyan bg-opacity-10 fw-semibold fs-6 px-2 py-1" th:text="${productDTO?.categoryName}">Category</span>
@@ -319,75 +226,59 @@
                                         <!-- Actions: Top Right -->
                                         <div class="d-flex gap-2 flex-shrink-0 z-3 position-relative">
                                             <!-- Cart Button -->
-                                            <button id="modalAddToCartBtn" class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center text-white hover-scale" style="width: 56px; height: 56px;" aria-label="Thêm vào giỏ hàng" th:data-product-id="${productDTO?.productId}" onclick="event.stopPropagation(); submitToCart();">
-                                                <i class="bi bi-cart fs-4"></i>
-                                            </button>
                                             <!-- Wishlist Button -->
-                                            <button class="btn btn-light rounded-circle shadow-sm wishlist-btn text-muted-custom d-flex align-items-center justify-content-center hover-scale" style="width: 56px; height: 56px;" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">
-                                                <i class="bi bi-heart fs-4"></i>
+                                            <button class="btn btn-light rounded-circle shadow-sm wishlist-btn text-muted-custom d-flex align-items-center justify-content-center hover-scale" style="width: 56px; height: 56px;" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();" th:data-product-id="${productDTO?.id}" th:classappend="${productDTO?.inWishlist == true ? 'active text-danger' : ''}">
+                                                <i th:class="${productDTO?.inWishlist == true ? 'bi bi-heart-fill fs-4' : 'bi bi-heart fs-4'}"></i>
                                             </button>
                                         </div>
                                     </div>
                                     
+                                    <p id="modalCartHint" class="text-muted-custom text-sm mb-3" role="status">Chọn size, màu và cửa hàng trước khi thêm vào giỏ.</p>
                                     <div class="d-flex align-items-center gap-3 mb-4 fs-6">
                                         <div style="color: #FACC15;">
-                                            <i class="bi bi-star-fill"></i> <i class="bi bi-star-fill"></i> <i class="bi bi-star-fill"></i> <i class="bi bi-star-fill"></i> <i class="bi bi-star-fill"></i>
+                                            <i th:each="star : ${#numbers.sequence(1, 5)}" th:class="${productDTO != null and star <= productDTO.ratingAverage ? 'bi bi-star-fill' : 'bi bi-star'}"></i>
                                             <span class="text-dark fw-bold ms-1" th:text="${productDTO?.ratingAverage != null ? #numbers.formatDecimal(productDTO?.ratingAverage, 1, 1) : '0.0'}">5.0</span>
                                         </div>
                                         <span class="text-muted-custom">|</span>
-                                        <span class="text-muted-custom fw-medium">Đã bán 124</span>
+                                        <span class="text-muted-custom fw-medium" th:text="'Đã bán ' + (${productDTO?.soldCount != null ? productDTO?.soldCount : 0})">Đã bán 124</span>
                                     </div>
                                     
                                     <div class="mb-4">
-                                        <div class="fw-bold text-cyan" style="font-size: 2.5rem; line-height: 1;" th:text=" + '₫'">0₫</div>
+                                        <div class="fw-bold text-cyan" id="modalProductPrice" th:data-base-price="${productDTO?.effectivePrice}" style="font-size: 2.5rem; line-height: 1;" th:text="${productDTO?.effectivePrice != null ? #numbers.formatDecimal(productDTO?.effectivePrice, 0, 'COMMA', 0, 'POINT') + '₫' : '0₫'}">0₫</div>
                                     </div>
                                     
-                                    <p class="text-muted-custom mb-4 fs-6">
-                                        Thiết kế hiện đại mang hơi thở thành thị, kết hợp công nghệ đệm êm ái và vật liệu thoáng khí cao cấp. Giúp bạn tự tin tỏa sáng trên mỗi bước đi.
-                                    </p>
+                                    <div class="text-muted-custom text-decoration-line-through mb-3" th:if="${productDTO != null and productDTO.effectivePrice < productDTO.basePrice}" th:text="${#numbers.formatDecimal(productDTO.basePrice, 0, 'POINT', 0, 'COMMA')} + '₫'"></div>
+                                    <p class="text-muted-custom mb-4 fs-6" th:text="${productDTO?.description}"></p>
 
-                                    <!-- Variants (Size) -->
+                                    <!-- Active variants from PRODUCT_VARIANTS; controls are derived from this matrix. -->
+                                    <div id="modalVariantMatrix" hidden>
+                                        <span th:each="variant : ${productDTO?.variants}" th:data-variant-id="${variant.id}" th:data-size="${variant.size}" th:data-color="${variant.color}" th:data-adjustment="${variant.priceAdjustment}" th:data-image="${variant.imageUrl}"></span>
+                                    </div>
                                     <div class="mb-3">
                                         <p class="fw-semibold text-dark mb-2 text-sm">CHỌN SIZE</p>
-                                        <div class="d-flex flex-wrap gap-2">
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm size-btn" onclick="event.stopPropagation()">38</button>
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm size-btn" onclick="event.stopPropagation()">39</button>
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm size-btn" onclick="event.stopPropagation()">40</button>
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm size-btn" onclick="event.stopPropagation()">41</button>
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm disabled text-muted" disabled>42</button>
-                                        </div>
+                                        <div class="d-flex flex-wrap gap-2" id="modalSizes"></div>
                                     </div>
-
-                                    <!-- Variants (Color) -->
                                     <div class="mb-4">
                                         <p class="fw-semibold text-dark mb-2 text-sm">CHỌN MÀU</p>
-                                        <div class="d-flex flex-wrap gap-2">
-                                            <button class="btn btn-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">Đen</button>
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">Trắng</button>
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm disabled text-muted" disabled>Đỏ</button>
-                                        </div>
-                                        <div class="mt-2 text-xs text-muted-custom fst-italic">* Đang chọn: Đen / 39</div>
+                                        <div class="d-flex flex-wrap gap-2" id="modalColors"></div>
+                                        <div class="mt-2 text-xs text-muted-custom fst-italic" id="modalVariantHint">* Vui lòng chọn size và màu</div>
                                     </div>
-
-                                    <!-- Store Availability -->
                                     <div class="bg-light rounded-3 p-3 border mb-3">
                                         <p class="fw-semibold text-dark mb-3 text-sm"><i class="bi bi-shop me-2"></i>Tình trạng tại cửa hàng</p>
-                                        <ul class="list-unstyled mb-0 text-sm">
-                                            <li class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary border-opacity-25">
-                                                <span class="text-muted-custom">T-Winkle Quận 1, TP.HCM</span>
-                                                <span class="badge bg-success bg-opacity-10 text-success px-2 py-1"><i class="bi bi-check-circle me-1"></i>Còn hàng</span>
-                                            </li>
-                                            <li class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary border-opacity-25">
-                                                <span class="text-muted-custom">T-Winkle Quận 3, TP.HCM</span>
-                                                <span class="badge bg-danger bg-opacity-10 text-danger px-2 py-1"><i class="bi bi-x-circle me-1"></i>Hết hàng</span>
-                                            </li>
-                                            <li class="d-flex justify-content-between align-items-center">
-                                                <span class="text-muted-custom">T-Winkle Cầu Giấy, Hà Nội</span>
-                                                <span class="badge bg-success bg-opacity-10 text-success px-2 py-1"><i class="bi bi-check-circle me-1"></i>Còn hàng</span>
+                                        <p id="modalStoreHint" class="text-muted-custom text-sm">Vui lòng chọn size và màu để xem tồn kho.</p>
+                                        <ul class="list-unstyled mb-0 text-sm" id="modalStores">
+                                            <li th:each="inventory : ${productDTO?.storeAvailability}" hidden th:data-variant-id="${inventory.variantId}" th:data-quantity="${inventory.quantity}" class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary border-opacity-25">
+                                                <span><span th:text="${inventory.storeName}"></span><small class="d-block text-muted-custom" th:text="${inventory.storeAddress}"></small></span>
+                                                <button type="button" class="btn btn-sm rounded-pill border px-3 py-2 fw-semibold stock-status store-select-btn" aria-label="Chọn cửa hàng" title="Nhấn để chọn cửa hàng này" th:classappend="${inventory.stockState == 'OUT' ? 'bg-danger bg-opacity-10 text-danger border-danger' : (inventory.stockState == 'LOW' ? 'bg-warning bg-opacity-10 text-warning border-warning' : 'bg-success bg-opacity-10 text-success border-success')}" th:data-store-id="${inventory.storeId}" th:disabled="${inventory.quantity <= 0}" th:text="${inventory.stockState == 'OUT' ? 'Hết hàng' : (inventory.stockState == 'LOW' ? 'Sắp hết' : 'Còn hàng')}"></button>
                                             </li>
                                         </ul>
                                     </div>
 
+
+                                    <div class="mb-3 d-flex align-items-center gap-3">
+                                        <label for="modalQuantity" class="fw-semibold text-sm">SỐ LƯỢNG</label>
+                                        <div class="quantity-control d-flex align-items-center gap-2"><button type="button" id="modalQuantityMinus" data-quantity-step="-1" class="btn btn-light border" aria-label="Giảm số lượng" disabled>−</button><input id="modalQuantity" type="number" inputmode="numeric" min="1" value="1" class="form-control text-center"><button type="button" id="modalQuantityPlus" data-quantity-step="1" class="btn btn-light border" aria-label="Tăng số lượng" disabled>+</button></div>
+                                    </div>
                                     <!-- Product Reviews -->
                                     <div class="product-reviews-section mt-4 pt-4 border-top border-light" id="productReviewSection">
                                         <h3 class="h5 fw-bold text-dark mb-4">Đánh giá sản phẩm</h3>
@@ -396,60 +287,38 @@
                                         <div class="glass-card rounded-4 p-3 p-md-4 mb-4 border shadow-sm">
                                             <div class="row align-items-center gy-4">
                                                 <div class="col-12 col-md-5 text-center" style="border-right: 1px solid rgba(226, 232, 240, 0.6);">
-                                                    <div class="display-4 fw-bold text-dark mb-2" id="revAvgRating">0.0</div>
+                                                    <div class="display-4 fw-bold text-dark mb-2" id="revAvgRating" th:text="${productDTO?.ratingAverage != null ? #numbers.formatDecimal(productDTO.ratingAverage, 1, 1) : '0.0'}">0.0</div>
                                                     <div style="color: #FACC15;" class="fs-5 mb-2" id="revAvgStars">
-                                                        <i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i>
+                                                        <i th:each="star : ${#numbers.sequence(1, 5)}" th:class="${productDTO != null and star <= productDTO.ratingAverage ? 'bi bi-star-fill' : 'bi bi-star'}"></i>
                                                     </div>
-                                                    <div class="text-muted-custom" id="revTotalCount">0 đánh giá</div>
+                                                    <div class="text-muted-custom" id="revTotalCount" th:text="${productDTO?.reviews != null ? #lists.size(productDTO.reviews) + ' đánh giá' : '0 đánh giá'}">0 đánh giá</div>
                                                 </div>
                                                 <div class="col-12 col-md-7">
                                                     <div class="d-flex flex-column gap-2" id="revDistBar">
-                                                        <!-- bars rendered by JS -->
+                                                        <div th:each="stars : ${#numbers.sequence(5, 1)}" class="d-flex align-items-center gap-2 text-sm">
+                                                            <span th:text="${stars} + ' ★'"></span><div class="progress flex-grow-1" style="height: 6px;"><div class="progress-bar bg-warning" th:style="${productDTO != null and !#lists.isEmpty(productDTO.reviews) ? 'width: ' + (100.0 * productDTO.reviewCounts[5 - stars] / #lists.size(productDTO.reviews)) + '%' : 'width: 0%'}"></div></div><span th:text="${productDTO != null ? productDTO.reviewCounts[5 - stars] : 0}"></span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <!-- Review Action -->
                                         <div class="mb-4 text-center" id="revActionContainer">
-                                            <!-- Rendered by JS -->
+                                            <a th:if="${productDTO?.canReview == true}" th:href="@{/orders}" class="btn btn-outline-dark rounded-pill">Đánh giá từ đơn hàng đã giao</a>
                                         </div>
-
-                                        <!-- Review Form (Hidden by default) -->
-                                        <div class="glass-card rounded-4 p-4 mb-4 border shadow-sm" id="revFormContainer" style="display: none;">
-                                            <h4 class="h6 fw-bold text-dark mb-3">Viết đánh giá</h4>
-                                            <div class="mb-3">
-                                                <label class="form-label fw-medium text-sm">Mức đánh giá <span class="text-danger">*</span></label>
-                                                <div class="d-flex gap-2 fs-4" id="revStarSelect" style="color: #CBD5E1; cursor: pointer;">
-                                                    <i class="bi bi-star rev-star-item" data-val="1" tabindex="0" role="button" aria-label="1 sao"></i>
-                                                    <i class="bi bi-star rev-star-item" data-val="2" tabindex="0" role="button" aria-label="2 sao"></i>
-                                                    <i class="bi bi-star rev-star-item" data-val="3" tabindex="0" role="button" aria-label="3 sao"></i>
-                                                    <i class="bi bi-star rev-star-item" data-val="4" tabindex="0" role="button" aria-label="4 sao"></i>
-                                                    <i class="bi bi-star rev-star-item" data-val="5" tabindex="0" role="button" aria-label="5 sao"></i>
-                                                </div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="revComment" class="form-label fw-medium text-sm">Bình luận <span class="text-danger">*</span></label>
-                                                <textarea class="form-control bg-light border-light shadow-none" id="revComment" rows="3" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm..."></textarea>
-                                            </div>
-                                            <button class="btn btn-cyan text-white fw-bold px-4 rounded-pill shadow-sm" id="revSubmitBtn">Gửi đánh giá</button>
-                                        </div>
-
-                                        <!-- Sort -->
-                                        <div class="d-flex justify-content-between align-items-center mb-4" id="revSortContainer" style="display: none;">
-                                            <span class="fw-bold text-dark">Bình luận của khách hàng</span>
-                                            <select class="form-select form-select-sm w-auto shadow-none bg-light border-light rounded-pill px-3" id="revSortSelect">
-                                                <option value="newest">Mới nhất</option>
-                                                <option value="high">Điểm cao</option>
-                                                <option value="low">Điểm thấp</option>
-                                            </select>
-                                        </div>
-
                                         <!-- Review List -->
                                         <div class="d-flex flex-column gap-3" id="revList">
-                                            <!-- Rendered by JS -->
+                                            <p th:if="${productDTO == null or #lists.isEmpty(productDTO.reviews)}" class="text-muted-custom text-center">Chưa có đánh giá cho sản phẩm này.</p>
+                                            <div th:each="review : ${productDTO?.reviews}" class="glass-card rounded-4 p-3 border shadow-sm">
+                                                <div class="d-flex justify-content-between"><strong th:text="${review.displayName}"></strong><small class="text-muted-custom" th:text="${#temporals.format(review.createdAt, 'dd/MM/yyyy HH:mm')}"></small></div>
+                                                <div class="text-warning my-2"><i th:each="star : ${#numbers.sequence(1, 5)}" th:class="${star <= review.rating ? 'bi bi-star-fill' : 'bi bi-star'}"></i></div>
+                                                <p class="mb-0 text-muted-custom" th:text="${review.comment}"></p>
+                                            </div>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="pt-3 border-top flex-shrink-0">
+                                    <button type="button" id="modalAddToCartBtn" disabled class="tw-btn tw-btn-primary w-100 d-flex justify-content-center align-items-center gap-2" aria-label="Thêm vào giỏ hàng" th:data-product-id="${productDTO?.id}"><i class="bi bi-cart-plus"></i>Thêm vào giỏ hàng</button>
                                 </div>
                             </div>
                         </div>
@@ -579,99 +448,8 @@
             }
         </style>
 
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                
-                
-                
-                
-                // Event listeners for sort dropdown
-                const sortDropdownItems = document.querySelectorAll('.sort-dropdown-item');
-                if(sortDropdownItems.length > 0) {
-                    sortDropdownItems.forEach(item => {
-                        item.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            let currentSort = item.getAttribute('data-sort');
-                            const urlParams = new URLSearchParams(window.location.search);
-                            urlParams.set('sort', currentSort);
-                            window.location.href = window.location.pathname + '?' + urlParams.toString();
-                        });
-                    });
-                }
-                
-                // Set current sort UI based on URL
-                const urlParams = new URLSearchParams(window.location.search);
-                const sortParam = urlParams.get('sort') || 'popular';
-                const sortText = document.getElementById('currentSortText');
-                const activeItem = document.querySelector(`.sort-dropdown-item[data-sort="${sortParam}"]`);
-                if(activeItem && sortText) {
-                    document.querySelectorAll('.sort-dropdown-item').forEach(i => i.classList.remove('selected-sort'));
-                    document.querySelectorAll('.sort-dropdown-item i.bi-check').forEach(i => i.remove());
-                    
-                    activeItem.classList.add('selected-sort');
-                    sortText.textContent = activeItem.querySelector('.sort-text').textContent;
-                    
-                    const checkIcon = document.createElement('i');
-                    checkIcon.className = 'bi bi-check text-cyan ms-2';
-                    activeItem.appendChild(checkIcon);
-                }
 
-                // 2. SEARCH LOGIC
-                const searchInput = document.getElementById("searchInput");
-                const clearBtn = document.getElementById("clearSearchBtn");
-                const submitBtn = document.getElementById("searchSubmitBtn");
-                
-                function toggleClearButton() {
-                    if (searchInput.value.length > 0) {
-                        clearBtn.classList.remove("d-none");
-                    } else {
-                        clearBtn.classList.add("d-none");
-                    }
-                }
-
-                function performSearch() {
-                    const val = searchInput.value.trim();
-                    const urlParams = new URLSearchParams(window.location.search);
-                    if (val) {
-                        urlParams.set('keyword', val);
-                    } else {
-                        urlParams.delete('keyword');
-                    }
-                    urlParams.delete('page'); // reset page
-                    window.location.href = window.location.pathname + '?' + urlParams.toString();
-                }
-
-                searchInput.addEventListener("input", toggleClearButton);
-                
-                searchInput.addEventListener("keypress", function(e) {
-                    if (e.key === "Enter") {
-                        e.preventDefault();
-                        performSearch();
-                    }
-                });
-
-                submitBtn.addEventListener("click", function(e) {
-                    e.preventDefault();
-                    performSearch();
-                });
-
-                clearBtn.addEventListener("click", function(e) {
-                    e.preventDefault();
-                    searchInput.value = "";
-                    toggleClearButton();
-                    searchInput.focus();
-                    performSearch(); 
-                });
-                
-                // Set current search UI based on URL
-                const keywordParam = urlParams.get('keyword');
-                if(keywordParam) {
-                    searchInput.value = keywordParam;
-                    toggleClearButton();
-                }
-
-});
-        </script>
+        <script src="/js/catalog-handler.js"></script>
     </div>
 
     <!-- Sort Dropdown Logic -->
@@ -700,13 +478,7 @@
                 });
             });
             
-            // Filter UI sync - just to be absolutely sure inputs trigger changes in some browsers
-            const filterInputs = document.querySelectorAll('#filterOffcanvas .form-check-input');
-            filterInputs.forEach(input => {
-                input.addEventListener('change', () => {
-                    // CSS :checked handles visual, but this forces a repaint just in case
-                });
-            });
+            
         });
     </script>
 

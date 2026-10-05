@@ -34,3 +34,21 @@ build/
 
 ### Environment ###
 .env
+.env.local
+.env.*.local
+!.env.example
+
+# Persisted user-uploaded media
+/uploads/
+
+# Disposable build, verification and operating-system output
+out/
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
+
+# Integration reports are source documentation; captures are disposable.
+docs/integration-audit/*.png
+docs/integration-audit/*.json
+docs/integration-audit/*.html

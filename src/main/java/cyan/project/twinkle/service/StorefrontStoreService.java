@@ -16,12 +16,22 @@ public class StorefrontStoreService {
 
     @Transactional(readOnly = true)
     public List<Store> getAllStores() {
-        return storeRepository.findByStatusOrderByNameAsc("OPEN");
+        return storeRepository.search(null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Store> searchStores(String keyword) {
+        return storeRepository.search(keyword == null || keyword.isBlank() ? null : "%" + keyword.trim() + "%");
+    }
+
+    @Transactional(readOnly = true)
+    public long getTotalStoreCount() {
+        return storeRepository.count();
     }
 
     @Transactional(readOnly = true)
     public Store getStoreBySlug(String slug) {
-        return storeRepository.findBySlugAndStatus(slug, "OPEN")
-                .orElseThrow(() -> new BusinessRuleException("Cửa hàng không tồn tại hoặc đang đóng cửa."));
+        return storeRepository.findBySlug(slug)
+                .orElseThrow(() -> new BusinessRuleException("Cửa hàng không tồn tại."));
     }
 }

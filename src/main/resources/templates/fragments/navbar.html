@@ -24,16 +24,11 @@
                     <div class="collapse navbar-collapse" id="mainNavbar">
                         <!-- Main Navbar Context Switch -->
                           <th:block th:if="${#strings.startsWith(#execInfo.processedTemplateName, 'storefront/category/') or #execInfo.processedTemplateName == 'storefront/store/categories'}">
-                              <!-- Category Navigation -->
+                              <!-- Category Navigation: context is retained for store-local routes. -->
                               <ul class="navbar-nav mx-auto mb-2 mb-lg-0 fw-semibold text-sm gap-2 gap-lg-4">
-                                  <li class="nav-item">
-                                      <a th:class="${selectedCategory == 'sneaker' ? 'nav-link text-cyan active' : 'nav-link text-muted-custom hover-cyan transition-colors'}" th:href="@{/categories/sneaker}">Sneaker</a>
-                                  </li>
-                                  <li class="nav-item">
-                                      <a th:class="${selectedCategory == 'sandals' ? 'nav-link text-cyan active' : 'nav-link text-muted-custom hover-cyan transition-colors'}" th:href="@{/categories/sandals}">Sandals</a>
-                                  </li>
-                                  <li class="nav-item">
-                                      <a th:class="${selectedCategory == 'sports' ? 'nav-link text-cyan active' : 'nav-link text-muted-custom hover-cyan transition-colors'}" th:href="@{/categories/sports}">Sports</a>
+                                  <li class="nav-item"><a th:href="@{${store != null ? '/stores/' + store.slug + '/catagories' : '/categories'}(keyword=${param.keyword},sort=${param.sort})}" th:class="${selectedCategory == null ? 'nav-link text-cyan active' : 'nav-link text-muted-custom hover-cyan transition-colors'}">Tất cả</a></li>
+                                  <li class="nav-item" th:each="navCategory : ${categories}">
+                                      <a th:if="${navCategory.slug == 'sneaker' or navCategory.slug == 'sandals' or navCategory.slug == 'sports'}" th:href="@{${store != null ? '/stores/' + store.slug + '/catagories/' + navCategory.slug : '/categories/' + navCategory.slug}(keyword=${param.keyword},sort=${param.sort})}" th:class="${selectedCategory == navCategory.slug ? 'nav-link text-cyan active' : 'nav-link text-muted-custom hover-cyan transition-colors'}" th:text="${navCategory.name}"></a>
                                   </li>
                               </ul>
                           </th:block>
@@ -75,7 +70,8 @@
                         <button class="btn btn-link text-decoration-none d-flex align-items-center gap-2 px-3 hover-cyan transition-colors shadow-none border-0" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="color: var(--color-text-main);">
                             <!-- Avatar -->
                             <div class="rounded-circle d-flex align-items-center justify-content-center bg-cyan text-white fw-bold shadow-sm" style="width: 32px; height: 32px; font-size: 0.875rem;">
-                                <span class="auth-avatar-initial">U</span>
+                                <img th:if="${currentAvatarUrl != null}" th:src="${currentAvatarUrl}" class="w-100 h-100 rounded-circle object-fit-cover" alt="Ảnh đại diện">
+                                <span th:unless="${currentAvatarUrl != null}" class="auth-avatar-initial">U</span>
                             </div>
                             <!-- Username -->
                             <span class="fw-bold text-sm d-none d-md-inline text-dark auth-username" th:text="${currentUsername}">user1</span>
@@ -92,15 +88,15 @@
                                     <i class="bi bi-person fs-5"></i> Hồ sơ cá nhân
                                   </a>
                             </li>
+                            <li>
+                                <a class="dropdown-item rounded-3 text-sm fw-medium py-2 d-flex align-items-center gap-2" th:href="@{/addresses}">
+                                    <i class="bi bi-geo-alt fs-5"></i> Địa chỉ giao hàng
+                                </a>
+                            </li>
 
                             <li>
                                 <a class="dropdown-item rounded-3 text-sm fw-medium py-2 d-flex align-items-center gap-2" th:href="@{/orders}">
                                     <i class="bi bi-bag-check fs-5"></i> Đơn hàng
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item rounded-3 text-sm fw-medium py-2 d-flex align-items-center gap-2" th:href="@{/addresses}">
-                                    <i class="bi bi-geo-alt fs-5"></i> Địa chỉ giao hàng
                                 </a>
                             </li>
                             <li>

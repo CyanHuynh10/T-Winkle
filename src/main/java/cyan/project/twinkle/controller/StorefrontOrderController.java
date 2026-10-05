@@ -14,6 +14,13 @@ import org.springframework.web.bind.annotation.*;
 public class StorefrontOrderController {
 
     private final OrderService orderService;
+    private final cyan.project.twinkle.repository.ReviewRepository reviews;
+    private final cyan.project.twinkle.repository.PaymentRepository payments;
+
+    @ExceptionHandler(cyan.project.twinkle.exception.BusinessRuleException.class)
+    public String failure(cyan.project.twinkle.exception.BusinessRuleException ex, org.springframework.web.servlet.mvc.support.RedirectAttributes flash) {
+        flash.addFlashAttribute("error",ex.getMessage());return "redirect:/orders";
+    }
 
     @GetMapping
     public String orderHistory(@RequestParam(defaultValue = "0") int page,
@@ -30,6 +37,9 @@ public class StorefrontOrderController {
                               Model model) {
         if (userDetails == null) return "redirect:/login";
         model.addAttribute("order", orderService.getOrderDetail(id, userDetails.getUsername()));
+        model.addAttribute("payment", payments.findByOrderId(id).orElse(null));
+        model.addAttribute("pendingCancellation", orderService.hasPendingCancellation(id));
+        model.addAttribute("reviewedProducts", reviews.findReviewedProductIds(userDetails.getUsername()));
         return "storefront/order/detail";
     }
 
@@ -38,8 +48,28 @@ public class StorefrontOrderController {
                                 @AuthenticationPrincipal CustomUserDetails userDetails,
                                 Model model) {
         if (userDetails == null) return "redirect:/login";
-        model.addAttribute("order", orderService.getOrderDetail(id, userDetails.getUsername()));
-        model.addAttribute("trackingHistory", orderService.getOrderTracking(id, userDetails.getUsername()));
+        var order = orderService.getOrderDetail(id, userDetails.getUsername());
+        var history = orderService.getOrderTracking(id, userDetails.getUsername());
+        model.addAttribute("order", order);
+        model.addAttribute("trackingHistory", history);
+        var stages = new java.util.ArrayList<cyan.project.twinkle.dto.TrackingStage>();
+        for (int i=0; i<history.size(); i++) {
+            var event = history.get(i);
+            String color = switch (event.getStatus()) {case "Chờ xác nhận" -> "waiting";case "Đã giao" -> "delivered";case "Đã hủy" -> "cancelled";default -> "confirmed";};
+            stages.add(new cyan.project.twinkle.dto.TrackingStage(event.getStatus(),event.getCreatedAt(),event.getNote(),color,true,
+                    i == history.size()-1 && event.getStatus().equals(order.getStatus())));
+        }
+        if (!"Đã hủy".equals(order.getStatus())) {
+            var sequence = java.util.List.of("Chờ xác nhận","Đã xác nhận","Đã giao");
+            int current = sequence.indexOf(order.getStatus());
+            if (current >= 0) for (int i=current+1; i<sequence.size(); i++) {
+                String next = sequence.get(i);
+                if (history.stream().noneMatch(h -> h.getStatus().equals(next))) stages.add(new cyan.project.twinkle.dto.TrackingStage(next,null,"Chưa diễn ra","future",false,false));
+            }
+        }
+        model.addAttribute("trackingStages",stages);
+        model.addAttribute("orderId", id);
+        model.addAttribute("pendingCancellation", orderService.hasPendingCancellation(id));
         return "storefront/order/tracking";
     }
 

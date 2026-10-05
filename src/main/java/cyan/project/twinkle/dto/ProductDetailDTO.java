@@ -24,6 +24,18 @@ public class ProductDetailDTO {
     private List<VariantDTO> variants;
     private List<ImageDTO> images;
     private List<StoreInventoryDTO> storeAvailability;
+    private List<ReviewDTO> reviews;
+    private Boolean canReview;
+    private List<Long> reviewCounts;
+
+    @Data
+    @AllArgsConstructor
+    public static class ReviewDTO {
+        private String displayName;
+        private Integer rating;
+        private String comment;
+        private java.time.LocalDateTime createdAt;
+    }
 
     @Data
     public static class VariantDTO {
@@ -33,6 +45,11 @@ public class ProductDetailDTO {
         private String sku;
         private BigDecimal priceAdjustment;
         private String imageUrl;
+        private Long soldCount;
+        private Double ratingAverage;
+        private Long reviewCount;
+        // Five counts in ascending star order, derived through the actual reviewed order item.
+        private List<Long> starCounts;
     }
 
     @Data
@@ -51,5 +68,14 @@ public class ProductDetailDTO {
         private String storeAddress;
         private Long variantId;
         private Integer quantity;
+        private String stockState;
+        private String storeStatus;
+        public StoreInventoryDTO(Integer storeId, String storeName, String storeAddress, Long variantId, Integer quantity, String storeStatus) {
+            this(storeId, storeName, storeAddress, variantId, quantity); this.storeStatus = storeStatus;
+        }
+        public StoreInventoryDTO(Integer storeId, String storeName, String storeAddress, Long variantId, Integer quantity) {
+            this.storeId = storeId; this.storeName = storeName; this.storeAddress = storeAddress;
+            this.variantId = variantId; this.quantity = quantity;
+        }
     }
 }

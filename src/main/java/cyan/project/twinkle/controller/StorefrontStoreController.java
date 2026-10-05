@@ -16,10 +16,13 @@ public class StorefrontStoreController {
     
     private final StorefrontStoreService storeService;
     private final StorefrontProductService productService;
+    private final cyan.project.twinkle.repository.CategoryRepository categoryRepository;
 
     @GetMapping
-    public String stores(Model model) {
-        model.addAttribute("stores", storeService.getAllStores());
+    public String stores(@RequestParam(required = false) String keyword, Model model) {
+        model.addAttribute("stores", storeService.searchStores(keyword));
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("totalStoreCount", storeService.getTotalStoreCount());
         return "storefront/store/list";
     }
 
@@ -29,15 +32,23 @@ public class StorefrontStoreController {
         return "storefront/store/detail";
     }
 
-    @GetMapping("/{slug}/catagories") // Giữ đúng route sai chính tả từ source gốc UI
+    @GetMapping({"/{slug}/catagories", "/{slug}/catagories/{categorySlug}"}) // Giữ đúng route sai chính tả từ source gốc UI
     public String storeProducts(@PathVariable String slug,
+                                @PathVariable(required = false) String categorySlug,
                                 @RequestParam(required = false) String category,
+                                @RequestParam(required = false) String keyword,
                                 @RequestParam(required = false) String sort,
                                 @RequestParam(defaultValue = "0") int page,
                                 @AuthenticationPrincipal CustomUserDetails userDetails,
                                 Model model) {
+        category = categorySlug != null ? categorySlug : category;
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("sort", sort);
         model.addAttribute("store", storeService.getStoreBySlug(slug));
-        model.addAttribute("products", productService.getStoreProducts(slug, category, sort, page, userDetails != null ? userDetails.getUsername() : null)); 
-        return "storefront/store/categories";
+        model.addAttribute("products", productService.getStoreProducts(slug, category, keyword, sort, page, userDetails != null ? userDetails.getUsername() : null)); 
+        model.addAttribute("categories", categoryRepository.findStoreCategories(slug));
+        model.addAttribute("selectedCategory", category);
+        model.addAttribute("currentUri", "/stores/" + slug + "/catagories" + (category != null ? "/" + category : ""));
+        return "storefront/category/list";
     }
 }

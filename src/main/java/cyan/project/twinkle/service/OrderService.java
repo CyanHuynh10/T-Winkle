@@ -38,18 +38,22 @@ public class OrderService {
 
     @Transactional
     public void cancelOrder(Long orderId, String email, String reason, String otherReason) {
-        Order order = getOrderDetail(orderId, email);
+        Order order = orderRepository.findForUpdate(orderId).filter(o -> o.getUser().getEmail().equals(email))
+                .orElseThrow(() -> new BusinessRuleException("Đơn hàng không thuộc quyền sở hữu."));
 
         if (!"Chờ xác nhận".equals(order.getStatus())) {
             throw new BusinessRuleException("Chỉ có thể hủy đơn hàng ở trạng thái Chờ xác nhận.");
         }
 
-        if (orderCancellationRepository.existsByOrderId(orderId)) {
+        if (orderCancellationRepository.existsByOrderIdAndStatus(orderId, "PENDING")) {
             throw new BusinessRuleException("Đơn hàng này đã có yêu cầu hủy đang chờ xử lý.");
         }
 
         String finalReason = (reason != null && !reason.trim().isEmpty()) ? reason.trim() : "Khác";
         String customReason = "Khác".equalsIgnoreCase(finalReason) ? otherReason : null;
+        if ("Khác".equalsIgnoreCase(finalReason) && (customReason == null || customReason.isBlank())) {
+            throw new BusinessRuleException("Vui lòng nhập lý do khác.");
+        }
 
         OrderCancellation cancellation = OrderCancellation.builder()
                 .order(order)
@@ -62,4 +66,7 @@ public class OrderService {
         
         // Khách hàng bấm huỷ chỉ tạo yêu cầu Pending, Order Status VẪN GIỮ "Chờ xác nhận"
     }
+
+    @Transactional(readOnly = true)
+    public boolean hasPendingCancellation(Long id) {return orderCancellationRepository.existsByOrderIdAndStatus(id, "PENDING");}
 }

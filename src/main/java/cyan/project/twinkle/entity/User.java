@@ -27,6 +27,9 @@ public class User {
     @Column(name = "phone", length = 20)
     private String phone;
 
+    @Column(name = "avatar_url", length = 500)
+    private String avatarUrl;
+
     @Column(name = "password_hash", length = 255, nullable = false)
     private String passwordHash;
 

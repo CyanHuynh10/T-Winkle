@@ -76,6 +76,9 @@ public class Order {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "delivery_mail_sent_at")
+    private LocalDateTime deliveryMailSentAt;
     
     @PrePersist
     protected void onCreate() {

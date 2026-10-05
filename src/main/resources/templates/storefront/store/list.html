@@ -6,26 +6,26 @@
         <!-- Navbar Fragment -->
         <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-        <main class="pt-4 mt-2 pb-5 position-relative z-1" style="min-height: 80vh;">
+        <main class="pt-4 mt-2 pb-5 position-relative z-1 storefront-page-main" style="min-height: 80vh;">
             
             <!-- Page Heading & Search Bar -->
-            <section class="container mb-4 mb-md-5 pt-4">
+            <section class="container mb-4 mb-md-5 pt-4 storefront-heading-section">
                 <div class="max-w-4xl mx-auto text-center px-3 animate-fade-up">
                     <h1 class="h3 fw-bold text-dark mb-4">Khám phá cửa hàng T-Winkle</h1>
                     
                     <!-- Search Input Wrapper (Glassmorphism) -->
-                    <div class="glass-search-wrapper p-2 rounded-pill mx-auto position-relative" style="max-width: 680px; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: all 0.3s ease;">
+                    <form th:action="@{/stores}" method="get" class="glass-search-wrapper p-2 rounded-pill mx-auto position-relative" style="max-width: 680px; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: all 0.3s ease;">
                         <div class="d-flex align-items-center bg-white rounded-pill pe-2 ps-4 py-2 position-relative z-1" style="box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
                             <i class="bi bi-search fs-5 text-muted-custom"></i>
-                            <input type="text" id="storeSearchInput" class="form-control border-0 bg-transparent shadow-none fs-5 ms-2 py-2" placeholder="Tìm cửa hàng theo tên, địa chỉ..." aria-label="Tìm kiếm cửa hàng" autocomplete="off">
-                            <button id="clearStoreSearchBtn" class="btn btn-link text-muted-custom text-decoration-none d-none hover-cyan" aria-label="Xóa tìm kiếm">
+                            <input type="text" id="storeSearchInput" name="keyword" th:value="${keyword}" class="form-control border-0 bg-transparent shadow-none fs-5 ms-2 py-2" placeholder="Tìm cửa hàng theo tên, địa chỉ..." aria-label="Tìm kiếm cửa hàng" autocomplete="off">
+                            <button type="button" id="clearStoreSearchBtn" class="btn btn-link text-muted-custom text-decoration-none d-none hover-cyan" aria-label="Xóa tìm kiếm">
                                 <i class="bi bi-x-circle-fill fs-5"></i>
                             </button>
                             <button class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center ms-2" style="width: 44px; height: 44px; flex-shrink: 0;" aria-label="Tìm kiếm">
                                 <i class="bi bi-search fs-5"></i>
                             </button>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </section>
 
@@ -33,94 +33,37 @@
             <section class="container pb-5">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="h5 fw-bold text-dark mb-0">Hệ thống cửa hàng</h2>
-                    <span class="text-muted-custom text-sm">3 cửa hàng</span>
+                    <span class="text-muted-custom text-sm" th:text="${totalStoreCount} + ' cửa hàng'">0 cửa hàng</span>
                 </div>
 
                 <!-- Empty State (Hidden initially) -->
-                <div id="storeEmptyState" class="text-center py-5 d-none animate-fade-up">
-                    <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3" style="width: 80px; height: 80px;">
-                        <i class="bi bi-shop text-muted-custom opacity-50" style="font-size: 2.5rem;"></i>
-                    </div>
-                    <h3 class="h5 fw-bold text-dark mb-2">Không tìm thấy cửa hàng phù hợp.</h3>
-                    <p class="text-muted-custom mb-4">Vui lòng thử lại với từ khóa khác hoặc xóa bộ lọc.</p>
-                </div>
+                <div th:if="${#lists.isEmpty(stores)}" id="storeEmptyState" class="glass-card bg-white border shadow-sm rounded-4 p-5 text-center mx-auto" style="max-width:800px;min-height:400px;"><i class="bi bi-shop text-muted-custom d-block mb-4" style="font-size:4rem;opacity:.4"></i><h2 class="h4 fw-bold">Không tìm thấy cửa hàng phù hợp</h2><p class="text-muted-custom">Hãy thử tên hoặc địa chỉ khác để tìm cửa hàng T-Winkle.</p></div>
 
                 <!-- Grid -->
+                
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 animate-fade-up position-relative" style="animation-delay: 0.2s;" id="storeGridList">
-                    <!-- Store 1 -->
-                    <div class="col">
-                        <div tabindex="0" role="button" aria-label="Xem chi tiết T-Winkle Flagship Quận 1" style="cursor: pointer;" class="glass-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm bg-white position-relative store-card" data-bs-toggle="modal" data-bs-target="#storeDetailModal" data-store-slug="flagship-q1" data-store-name="T-Winkle Flagship Quận 1" data-store-status="Đang mở" data-store-address="123 Lê Lợi, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh" data-store-rating="4.9" data-store-reviews="2.4k đánh giá" data-store-phone="028 1234 5678" data-store-status-color="success">
+                    <div class="col" th:each="store : ${stores}">
+                        <div tabindex="0" role="button" th:aria-label="'Xem chi tiết ' + ${store.name}" style="cursor: pointer;" class="glass-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm bg-white position-relative store-card" data-bs-toggle="modal" data-bs-target="#storeDetailModal" th:data-store-slug="${store.slug}" th:data-store-name="${store.name}" th:data-store-status="${store.status == 'OPEN' ? 'Đang mở' : 'Đã đóng'}" th:data-store-address="${store.addressLine + ', ' + (store.ward != null ? store.ward + ', ' : '') + (store.district != null ? store.district + ', ' : '') + store.city}" th:data-store-rating="${store.ratingAverage}" th:data-store-reviews="${store.reviewCount + ' đánh giá'}" th:data-store-phone="${store.phone}" th:data-store-image="${store.imageUrl}" th:data-store-status-color="${store.status == 'OPEN' ? 'success' : 'danger'}">
                             <div class="store-img-wrapper bg-light rounded-3 mb-3 overflow-hidden position-relative" style="aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center;">
-                                <i class="bi bi-shop text-muted opacity-25" style="font-size: 4rem;"></i>
-                                <span class="position-absolute top-0 start-0 m-2 badge bg-success bg-opacity-10 text-success px-2 py-1 border border-success border-opacity-10 shadow-sm" style="backdrop-filter: blur(4px);"><i class="bi bi-door-open me-1"></i> Đang mở</span>
+                                <img th:if="${store.imageUrl != null and !store.imageUrl.isEmpty()}" th:src="${store.imageUrl}" alt="Store Image" class="w-100 h-100 object-fit-cover">
+                                <i th:unless="${store.imageUrl != null and !store.imageUrl.isEmpty()}" class="bi bi-shop text-muted opacity-25" style="font-size: 4rem;"></i>
+                                <span th:if="${store.status == 'OPEN'}" class="position-absolute top-0 start-0 m-2 badge bg-success bg-opacity-10 text-success px-2 py-1 border border-success border-opacity-10 shadow-sm" style="backdrop-filter: blur(4px);"><i class="bi bi-door-open me-1"></i> Đang mở</span>
+                                <span th:unless="${store.status == 'OPEN'}" class="position-absolute top-0 start-0 m-2 badge bg-danger bg-opacity-10 text-danger px-2 py-1 border border-danger border-opacity-10 shadow-sm" style="backdrop-filter: blur(4px);"><i class="bi bi-door-closed me-1"></i> Đã đóng</span>
                             </div>
                             <div class="d-flex flex-column flex-grow-1">
-                                <h3 class="h5 fw-bold text-dark mb-2 store-name transition-colors">T-Winkle Flagship Quận 1</h3>
+                                <h3 class="h5 fw-bold text-dark mb-2 store-name transition-colors" th:text="${store.name}">Store Name</h3>
                                 <p class="text-muted-custom text-sm mb-3 d-flex align-items-start gap-2">
                                     <i class="bi bi-geo-alt-fill text-cyan mt-1"></i>
-                                    123 Lê Lợi, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh
+                                    <span th:text="${store.addressLine + ', ' + (store.ward != null ? store.ward + ', ' : '') + (store.district != null ? store.district + ', ' : '') + store.city}">Address</span>
                                 </p>
                                 <div class="d-flex align-items-center gap-2 mb-4 text-sm">
                                     <div style="color: #FACC15;">
                                         <i class="bi bi-star-fill"></i>
-                                        <span class="text-dark fw-bold ms-1">4.9</span>
+                                        <span class="text-dark fw-bold ms-1" th:text="${store.ratingAverage != null ? #numbers.formatDecimal(store.ratingAverage, 1, 1) : '0.0'}">0.0</span>
                                     </div>
                                     <span class="text-muted-custom">|</span>
-                                    <span class="text-muted-custom">2.4k đánh giá</span>
+                                    <span class="text-muted-custom" th:text="${store.reviewCount != null ? store.reviewCount + ' đánh giá' : '0 đánh giá'}">0 đánh giá</span>
                                 </div>
-                                
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Store 2 -->
-                    <div class="col">
-                        <div tabindex="0" role="button" aria-label="Xem chi tiết T-Winkle Quận 3" style="cursor: pointer;" class="glass-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm bg-white position-relative store-card" data-bs-toggle="modal" data-bs-target="#storeDetailModal" data-store-slug="q3" data-store-name="T-Winkle Quận 3" data-store-status="Đã đóng" data-store-address="456 Nguyễn Đình Chiểu, Phường 4, Quận 3, TP. Hồ Chí Minh" data-store-rating="4.7" data-store-reviews="1.1k đánh giá" data-store-phone="028 8765 4321" data-store-status-color="danger">
-                            <div class="store-img-wrapper bg-light rounded-3 mb-3 overflow-hidden position-relative" style="aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center;">
-                                <i class="bi bi-shop text-muted opacity-25" style="font-size: 4rem;"></i>
-                                <span class="position-absolute top-0 start-0 m-2 badge bg-danger bg-opacity-10 text-danger px-2 py-1 border border-danger border-opacity-10 shadow-sm" style="backdrop-filter: blur(4px);"><i class="bi bi-door-closed me-1"></i> Đã đóng</span>
-                            </div>
-                            <div class="d-flex flex-column flex-grow-1">
-                                <h3 class="h5 fw-bold text-dark mb-2 store-name transition-colors">T-Winkle Quận 3</h3>
-                                <p class="text-muted-custom text-sm mb-3 d-flex align-items-start gap-2">
-                                    <i class="bi bi-geo-alt-fill text-cyan mt-1"></i>
-                                    456 Nguyễn Đình Chiểu, Phường 4, Quận 3, TP. Hồ Chí Minh
-                                </p>
-                                <div class="d-flex align-items-center gap-2 mb-4 text-sm">
-                                    <div style="color: #FACC15;">
-                                        <i class="bi bi-star-fill"></i>
-                                        <span class="text-dark fw-bold ms-1">4.7</span>
-                                    </div>
-                                    <span class="text-muted-custom">|</span>
-                                    <span class="text-muted-custom">1.1k đánh giá</span>
-                                </div>
-                                
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Store 3 -->
-                    <div class="col">
-                        <div tabindex="0" role="button" aria-label="Xem chi tiết T-Winkle Gò Vấp" style="cursor: pointer;" class="glass-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm bg-white position-relative store-card" data-bs-toggle="modal" data-bs-target="#storeDetailModal" data-store-slug="go-vap" data-store-name="T-Winkle Gò Vấp" data-store-status="Đang mở" data-store-address="789 Quang Trung, Phường 10, Gò Vấp, TP. Hồ Chí Minh" data-store-rating="4.8" data-store-reviews="850 đánh giá" data-store-phone="028 9999 8888" data-store-status-color="success">
-                            <div class="store-img-wrapper bg-light rounded-3 mb-3 overflow-hidden position-relative" style="aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center;">
-                                <i class="bi bi-shop text-muted opacity-25" style="font-size: 4rem;"></i>
-                                <span class="position-absolute top-0 start-0 m-2 badge bg-success bg-opacity-10 text-success px-2 py-1 border border-success border-opacity-10 shadow-sm" style="backdrop-filter: blur(4px);"><i class="bi bi-door-open me-1"></i> Đang mở</span>
-                            </div>
-                            <div class="d-flex flex-column flex-grow-1">
-                                <h3 class="h5 fw-bold text-dark mb-2 store-name transition-colors">T-Winkle Gò Vấp</h3>
-                                <p class="text-muted-custom text-sm mb-3 d-flex align-items-start gap-2">
-                                    <i class="bi bi-geo-alt-fill text-cyan mt-1"></i>
-                                    789 Quang Trung, Phường 10, Gò Vấp, TP. Hồ Chí Minh
-                                </p>
-                                <div class="d-flex align-items-center gap-2 mb-4 text-sm">
-                                    <div style="color: #FACC15;">
-                                        <i class="bi bi-star-fill"></i>
-                                        <span class="text-dark fw-bold ms-1">4.8</span>
-                                    </div>
-                                    <span class="text-muted-custom">|</span>
-                                    <span class="text-muted-custom">850 đánh giá</span>
-                                </div>
-                                
                             </div>
                         </div>
                     </div>
@@ -141,39 +84,12 @@
                     }
                 </style>
                 <script>
-                    // Simple frontend UI search interaction for presentation
                     document.addEventListener('DOMContentLoaded', () => {
                         const input = document.getElementById('storeSearchInput');
-                        const clearBtn = document.getElementById('clearStoreSearchBtn');
-                        const emptyState = document.getElementById('storeEmptyState');
-                        const grid = document.getElementById('storeGridList');
-                        
-                        if(input && clearBtn) {
-                            input.addEventListener('input', () => {
-                                if(input.value.trim().length > 0) {
-                                    clearBtn.classList.remove('d-none');
-                                    // Mock empty state if typing something arbitrary
-                                    if(input.value.trim().toLowerCase() === 'xyz') {
-                                        grid.classList.add('d-none');
-                                        emptyState.classList.remove('d-none');
-                                    } else {
-                                        grid.classList.remove('d-none');
-                                        emptyState.classList.add('d-none');
-                                    }
-                                } else {
-                                    clearBtn.classList.add('d-none');
-                                    grid.classList.remove('d-none');
-                                    emptyState.classList.add('d-none');
-                                }
-                            });
-                            clearBtn.addEventListener('click', () => {
-                                input.value = '';
-                                clearBtn.classList.add('d-none');
-                                grid.classList.remove('d-none');
-                                emptyState.classList.add('d-none');
-                                input.focus();
-                            });
-                        }
+                        const clear = document.getElementById('clearStoreSearchBtn');
+                        const sync = () => clear.classList.toggle('d-none', !input.value);
+                        input.addEventListener('input', sync); sync();
+                        clear.addEventListener('click', () => { input.value = ''; input.form.requestSubmit(); });
                     });
                 </script>
             </section>
@@ -261,16 +177,27 @@
                     document.getElementById('modalStoreAddress').textContent = address;
                     document.getElementById('modalStoreRating').textContent = rating;
                     document.getElementById('modalStoreReviews').textContent = reviews;
-                    document.getElementById('modalStorePhone').textContent = phone;
+                    document.getElementById('modalStorePhone').textContent = phone || 'Chưa cập nhật';
+                    const imagePanel = document.querySelector('#storeDetailModal .store-image');
+                    imagePanel.replaceChildren();
+                    if (this.dataset.storeImage) {
+                        const image = document.createElement('img'); image.src = this.dataset.storeImage;
+                        image.alt = name; image.className = 'w-100 h-100 object-fit-cover'; imagePanel.appendChild(image);
+                    } else {
+                        const icon = document.createElement('i'); icon.className = 'bi bi-shop text-muted opacity-25';
+                        icon.style.fontSize = '5rem'; imagePanel.appendChild(icon);
+                    }
                     
                     const badge = document.getElementById('modalStoreStatusBadge');
                     const icon = document.getElementById('modalStoreStatusIcon');
                     
                     badge.className = 'badge px-2 py-1 fs-6 border shadow-sm bg-' + color + ' bg-opacity-10 text-' + color + ' border-' + color + ' border-opacity-10';
-                    if(status.toLowerCase().includes('đóng')) {
+                                        if(status.toLowerCase().includes('đóng')) {
                         icon.className = 'bi bi-door-closed me-1';
+                        document.getElementById('modalStoreCatalogBtn').style.display = 'flex';
                     } else {
                         icon.className = 'bi bi-door-open me-1';
+                        document.getElementById('modalStoreCatalogBtn').style.display = 'flex';
                     }
                     
                     // Note: Constructing the link string manually

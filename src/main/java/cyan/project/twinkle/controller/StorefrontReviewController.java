@@ -16,6 +16,11 @@ public class StorefrontReviewController {
 
     private final ReviewService reviewService;
 
+    @org.springframework.web.bind.annotation.ExceptionHandler(cyan.project.twinkle.exception.BusinessRuleException.class)
+    public String failure(cyan.project.twinkle.exception.BusinessRuleException ex, org.springframework.web.servlet.mvc.support.RedirectAttributes flash) {
+        flash.addFlashAttribute("error",ex.getMessage());return "redirect:/orders";
+    }
+
     @PostMapping("/add")
     public String submitReview(@RequestParam Long orderItemId,
                                @RequestParam Integer rating,

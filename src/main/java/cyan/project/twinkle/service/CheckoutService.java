@@ -33,12 +33,18 @@ public class CheckoutService {
     private final PaymentRepository paymentRepository;
     private final PricingService pricingService;
     private final UserRepository userRepository;
+    private final VietQrService vietQr;
 
     @Value("${twinkle.shipping.default-fee:30000}")
     private BigDecimal defaultShippingFee;
 
     @Transactional
     public Order processCheckout(String email, CheckoutForm form) {
+        if (!java.util.Set.of("COD", "BANKING").contains(form.getPaymentMethod() == null ? "" : form.getPaymentMethod())) {
+            throw new BusinessRuleException("Phương thức thanh toán không hợp lệ.");
+        }
+        if ("BANKING".equals(form.getPaymentMethod())) vietQr.requireConfiguration();
+        userRepository.findForUpdateByEmail(email);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessRuleException("Tài khoản không hợp lệ."));
 
@@ -49,6 +55,7 @@ public class CheckoutService {
 
         List<CartItem> selectedItems = cartItemRepository.findByCartIdAndSelectedTrue(cart.getId());
         if (selectedItems.isEmpty()) throw new BusinessRuleException("Không có sản phẩm nào được chọn.");
+        selectedItems.sort(Comparator.comparing((CartItem item) -> item.getStore().getId()).thenComparing(item -> item.getVariant().getId()));
 
         UserAddress address = userAddressRepository.findByIdAndUserEmail(form.getAddressId(), user.getEmail())
                 .orElseThrow(() -> new BusinessRuleException("Địa chỉ giao hàng không hợp lệ."));
@@ -58,13 +65,13 @@ public class CheckoutService {
         List<OrderItem> orderItems = new ArrayList<>();
 
         for (CartItem item : selectedItems) {
+            if (item.getQuantity() == null || item.getQuantity() < 1) throw new BusinessRuleException("Số lượng không hợp lệ.");
             ProductVariant variant = item.getVariant();
             Store store = item.getStore();
             Product product = variant.getProduct();
             
-            if (!"ACTIVE".equals(product.getStatus()) || !"ACTIVE".equals(variant.getStatus()) || !"OPEN".equals(store.getStatus())) {
-                throw new BusinessRuleException("Sản phẩm hoặc cửa hàng không khả dụng.");
-            }
+            if (!"ACTIVE".equals(product.getStatus()) || !"ACTIVE".equals(variant.getStatus())) throw new BusinessRuleException("Sản phẩm " + product.getName() + " đã ngừng kinh doanh.");
+            if (!item.getProduct().getId().equals(product.getId())) throw new BusinessRuleException("Biến thể không thuộc sản phẩm trong giỏ.");
 
             StoreInventoryId invId = new StoreInventoryId(store.getId(), variant.getId());
             StoreInventory inventory = inventoryRepository.findByIdForUpdate(invId) 
@@ -121,25 +128,7 @@ public class CheckoutService {
             appliedCoupon = couponRepository.findByCodeAndIsActiveTrueForUpdate(form.getCouponCode().trim())
                     .orElseThrow(() -> new BusinessRuleException("Mã giảm giá không tồn tại hoặc không khả dụng."));
             
-            if (now.isBefore(appliedCoupon.getStartsAt())) throw new BusinessRuleException("Mã chưa kích hoạt.");
-            if (now.isAfter(appliedCoupon.getEndsAt())) throw new BusinessRuleException("Mã đã hết hạn.");
-            if (effectiveSubtotal.compareTo(appliedCoupon.getMinOrderValue()) < 0) throw new BusinessRuleException("Đơn hàng chưa đạt giá trị tối thiểu.");
-            if (appliedCoupon.getUsageLimit() != null && appliedCoupon.getUsedCount() >= appliedCoupon.getUsageLimit()) throw new BusinessRuleException("Mã đã hết lượt.");
-
-            if ("PERCENT".equalsIgnoreCase(appliedCoupon.getDiscountType())) {
-                couponDiscount = effectiveSubtotal.multiply(appliedCoupon.getDiscountValue().divide(BigDecimal.valueOf(100)));
-                if (appliedCoupon.getMaxDiscountValue() != null && couponDiscount.compareTo(appliedCoupon.getMaxDiscountValue()) > 0) {
-                    couponDiscount = appliedCoupon.getMaxDiscountValue();
-                }
-            } else if ("FIXED".equalsIgnoreCase(appliedCoupon.getDiscountType())) {
-                couponDiscount = appliedCoupon.getDiscountValue();
-            } else if ("FREESHIP".equalsIgnoreCase(appliedCoupon.getDiscountType())) {
-                couponDiscount = shippingFee.min(appliedCoupon.getDiscountValue());
-            }
-
-            if (!"FREESHIP".equalsIgnoreCase(appliedCoupon.getDiscountType()) && couponDiscount.compareTo(effectiveSubtotal) > 0) {
-                couponDiscount = effectiveSubtotal;
-            }
+            couponDiscount = couponDiscount(appliedCoupon, effectiveSubtotal, shippingFee, now);
 
             appliedCoupon.setUsedCount(appliedCoupon.getUsedCount() + 1);
             couponRepository.save(appliedCoupon);
@@ -166,7 +155,8 @@ public class CheckoutService {
                 .total(totalAmount)
                 .build();
         
-        if (appliedCoupon != null) order.setCoupon(appliedCoupon); 
+        if (appliedCoupon != null) order.setCoupon(appliedCoupon);
+        if ("BANKING".equals(form.getPaymentMethod())) vietQr.validateOrderData(order.getTotal(), order.getOrderCode());
 
         for (OrderItem oi : orderItems) oi.setOrder(order);
         order.setOrderItems(orderItems);
@@ -177,6 +167,7 @@ public class CheckoutService {
                 .method(form.getPaymentMethod())
                 .status("PENDING") 
                 .amount(totalAmount)
+                .transactionRef("COD".equals(form.getPaymentMethod()) ? null : savedOrder.getOrderCode())
                 .build());
 
         orderStatusHistoryRepository.save(OrderStatusHistory.builder()
@@ -195,5 +186,69 @@ public class CheckoutService {
 
         cartItemRepository.deleteAll(selectedItems);
         return savedOrder;
+    }
+
+    @Transactional(readOnly = true)
+    public cyan.project.twinkle.dto.CheckoutQuote quote(String email, String couponCode) {
+        Cart cart = cartRepository.findByUserEmailAndStatus(email, "ACTIVE")
+                .orElseThrow(() -> new BusinessRuleException("Giỏ hàng trống."));
+        List<CartItem> selected = cartItemRepository.findByCartIdAndSelectedTrue(cart.getId());
+        if (selected.isEmpty()) throw new BusinessRuleException("Không có sản phẩm nào được chọn." );
+        LocalDateTime now = LocalDateTime.now();
+        List<cyan.project.twinkle.dto.CheckoutQuote.Item> lines = new ArrayList<>();
+        BigDecimal subtotal = BigDecimal.ZERO, discounts = BigDecimal.ZERO;
+        for (CartItem item : selected) {
+            Product p = item.getProduct(); ProductVariant v = item.getVariant();
+            BigDecimal original = p.getBasePrice().add(v.getPriceAdjustment());
+            BigDecimal effective = pricingService.calculateEffectivePrice(p, now).add(v.getPriceAdjustment());
+            subtotal = subtotal.add(original.multiply(BigDecimal.valueOf(item.getQuantity())));
+            discounts = discounts.add(original.subtract(effective).multiply(BigDecimal.valueOf(item.getQuantity())));
+            String image = p.getImages().stream().sorted(Comparator.comparing((ProductImage i) -> !Boolean.TRUE.equals(i.getIsPrimary()))
+                    .thenComparing(ProductImage::getSortOrder, Comparator.nullsLast(Comparator.naturalOrder()))
+                    .thenComparing(ProductImage::getId)).map(ProductImage::getImageUrl).findFirst().orElse(null);
+            lines.add(new cyan.project.twinkle.dto.CheckoutQuote.Item(item.getId(),p.getId(),p.getName(),v.getId(),v.getSize()+" - "+v.getColor(),
+                    item.getStore().getId(),item.getStore().getName(),image,item.getQuantity(),original,effective));
+        }
+        BigDecimal effectiveSubtotal = subtotal.subtract(discounts), coupon = BigDecimal.ZERO;
+        if (couponCode != null && !couponCode.isBlank()) {
+            Coupon c = couponRepository.findByCode(couponCode.trim())
+                    .orElseThrow(() -> new BusinessRuleException("Mã giảm giá không tồn tại."));
+            coupon = couponDiscount(c, effectiveSubtotal, defaultShippingFee, now);
+        }
+        return new cyan.project.twinkle.dto.CheckoutQuote(lines,subtotal,discounts,coupon,defaultShippingFee,
+                effectiveSubtotal.subtract(coupon).add(defaultShippingFee));
+    }
+
+    @Transactional(readOnly = true)
+    public List<cyan.project.twinkle.dto.CouponOption> couponOptions(String email) {
+        var quote = quote(email, null);
+        var now = LocalDateTime.now();
+        return couponRepository.findAll().stream().map(coupon -> {
+            String reason = null;
+            try {couponDiscount(coupon, quote.subtotal().subtract(quote.productDiscount()), defaultShippingFee, now);}
+            catch (BusinessRuleException ex) {reason = ex.getMessage();}
+            return new cyan.project.twinkle.dto.CouponOption(coupon.getCode(), coupon.getDiscountType(), coupon.getDiscountValue(),
+                    coupon.getMinOrderValue(), coupon.getStartsAt(), coupon.getEndsAt(),
+                    coupon.getUsageLimit() == null ? null : Math.max(0, coupon.getUsageLimit() - coupon.getUsedCount()), reason == null, reason);
+        }).toList();
+    }
+
+    private BigDecimal couponDiscount(Coupon coupon, BigDecimal merchandise, BigDecimal shipping, LocalDateTime now) {
+        if (!Boolean.TRUE.equals(coupon.getIsActive())) throw new BusinessRuleException("Mã không khả dụng.");
+        if (coupon.getStartsAt() != null && now.isBefore(coupon.getStartsAt())) throw new BusinessRuleException("Mã chưa kích hoạt.");
+        if (coupon.getEndsAt() != null && now.isAfter(coupon.getEndsAt())) throw new BusinessRuleException("Mã đã hết hạn.");
+        if (merchandise.compareTo(coupon.getMinOrderValue()) < 0) throw new BusinessRuleException("Đơn hàng chưa đạt giá trị tối thiểu.");
+        if (coupon.getUsageLimit() != null && coupon.getUsedCount() >= coupon.getUsageLimit()) throw new BusinessRuleException("Mã đã hết lượt.");
+        BigDecimal discount;
+        switch(coupon.getDiscountType().toUpperCase(java.util.Locale.ROOT)) {
+            case "PERCENT" -> {
+                discount = merchandise.multiply(coupon.getDiscountValue()).divide(BigDecimal.valueOf(100));
+                if (coupon.getMaxDiscountValue() != null) discount = discount.min(coupon.getMaxDiscountValue());
+            }
+            case "FIXED" -> discount = coupon.getDiscountValue();
+            case "FREESHIP" -> { return shipping.min(coupon.getDiscountValue()).max(BigDecimal.ZERO); }
+            default -> throw new BusinessRuleException("Loại mã giảm giá không hợp lệ.");
+        }
+        return discount.max(BigDecimal.ZERO).min(merchandise).setScale(2, java.math.RoundingMode.HALF_UP);
     }
 }

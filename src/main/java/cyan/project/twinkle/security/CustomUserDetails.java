@@ -16,6 +16,7 @@ public class CustomUserDetails implements UserDetails, CredentialsContainer, Ser
 
     private final String email;
     private final String displayName;
+    private final String avatarUrl;
     private String password; // Mutable để hỗ trợ eraseCredentials()
     private final boolean enabled;
     private final Collection<? extends GrantedAuthority> authorities;
@@ -23,6 +24,7 @@ public class CustomUserDetails implements UserDetails, CredentialsContainer, Ser
     public CustomUserDetails(User user) {
         this.email = user.getEmail();
         this.displayName = user.getUsername();
+        this.avatarUrl = user.getAvatarUrl();
         this.password = user.getPasswordHash();
         this.enabled = user.getIsEnabled() != null ? user.getIsEnabled() : false;
         
@@ -54,6 +56,8 @@ public class CustomUserDetails implements UserDetails, CredentialsContainer, Ser
     public String getDisplayName() {
         return displayName;
     }
+
+    public String getAvatarUrl() { return avatarUrl; }
 
     @Override
     public boolean isAccountNonExpired() { return true; }

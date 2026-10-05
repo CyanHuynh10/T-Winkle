@@ -5,8 +5,8 @@
     <div class="wishlist-container position-relative">
         <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-        <main class="pt-4 mt-2 pb-5 position-relative z-1" style="min-height: 80vh;">
-            <section class="container mb-4 mb-md-5 pt-4">
+        <main class="pt-4 mt-2 pb-5 position-relative z-1 storefront-page-main" style="min-height: 80vh;">
+            <section class="container mb-4 mb-md-5 pt-4 storefront-heading-section">
                 <div class="max-w-4xl mx-auto text-center px-3 animate-fade-up">
                     <h1 class="h3 fw-bold text-dark mb-4 page-heading text-center">Yêu thích</h1>
                 </div>
@@ -14,197 +14,60 @@
 
             <section class="container pb-4">
                 
-                <!-- Empty State -->
-                <div id="wishlistEmptyState" class="text-center py-5 animate-fade-up" th:if="${wishlistPage.empty}">
-                    <div class="mb-4 d-flex justify-content-center">
-                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center shadow-inner" style="width: 140px; height: 140px; position: relative;">
-                            <i class="bi bi-heart text-muted-custom" style="font-size: 4rem;"></i>
-                        </div>
+                                <!-- Empty State -->
+                <div id="wishlistEmptyState" class="order-card align-items-center justify-content-center text-center py-5 mx-auto" th:if="${wishlistPage.empty}" style=" min-height: 400px; max-width: 800px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); border-radius: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 16px 48px rgba(0, 0, 0, 0.1);">
+                    <div class="mb-4">
+                        <i class="bi bi-heart text-muted-custom" style="font-size: 4rem; opacity: 0.4;"></i>
                     </div>
-                    <h3 class="h4 fw-bold text-dark mb-3">Chưa có sản phẩm yêu thích</h3>
+                    <h4 class="fw-bold text-dark mb-3">Chưa có sản phẩm yêu thích</h4>
                     <p class="text-muted-custom mb-4 max-w-md mx-auto">Bạn chưa thêm sản phẩm nào vào danh sách yêu thích. Hãy lưu lại những món đồ bạn quan tâm nhé!</p>
-                    <a th:href="@{/categories}" class="tw-btn tw-btn-primary rounded-pill px-5 py-3 text-decoration-none d-inline-flex align-items-center gap-2 shadow-sm hover-lift fw-bold">
+                    <a th:href="@{/categories}" class="tw-btn tw-btn-primary rounded-pill px-5 py-3 text-white text-decoration-none fw-bold d-inline-flex align-items-center justify-content-center shadow-sm hover-lift">
                         Khám phá sản phẩm
                     </a>
                 </div>
 
+                <!-- Wishlist Grid -->
+                <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3 g-md-4 mb-5" th:unless="${wishlistPage.empty}">
+                    <div class="col" th:each="product : ${wishlistPage.content}">
+                        <div class="glass-card product-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm position-relative bg-white">
+                            <form th:action="@{/wishlist/toggle}" method="POST" class="position-absolute top-0 end-0 m-4 z-3">
+                                <input type="hidden" name="productId" th:value="${product.productId}">
+                                <button type="submit" th:data-product-id="${product.productId}" class="btn btn-sm btn-light rounded-circle shadow-sm wishlist-btn text-danger" aria-label="Bỏ yêu thích" onclick="event.stopPropagation();">
+                                    <i class="bi bi-heart-fill"></i>
+                                </button>
+                            </form>
+
+                            <div class="product-img-wrapper bg-light rounded-3 mb-3 overflow-hidden position-relative" style="aspect-ratio: 1; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="showProductDetail(this.getAttribute('data-product-id'))" th:data-product-id="${product.productId}">
+                                <img th:if="${product.primaryImagePath != null}" th:src="${product.primaryImagePath}" alt="Product Image" class="w-100 h-100 object-fit-cover">
+                                <i th:unless="${product.primaryImagePath != null}" class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>
+                            </div>
+                            <div class="d-flex flex-column flex-grow-1">
+                                <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1" th:text="${product.categoryName}">SNEAKER</span>
+                                <h3 class="h5 fw-bold text-dark mb-1 text-truncate" th:title="${product.name}" th:text="${product.name}">Product Name</h3>
+                                <div class="d-flex align-items-center gap-2 mb-3 text-sm">
+                                    <div style="color: #FACC15;">
+                                        <i class="bi bi-star-fill"></i>
+                                        <span class="text-dark fw-bold ms-1" th:text="${#numbers.formatDecimal(product.ratingAverage, 1, 1)}">5.0</span>
+                                    </div>
+                                    <span class="text-muted-custom">|</span>
+                                    <span class="text-muted-custom" th:text="'Đã bán ' + ${product.soldCount}">Đã bán 0</span>
+                                </div>
+                                <div class="mt-auto d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="fw-bold fs-5 text-cyan" th:text="${#numbers.formatDecimal(product.effectivePrice, 0, 'POINT', 0, 'POINT')} + 'đ'">0đ</div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 <div id="wishlistPaginationWrapper" class="w-100"></div>
             </section>
         </main>
 
 <!-- Detail Product Card Modal -->
-        <div class="modal fade" id="productDetailModal" tabindex="-1" aria-labelledby="productDetailModalLabel" aria-hidden="true" aria-modal="true" role="dialog">
-            <div class="modal-dialog modal-dialog-centered modal-xl modal-16-9">
-                <div class="modal-content border border-light shadow-lg d-flex flex-column" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(28px); border-radius: 1.5rem; overflow: hidden; max-height: 90vh;">
-                    <button type="button" class="btn-close position-absolute top-0 end-0 m-3 m-md-4 z-3 bg-white rounded-circle shadow-sm p-2" data-bs-dismiss="modal" aria-label="Đóng chi tiết sản phẩm"></button>
-
-                    <div class="modal-body p-4 p-md-5 d-flex flex-column flex-grow-1 overflow-hidden" style="min-height: 0;">
-                        <div class="row flex-grow-1 gx-0 gx-lg-5 gy-4 gy-lg-0 flex-column flex-lg-row overflow-hidden flex-nowrap" style="min-height: 0;">
-
-                            <!-- Left: Image Panel -->
-                            <div class="col-12 col-lg-5 d-flex flex-column pb-4 pb-lg-0 detail-divider-panel">
-                                <div class="bg-light position-relative d-flex align-items-center justify-content-center rounded-4 overflow-hidden h-100 detail-img-wrapper">
-                                    <span class="badge bg-danger position-absolute top-0 start-0 m-3 m-md-4 z-1 fw-bold fs-6">MỚI</span>
-                                    <i class="bi bi-image text-muted opacity-25" style="font-size: 6rem;"></i>
-                                </div>
-                            </div>
-
-                            <!-- Right: Information Panel -->
-                            <div class="col-12 col-lg position-relative d-flex flex-column overflow-hidden flex-grow-1 flex-shrink-1 pt-4 pt-lg-0" style="min-height: 0;">
-
-                                <!-- Scrollable Area -->
-                                <div class="flex-grow-1 overflow-y-auto pe-3 pb-2 custom-scrollbar">
-
-                                    <div class="mb-2 mt-1">
-                                        <span class="badge text-cyan bg-cyan bg-opacity-10 fw-semibold fs-6 px-2 py-1">SNEAKER</span>
-                                        <span class="badge text-muted-custom bg-light fw-semibold fs-6 px-2 py-1 ms-2">T-WINKLE</span>
-                                    </div>
-
-                                    <!-- HEADER ROW: Product Name & Actions (Cart -> Wishlist) -->
-                                    <div class="d-flex align-items-start justify-content-between gap-2 gap-sm-3 mb-3">
-                                        <h2 class="h2 fw-bold text-dark mb-0 flex-grow-1" id="productDetailModalLabel">Urban Runner 2026</h2>
-
-                                        <!-- Actions: Top Right -->
-                                        <div class="d-flex gap-2 flex-shrink-0 z-3 position-relative">
-                                            <!-- Cart Button -->
-                                            <button id="modalAddToCartBtn" class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center text-white hover-scale" style="width: 56px; height: 56px;" aria-label="Thêm vào giỏ hàng" onclick="event.stopPropagation();">
-                                                <i class="bi bi-cart fs-4"></i>
-                                            </button>
-                                            <!-- Wishlist Button -->
-                                            <button class="btn btn-light rounded-circle shadow-sm wishlist-btn text-muted-custom d-flex align-items-center justify-content-center hover-scale" style="width: 56px; height: 56px;" aria-label="Thêm vào yêu thích" onclick="event.stopPropagation();">
-                                                <i class="bi bi-heart fs-4"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div class="d-flex align-items-center gap-3 mb-4 fs-6">
-                                        <div style="color: #FACC15;">
-                                            <i class="bi bi-star-fill"></i> <i class="bi bi-star-fill"></i> <i class="bi bi-star-fill"></i> <i class="bi bi-star-fill"></i> <i class="bi bi-star-fill"></i>
-                                            <span class="text-dark fw-bold ms-1">5.0</span>
-                                        </div>
-                                        <span class="text-muted-custom">|</span>
-                                        <span class="text-muted-custom fw-medium">Đã bán 124</span>
-                                    </div>
-
-                                    <div class="mb-4">
-                                        <div class="fw-bold text-cyan" style="font-size: 2.5rem; line-height: 1;">2.450.000đ</div>
-                                    </div>
-
-                                    <p class="text-muted-custom mb-4 fs-6">
-                                        Thiết kế hiện đại mang hơi thở thành thị, kết hợp công nghệ đệm êm ái và vật liệu thoáng khí cao cấp. Giúp bạn tự tin tỏa sáng trên mỗi bước đi.
-                                    </p>
-
-                                    <!-- Variants (Size) -->
-                                    <div class="mb-3">
-                                        <p class="fw-semibold text-dark mb-2 text-sm">CHỌN SIZE</p>
-                                        <div class="d-flex flex-wrap gap-2">
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm size-btn" onclick="event.stopPropagation()">38</button>
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm size-btn" onclick="event.stopPropagation()">39</button>
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm size-btn" onclick="event.stopPropagation()">40</button>
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm size-btn" onclick="event.stopPropagation()">41</button>
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm disabled text-muted" disabled>42</button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Variants (Color) -->
-                                    <div class="mb-4">
-                                        <p class="fw-semibold text-dark mb-2 text-sm">CHỌN MÀU</p>
-                                        <div class="d-flex flex-wrap gap-2">
-                                            <button class="btn btn-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">Đen</button>
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm" onclick="event.stopPropagation()">Trắng</button>
-                                            <button class="btn btn-outline-dark px-3 py-1 fw-medium text-sm disabled text-muted" disabled>Đỏ</button>
-                                        </div>
-                                        <div class="mt-2 text-xs text-muted-custom fst-italic">* Đang chọn: Đen / 39</div>
-                                    </div>
-
-                                    <!-- Store Availability -->
-                                    <div class="bg-light rounded-3 p-3 border mb-3">
-                                        <p class="fw-semibold text-dark mb-3 text-sm"><i class="bi bi-shop me-2"></i>Tình trạng tại cửa hàng</p>
-                                        <ul class="list-unstyled mb-0 text-sm">
-                                            <li class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary border-opacity-25">
-                                                <span class="text-muted-custom">T-Winkle Quận 1, TP.HCM</span>
-                                                <span class="badge bg-success bg-opacity-10 text-success px-2 py-1"><i class="bi bi-check-circle me-1"></i>Còn hàng</span>
-                                            </li>
-                                            <li class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary border-opacity-25">
-                                                <span class="text-muted-custom">T-Winkle Quận 3, TP.HCM</span>
-                                                <span class="badge bg-danger bg-opacity-10 text-danger px-2 py-1"><i class="bi bi-x-circle me-1"></i>Hết hàng</span>
-                                            </li>
-                                            <li class="d-flex justify-content-between align-items-center">
-                                                <span class="text-muted-custom">T-Winkle Cầu Giấy, Hà Nội</span>
-                                                <span class="badge bg-success bg-opacity-10 text-success px-2 py-1"><i class="bi bi-check-circle me-1"></i>Còn hàng</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-
-                                    <!-- Product Reviews -->
-                                    <div class="product-reviews-section mt-4 pt-4 border-top border-light" id="productReviewSection">
-                                        <h3 class="h5 fw-bold text-dark mb-4">Đánh giá sản phẩm</h3>
-                                        
-                                        <!-- Summary -->
-                                        <div class="glass-card rounded-4 p-3 p-md-4 mb-4 border shadow-sm">
-                                            <div class="row align-items-center gy-4">
-                                                <div class="col-12 col-md-5 text-center" style="border-right: 1px solid rgba(226, 232, 240, 0.6);">
-                                                    <div class="display-4 fw-bold text-dark mb-2" id="revAvgRating">0.0</div>
-                                                    <div style="color: #FACC15;" class="fs-5 mb-2" id="revAvgStars">
-                                                        <i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i>
-                                                    </div>
-                                                    <div class="text-muted-custom" id="revTotalCount">0 đánh giá</div>
-                                                </div>
-                                                <div class="col-12 col-md-7">
-                                                    <div class="d-flex flex-column gap-2" id="revDistBar">
-                                                        <!-- bars rendered by JS -->
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Review Action -->
-                                        <div class="mb-4 text-center" id="revActionContainer">
-                                            <!-- Rendered by JS -->
-                                        </div>
-
-                                        <!-- Review Form (Hidden by default) -->
-                                        <div class="glass-card rounded-4 p-4 mb-4 border shadow-sm" id="revFormContainer" style="display: none;">
-                                            <h4 class="h6 fw-bold text-dark mb-3">Viết đánh giá</h4>
-                                            <div class="mb-3">
-                                                <label class="form-label fw-medium text-sm">Mức đánh giá <span class="text-danger">*</span></label>
-                                                <div class="d-flex gap-2 fs-4" id="revStarSelect" style="color: #CBD5E1; cursor: pointer;">
-                                                    <i class="bi bi-star rev-star-item" data-val="1" tabindex="0" role="button" aria-label="1 sao"></i>
-                                                    <i class="bi bi-star rev-star-item" data-val="2" tabindex="0" role="button" aria-label="2 sao"></i>
-                                                    <i class="bi bi-star rev-star-item" data-val="3" tabindex="0" role="button" aria-label="3 sao"></i>
-                                                    <i class="bi bi-star rev-star-item" data-val="4" tabindex="0" role="button" aria-label="4 sao"></i>
-                                                    <i class="bi bi-star rev-star-item" data-val="5" tabindex="0" role="button" aria-label="5 sao"></i>
-                                                </div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="revComment" class="form-label fw-medium text-sm">Bình luận <span class="text-danger">*</span></label>
-                                                <textarea class="form-control bg-light border-light shadow-none" id="revComment" rows="3" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm..."></textarea>
-                                            </div>
-                                            <button class="btn btn-cyan text-white fw-bold px-4 rounded-pill shadow-sm" id="revSubmitBtn">Gửi đánh giá</button>
-                                        </div>
-
-                                        <!-- Sort -->
-                                        <div class="d-flex justify-content-between align-items-center mb-4" id="revSortContainer" style="display: none;">
-                                            <span class="fw-bold text-dark">Bình luận của khách hàng</span>
-                                            <select class="form-select form-select-sm w-auto shadow-none bg-light border-light rounded-pill px-3" id="revSortSelect">
-                                                <option value="newest">Mới nhất</option>
-                                                <option value="high">Điểm cao</option>
-                                                <option value="low">Điểm thấp</option>
-                                            </select>
-                                        </div>
-
-                                        <!-- Review List -->
-                                        <div class="d-flex flex-column gap-3" id="revList">
-                                            <!-- Rendered by JS -->
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div th:replace="~{storefront/category/list :: product-detail-modal}"></div>
 
 
         <style>

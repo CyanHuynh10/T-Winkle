@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Đơn hàng đã được giao thành công</title></head>
+<body style="margin:0;padding:0;background:#f3f4f6;color:#1f2937;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6">
+<table role="presentation" style="width:100%;border-collapse:collapse"><tr><td style="padding:24px 12px">
+<table role="presentation" style="width:100%;max-width:640px;margin:auto;border-collapse:collapse;background:#ffffff;border-radius:12px"><tr><td style="padding:24px">
+<p style="margin:0 0 12px;color:#0891b2;font-size:24px;font-weight:bold">T-Winkle</p>
+<h1 style="margin:0 0 20px;font-size:24px;line-height:1.4">Đơn hàng đã được giao thành công</h1>
+<p>Xin chào <span th:text="${customerName}">bạn</span>,</p>
+<p>T-Winkle xin thông báo đơn hàng của bạn đã được giao thành công.<br>Cảm ơn bạn đã mua sắm tại T-Winkle.</p>
+<h2 style="font-size:18px;margin:24px 0 12px">Thông tin đơn hàng</h2>
+<table style="width:100%;border-collapse:collapse;overflow-wrap:anywhere">
+<tr><td style="padding:5px 8px 5px 0">Mã đơn hàng</td><td style="font-weight:bold;color:#0891b2" th:text="${order.orderCode}"></td></tr>
+<tr><td style="padding:5px 8px 5px 0">Thời gian đặt hàng</td><td th:text="${#temporals.format(order.createdAt,'dd/MM/yyyy HH:mm')}"></td></tr>
+<tr><td style="padding:5px 8px 5px 0">Thời gian giao thành công</td><td th:text="${#temporals.format(deliveredAt,'dd/MM/yyyy HH:mm')}"></td></tr>
+<tr><td style="padding:5px 8px 5px 0">Trạng thái đơn hàng</td><td style="color:#15803d;font-weight:bold" th:text="${order.status}"></td></tr>
+<tr><td style="padding:5px 8px 5px 0">Phương thức thanh toán</td><td th:text="${paymentMethod}"></td></tr>
+<tr><td style="padding:5px 8px 5px 0">Trạng thái thanh toán</td><td th:text="${paymentStatus}"></td></tr>
+</table>
+<h2 style="font-size:18px;margin:24px 0 12px">Thông tin nhận hàng</h2>
+<p style="margin:0;overflow-wrap:anywhere"><strong>Người nhận: </strong><span th:text="${order.recipientName}"></span><br>
+<strong>Số điện thoại: </strong><span th:text="${order.recipientPhone}"></span><br>
+<strong>Địa chỉ nhận hàng: </strong><span th:text="${order.shippingAddressLine + ', ' + order.shippingWard + ', ' + order.shippingDistrict + ', ' + order.shippingCity}"></span></p>
+<p th:if="${order.shippingNote != null and !#strings.isEmpty(#strings.trim(order.shippingNote))}" style="overflow-wrap:anywhere"><strong>Ghi chú giao hàng: </strong><span th:text="${order.shippingNote}"></span></p>
+<h2 style="font-size:18px;margin:24px 0 12px">Sản phẩm</h2>
+<table style="width:100%;border-collapse:collapse;table-layout:fixed">
+<tr th:each="item : ${order.orderItems}"><td style="border-top:1px solid #e5e7eb;padding:12px 0;overflow-wrap:anywhere">
+<strong th:text="${item.productName}"></strong><br>
+<span th:text="${item.variantName}"></span><br>
+<span th:text="${item.store.name}"></span><br>
+Số lượng: <span th:text="${item.quantity}"></span><br>
+Đơn giá: <span th:text="${#numbers.formatDecimal(item.unitPrice,0,'POINT',0,'COMMA')} + ' ₫'"></span><br>
+Thành tiền: <strong th:text="${#numbers.formatDecimal(item.lineTotal,0,'POINT',0,'COMMA')} + ' ₫'"></strong>
+</td></tr></table>
+<h2 style="font-size:18px;margin:24px 0 12px">Tổng thanh toán</h2>
+<table style="width:100%;border-collapse:collapse">
+<tr><td style="padding:5px 0">Tạm tính</td><td style="text-align:right" th:text="${#numbers.formatDecimal(order.subtotal,0,'POINT',0,'COMMA')} + ' ₫'"></td></tr>
+<tr><td style="padding:5px 0">Giảm giá sản phẩm</td><td style="text-align:right" th:text="${#numbers.formatDecimal(order.productDiscount,0,'POINT',0,'COMMA')} + ' ₫'"></td></tr>
+<tr><td style="padding:5px 0">Mã giảm giá</td><td style="text-align:right" th:text="${#numbers.formatDecimal(order.couponDiscount,0,'POINT',0,'COMMA')} + ' ₫'"></td></tr>
+<tr><td style="padding:5px 0">Phí vận chuyển</td><td style="text-align:right" th:text="${#numbers.formatDecimal(order.shippingFee,0,'POINT',0,'COMMA')} + ' ₫'"></td></tr>
+<tr style="color:#0891b2;font-weight:bold;font-size:18px"><td style="padding:12px 8px 12px 0;border-top:1px solid #e5e7eb">Tổng thanh toán</td><td style="text-align:right;border-top:1px solid #e5e7eb" th:text="${#numbers.formatDecimal(order.total,0,'POINT',0,'COMMA')} + ' ₫'"></td></tr>
+</table>
+<p style="margin:24px 0"><a th:href="${orderUrl}" style="display:inline-block;background:#0891b2;color:#ffffff;text-decoration:none;padding:10px 18px;border-radius:6px;font-weight:bold">Xem chi tiết đơn hàng</a></p>
+<p style="margin:24px 0 0">Cảm ơn bạn đã lựa chọn T-Winkle.<br>Nếu có vấn đề với đơn hàng, vui lòng liên hệ T-Winkle để được hỗ trợ.</p>
+</td></tr></table></td></tr></table>
+</body></html>

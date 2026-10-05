@@ -81,25 +81,23 @@
             }
         </style>
 
-        <main class="pt-3 mt-2 pb-4 position-relative z-1" style="min-height: 80vh;">
+        <main class="pt-3 mt-2 pb-4 position-relative z-1 storefront-page-main" style="min-height: 80vh;">
             <div class="container max-w-4xl mx-auto px-3 animate-fade-up">
                 
                 <!-- Page Title -->
-                <h1 class="h3 fw-bold text-dark mb-3 page-heading text-center">Hồ sơ cá nhân</h1>
+                <h1 class="h3 fw-bold text-dark mb-3 page-heading text-center storefront-page-title">Hồ sơ cá nhân</h1>
                 
                 <!-- Profile Card -->
                 <div class="profile-main-card rounded-4 overflow-hidden">
                     <div class="p-3 p-md-4">
-                        <div th:if="" class="alert alert-success alert-dismissible fade show" role="alert">
-                            Cập nhật thông tin thành công!
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                        <form id="profileForm" novalidate th:action="@{/profile/update}" method="POST">
+                        <form id="profileForm" novalidate th:action="@{/profile/update}" method="POST" enctype="multipart/form-data">
+                            <input type="file" name="avatar" id="avatarInput" accept="image/png,image/jpeg" hidden>
                             <!-- Top Section: Avatar & Identity -->
                             <div class="d-flex flex-column flex-md-row align-items-center align-items-md-start gap-3 mb-3 pb-3 profile-header-separator">
                                 <div class="position-relative">
                                     <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold profile-avatar-surface" id="profileAvatar" style="width: 80px; height: 80px; font-size: 2rem;">
-                                        <span class="auth-avatar-initial" style="color: #0891B2;" th:text="${currentUsername != null ? #strings.substring(currentUsername, 0, 1).toUpperCase() : 'U'}">U</span>
+                                        <img th:if="${user.avatarUrl != null}" th:src="${user.avatarUrl}" class="w-100 h-100 rounded-circle object-fit-cover" alt="Ảnh đại diện">
+                                        <span th:unless="${user.avatarUrl != null}" class="auth-avatar-initial" style="color: #0891B2;" th:text="${currentUsername != null ? #strings.substring(currentUsername, 0, 1).toUpperCase() : 'U'}">U</span>
                                     </div>
                                     <button type="button" class="btn btn-sm btn-light rounded-circle position-absolute bottom-0 end-0 shadow-sm border" aria-label="Thay đổi ảnh đại diện" id="editAvatarBtn" style="display: none; width: 32px; height: 32px;">
                                         <i class="bi bi-camera-fill text-muted-custom"></i>
@@ -122,7 +120,7 @@
                                 <div class="col-md-6">
                                     <div class="info-mini-surface p-3 h-100">
                                         <label for="fullName" class="form-label text-sm fw-semibold mb-1" style="color: #64748B;">Họ và tên</label>
-                                        <div class="view-mode-text fw-medium fs-5" style="color: #0F172A;" id="viewFullName">Nguyễn Văn A</div>
+                                        <div class="view-mode-text fw-medium fs-5" style="color: #0F172A;" id="viewFullName" th:text="${user.fullName}"></div>
                                         <div class="edit-mode-field" style="display: none;">
                                             <input type="text" name="fullName" class="form-control profile-input shadow-none" id="fullName" th:value="${user.fullName}" required>
                                             <div class="invalid-feedback">Vui lòng nhập họ và tên.</div>
@@ -134,7 +132,7 @@
                                 <div class="col-md-6">
                                     <div class="info-mini-surface p-3 h-100">
                                         <label class="form-label text-sm fw-semibold mb-1" style="color: #64748B;">Email</label>
-                                        <div class="fw-medium fs-5" style="color: #0F172A;" id="viewEmail">user@example.com</div>
+                                        <div class="fw-medium fs-5" style="color: #0F172A;" id="viewEmail" th:text="${user.email}"></div>
                                     </div>
                                 </div>
 
@@ -142,7 +140,7 @@
                                 <div class="col-md-6">
                                     <div class="info-mini-surface p-3 h-100">
                                         <label for="phone" class="form-label text-sm fw-semibold mb-1" style="color: #64748B;">Số điện thoại</label>
-                                        <div class="view-mode-text fw-medium fs-5 text-muted-fallback" id="viewPhone">Chưa cập nhật</div>
+                                        <div class="view-mode-text fw-medium fs-5 text-muted-fallback" id="viewPhone" th:text="${user.phone != null and !user.phone.isEmpty() ? user.phone : 'Chưa cập nhật'}"></div>
                                         <div class="edit-mode-field" style="display: none;">
                                             <input type="tel" name="phone" class="form-control profile-input shadow-none" id="phone" th:value="${user.phone}" pattern="[0-9]{10,11}">
                                             <div class="invalid-feedback">Vui lòng nhập số điện thoại hợp lệ (10-11 số).</div>
@@ -205,6 +203,7 @@
                 const viewUsername = document.getElementById('viewUsername');
                 const displayUsername = document.getElementById('displayUsername');
                 
+                editAvatarBtn.addEventListener('click', () => document.getElementById('avatarInput').click());
                 let originalData = {
                     fullName: fullNameInput.value,
                     phone: phoneInput.value,
@@ -245,21 +244,11 @@
                     fullNameInput.value = originalData.fullName;
                     phoneInput.value = originalData.phone;
                     usernameInput.value = originalData.username;
+                    document.getElementById('avatarInput').value = '';
                     toggleMode(false);
                 });
 
-                saveBtn.addEventListener('click', (e) => {
-                    if (!form.checkValidity()) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        form.classList.add('was-validated');
-                        return;
-                    }
-                    const originalText = saveBtn.textContent;
-                    saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Đang lưu...';
-                    saveBtn.disabled = true;
-                    form.submit();
-                });
+
             });
         </script>
     </div>

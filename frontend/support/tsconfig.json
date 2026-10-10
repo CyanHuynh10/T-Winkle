@@ -1,0 +1,47 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "../manager/src/*"
+      ],
+      "react": [
+        "../manager/node_modules/@types/react"
+      ],
+      "react/*": [
+        "../manager/node_modules/@types/react/*"
+      ],
+      "react-dom": [
+        "../manager/node_modules/@types/react-dom"
+      ],
+      "react-dom/*": [
+        "../manager/node_modules/@types/react-dom/*"
+      ],
+      "lucide-react": [
+        "../manager/node_modules/lucide-react"
+      ],
+      "sonner": [
+        "../manager/node_modules/sonner"
+      ],
+      "@stomp/stompjs": [
+        "../manager/node_modules/@stomp/stompjs"
+      ]
+    },
+    "noEmit": true
+  },
+  "include": [
+    "src"
+  ]
+}

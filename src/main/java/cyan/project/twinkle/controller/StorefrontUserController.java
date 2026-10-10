@@ -55,7 +55,7 @@ public class StorefrontUserController {
             flash.addFlashAttribute("error", ex.getMessage());
             return "redirect:/profile";
         } catch (org.springframework.dao.DataIntegrityViolationException ex) {
-            flash.addFlashAttribute("error", "Không thể cập nhật hồ sơ. Username có thể đã tồn tại.");
+            flash.addFlashAttribute("error", "Không thể cập nhật hồ sơ. Username có thể đã tồn tại");
             return "redirect:/profile";
         }
 
@@ -140,7 +140,7 @@ public class StorefrontUserController {
 
     @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
     public String oversizedAvatar(org.springframework.web.servlet.mvc.support.RedirectAttributes flash) {
-        flash.addFlashAttribute("error", "Ảnh đại diện tối đa 5 MB.");
+        flash.addFlashAttribute("error", "Ảnh đại diện tối đa 5 MB");
         return "redirect:/profile";
     }
 }

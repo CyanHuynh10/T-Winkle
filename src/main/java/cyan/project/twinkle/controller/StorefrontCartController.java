@@ -52,7 +52,7 @@ public class StorefrontCartController {
                             org.springframework.web.servlet.mvc.support.RedirectAttributes flash) {
         if (userDetails == null) return "redirect:/login";
         cartService.addToCart(userDetails.getUsername(), productId, variantId, storeId, quantity);
-        flash.addFlashAttribute("success", "Đã thêm sản phẩm vào giỏ hàng.");
+        flash.addFlashAttribute("success", "Đã thêm sản phẩm vào giỏ hàng");
         return "redirect:/cart";
     }
 
@@ -111,7 +111,7 @@ public class StorefrontCartController {
                 case "update" -> cartService.updateQuantity(user.getUsername(), cartItemId, quantity);
                 case "select" -> cartService.toggleSelect(user.getUsername(), cartItemId, isSelected);
                 case "remove" -> cartService.removeCartItem(user.getUsername(), cartItemId);
-                default -> throw new cyan.project.twinkle.exception.BusinessRuleException("Thao tác giỏ hàng không hợp lệ.");
+                default -> throw new cyan.project.twinkle.exception.BusinessRuleException("Thao tác giỏ hàng không hợp lệ");
             }
             return org.springframework.http.ResponseEntity.ok(java.util.Map.of("state", cartService.state(user.getUsername())));
         } catch (cyan.project.twinkle.exception.BusinessRuleException ex) {

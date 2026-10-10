@@ -255,10 +255,11 @@
 
     <!-- Content Injection -->
     <div th:replace="${content}"></div>
+    <link rel="stylesheet" href="/css/order-status.css">
     <!-- Global Scroll Clearance for Floating Actions -->
-    <div style="height: 100px; width: 100%; pointer-events: none;"></div>
+    <div th:if="${showFloatingActions}" style="height: 100px; width: 100%; pointer-events: none;"></div>
 
-    <th:block th:unless="${isAuthPage}">
+    <th:block th:unless="${isAuthPage or !showFloatingActions}">
         
         <!-- Floating Cart Button -->
         <a th:unless="${isAuthenticated}" th:href="@{/login}" class="btn rounded-circle d-flex align-items-center justify-content-center text-decoration-none floating-cart-btn" aria-label="Giỏ hàng">

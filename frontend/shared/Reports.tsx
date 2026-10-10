@@ -1,0 +1,11 @@
+import {useEffect,useState} from 'react'
+import {request,type Page} from './api'
+import {Input} from '@/components/ui/input'
+import {Button} from '@/components/ui/button'
+import {NumericPagination} from '@/components/NumericPagination'
+import {Table,TableHeader,TableHead,TableRow,TableBody,TableCell} from '@/components/ui/table'
+const types:Record<string,string>={PRODUCTS:'Sản phẩm',INVENTORY:'Kho hàng',ORDERS:'Đơn hàng',PAYMENTS:'Giao dịch',DASHBOARD:'Dashboard'}
+export function Reports(){const [page,setPage]=useState(0),[search,setSearch]=useState(''),[data,setData]=useState<Page>(),[error,setError]=useState('')
+ useEffect(()=>{let live=true;const t=setTimeout(()=>request<Page>('/api/admin/reports?'+new URLSearchParams({page:String(page),search})).then(d=>{if(live){setData(d);setError('')}}).catch(e=>{if(live)setError(e.message)}),200);return()=>{live=false;clearTimeout(t)}},[page,search])
+ return <><Input className="mb-4 max-w-xs" aria-label="Tìm báo cáo" placeholder="Tìm file hoặc cửa hàng…" value={search} onChange={e=>{setSearch(e.target.value);setPage(0)}}/>{error&&<p role="alert">{error}</p>}<div className="overflow-auto rounded border bg-white"><Table><TableHeader><TableRow>{['Cửa hàng','Manager','Loại báo cáo','Tên file','Số dòng','Bộ lọc','Dung lượng','Ngày gửi','Thao tác'].map(s=><TableHead key={s}>{s}</TableHead>)}</TableRow></TableHeader><TableBody>{data?.items.length?data.items.map(r=><TableRow key={r.id}><TableCell>{r.store}</TableCell><TableCell>{r.manager}</TableCell><TableCell>{types[r.report_type]}</TableCell><TableCell>{r.file_name}</TableCell><TableCell>{r.row_count}</TableCell><TableCell className="max-w-64 break-words">{r.filter_snapshot}</TableCell><TableCell>{Math.ceil(r.file_size/1024)} KB</TableCell><TableCell>{new Date(r.sent_at).toLocaleString('vi-VN')}</TableCell><TableCell><Button asChild size="sm" variant="outline"><a href={'/api/admin/reports/'+r.id+'/download'}>Tải xuống</a></Button></TableCell></TableRow>):<TableRow><TableCell colSpan={9} className="h-32 text-center">{data?'Chưa có báo cáo được gửi':'Đang tải…'}</TableCell></TableRow>}</TableBody></Table></div><div className="mt-4 flex justify-between"><span>{data?.total||0} báo cáo</span><NumericPagination page={page} total={data?.total||0} onChange={setPage}/></div></>
+}

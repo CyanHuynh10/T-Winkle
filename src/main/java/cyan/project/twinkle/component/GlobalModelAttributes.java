@@ -12,7 +12,11 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @ControllerAdvice
 public class GlobalModelAttributes {
-
+    @ModelAttribute("showFloatingActions")
+    public boolean floatingActions(HttpServletRequest request) {
+        String path=request.getRequestURI().substring(request.getContextPath().length());
+        return !path.startsWith("/chat") && !path.startsWith("/manager") && !path.startsWith("/admin") && !path.startsWith("/support");
+    }
     @ModelAttribute("currentAvatarUrl")
     public String currentAvatarUrl(Authentication authentication) {
         if (isAuthenticated(authentication) && authentication.getPrincipal() instanceof CustomUserDetails user) {

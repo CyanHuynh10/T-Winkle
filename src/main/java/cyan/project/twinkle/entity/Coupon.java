@@ -41,6 +41,9 @@ public class Coupon {
     @Column(name = "usage_limit")
     private Integer usageLimit;
 
+    @Column(name = "per_user_limit")
+    private Integer perUserLimit;
+
     @Column(name = "used_count", nullable = false)
     private Integer usedCount;
 

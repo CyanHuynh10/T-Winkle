@@ -38,10 +38,22 @@ public class StorefrontProductService {
     private final PricingService pricingService;
     private final ProductImageRepository productImageRepository;
     private final ReviewRepository reviewRepository;
+    private final cyan.project.twinkle.review.StaffReviewService staffReviews;
     private final OrderItemRepository orderItemRepository;
     private final WishlistItemRepository wishlistItemRepository;
     private final StoreInventoryRepository storeInventoryRepository;
     private final InventoryStateService inventoryStateService;
+    private final cyan.project.twinkle.repository.StoreRepository stores;
+
+    private final org.springframework.jdbc.core.JdbcTemplate sql;
+    @Transactional(readOnly=true) public Page<ProductDTO> filteredProducts(String keyword,String category,String brand,String sort,int page,String email,String storeSlug,PricingService.CatalogFilter filter){
+        Integer store=storeSlug==null?null:stores.findBySlug(storeSlug).orElseThrow().getId();var now=LocalDateTime.now();var products=pricingService.catalogPage(normalize(keyword),normalize(category),normalize(brand),store,now,page,12,sort==null?"popular":sort,filter,false);var result=mapToProductDTOPage(products,email,now);
+        if(store!=null){var prices=pricingService.calculateEffectivePricesBatch(products.getContent(),now,store);result.forEach(p->p.setEffectivePrice(prices.get(p.getProductId())));}return result;
+    }
+    @Transactional(readOnly=true) public Map<String,Object> filterOptions(String category,String storeSlug){
+        Integer store=storeSlug==null?null:stores.findBySlug(storeSlug).orElseThrow().getId();String scope=" FROM PRODUCTS p JOIN CATEGORIES c ON c.id=p.category_id JOIN PRODUCT_VARIANTS v ON v.product_id=p.id AND v.status='ACTIVE' WHERE p.status='ACTIVE' AND (? IS NULL OR c.slug=?) AND (? IS NULL OR EXISTS(SELECT 1 FROM STORE_INVENTORY si WHERE si.variant_id=v.id AND si.store_id=?))";
+        var options=new HashMap<String,Object>();options.put("sizes",sql.queryForList("SELECT DISTINCT v.size"+scope+" ORDER BY v.size",String.class,normalize(category),normalize(category),store,store));options.put("colors",sql.queryForList("SELECT DISTINCT v.color"+scope+" ORDER BY v.color",String.class,normalize(category),normalize(category),store,store));options.put("brands",sql.queryForList("SELECT DISTINCT b.name,b.slug FROM BRANDS b JOIN PRODUCTS p ON p.brand_id=b.id JOIN CATEGORIES c ON c.id=p.category_id WHERE p.status='ACTIVE' AND (? IS NULL OR c.slug=?) AND (? IS NULL OR EXISTS(SELECT 1 FROM STORE_INVENTORY si JOIN PRODUCT_VARIANTS v ON v.id=si.variant_id WHERE v.product_id=p.id AND si.store_id=? AND v.status='ACTIVE')) ORDER BY b.name",normalize(category),normalize(category),store,store));return options;
+    }
 
     @Transactional(readOnly = true)
     public Page<ProductDTO> getWishlistProducts(String email, int page) {
@@ -74,21 +86,9 @@ public class StorefrontProductService {
                     PageRequest.of(page, limit)
             );
         } else if ("price-asc".equals(sortRule)) {
-            productsPage = productRepository.findProductsPriceAsc(
-                    normalize(keyword),
-                    normalize(categorySlug),
-                    normalize(brandSlug),
-                    now,
-                    PageRequest.of(page, limit)
-            );
+            productsPage = pricingService.pricedPage(normalize(keyword),normalize(categorySlug),normalize(brandSlug),null,now,page,limit,true,false);
         } else if ("price-desc".equals(sortRule)) {
-            productsPage = productRepository.findProductsPriceDesc(
-                    normalize(keyword),
-                    normalize(categorySlug),
-                    normalize(brandSlug),
-                    now,
-                    PageRequest.of(page, limit)
-            );
+            productsPage = pricingService.pricedPage(normalize(keyword),normalize(categorySlug),normalize(brandSlug),null,now,page,limit,false,false);
         } else {
             productsPage = productRepository.findProducts(
                     normalize(keyword),
@@ -116,9 +116,7 @@ public class StorefrontProductService {
     @Transactional(readOnly = true)
     public List<ProductDTO> getSaleProducts(int limit, String email) {
         var now = LocalDateTime.now();
-        var ids = productRepository.findCurrentSaleProductIds(now, PageRequest.of(0, limit));
-        var byId = productRepository.findByIdIn(ids).stream().collect(Collectors.toMap(Product::getId, p -> p));
-        var rows = ids.stream().map(byId::get).toList();
+        var rows=pricingService.pricedPage(null,null,null,null,now,0,limit,true,true).getContent();
         return mapToProductDTOPage(new PageImpl<>(rows), email, now).getContent();
     }
 
@@ -141,21 +139,9 @@ public class StorefrontProductService {
         Page<Product> productsPage;
 
         if ("price-asc".equals(sortRule)) {
-            productsPage = productRepository.findProductsByStoreSlugPriceAsc(
-                    storeSlug,
-                    normalizedCategory,
-                    search,
-                    now,
-                    PageRequest.of(page, 12)
-            );
+            productsPage = pricingService.pricedPage(normalize(keyword),normalizedCategory,null,stores.findBySlug(storeSlug).orElseThrow().getId(),now,page,12,true,false);
         } else if ("price-desc".equals(sortRule)) {
-            productsPage = productRepository.findProductsByStoreSlugPriceDesc(
-                    storeSlug,
-                    normalizedCategory,
-                    search,
-                    now,
-                    PageRequest.of(page, 12)
-            );
+            productsPage = pricingService.pricedPage(normalize(keyword),normalizedCategory,null,stores.findBySlug(storeSlug).orElseThrow().getId(),now,page,12,false,false);
         } else if (sortRule == null || "popular".equals(sortRule)) {
             productsPage = productRepository.findStoreProductsPopular(storeSlug, normalizedCategory, search, "Đã giao", PageRequest.of(page, 12));
         } else {
@@ -167,7 +153,11 @@ public class StorefrontProductService {
             );
         }
 
-        return mapToProductDTOPage(productsPage, email, now);
+        var result=mapToProductDTOPage(productsPage,email,now);
+        var store=stores.findBySlug(storeSlug).orElseThrow();
+        var prices=pricingService.calculateEffectivePricesBatch(productsPage.getContent(),now,store.getId());
+        result.forEach(dto->dto.setEffectivePrice(prices.get(dto.getProductId())));
+        return result;
     }
 
     @Transactional(readOnly = true)
@@ -175,10 +165,10 @@ public class StorefrontProductService {
         LocalDateTime now = LocalDateTime.now();
 
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Sáº£n pháº©m khÃ´ng tá»“n táº¡i."));
+                .orElseThrow(() -> new IllegalArgumentException("Sáº£n pháº©m khÃ´ng tá»“n táº¡i"));
 
         if (!"ACTIVE".equals(product.getStatus())) {
-            throw new IllegalArgumentException("Sản phẩm ngừng kinh doanh.");
+            throw new IllegalArgumentException("Sản phẩm ngừng kinh doanh");
         }
 
         ProductDetailDTO dto = new ProductDetailDTO();
@@ -226,6 +216,7 @@ public class StorefrontProductService {
                     variantDTO.setColor(variant.getColor());
                     variantDTO.setSku(variant.getSku());
                     variantDTO.setPriceAdjustment(variant.getPriceAdjustment());
+                    variantDTO.setEffectivePrice(pricingService.calculateItemPrice(product,variant,null,now));
                     variantDTO.setImageUrl(variant.getImageUrl());
                     variantDTO.setSoldCount(variantSales.getOrDefault(variant.getId(), 0L));
                     var stats = variantRatings.get(variant.getId());
@@ -240,8 +231,11 @@ public class StorefrontProductService {
         dto.setStoreAvailability(
                 storeInventoryRepository.findAvailableInventoryByProductId(id)
         );
-        dto.getStoreAvailability().forEach(row -> row.setStockState(inventoryStateService.state(row.getQuantity())));
-        dto.setReviews(reviewRepository.findStorefrontReviews(id));
+        dto.getStoreAvailability().forEach(row -> {
+            row.setStockState(inventoryStateService.state(row.getQuantity()));
+            product.getVariants().stream().filter(v->v.getId().equals(row.getVariantId())).findFirst().ifPresent(v->row.setEffectivePrice(pricingService.calculateItemPrice(product,v,row.getStoreId(),now)));
+        });
+        dto.setReviews(staffReviews.publicReviews(id));
         dto.setCanReview(email != null && !reviewRepository.existsByUserEmailAndProductId(email, id)
                 && orderItemRepository.existsByOrderUserEmailAndProductIdAndOrderStatus(email, id, "Đã giao"));
         dto.setReviewCounts(java.util.stream.IntStream.iterate(5, star -> star - 1).limit(5)
@@ -349,4 +343,3 @@ public class StorefrontProductService {
         return value == null || value.trim().isEmpty() ? null : value.trim();
     }
 }
-

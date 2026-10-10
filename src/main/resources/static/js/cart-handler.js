@@ -2,7 +2,7 @@
 window.initializeProductSelection = function(modal, preferredStoreId) {
     const variants = [...modal.querySelectorAll('#modalVariantMatrix [data-variant-id]')].map(el => ({
         id: el.dataset.variantId, size: el.dataset.size || '', color: el.dataset.color || '',
-        adjustment: Number(el.dataset.adjustment || 0), image: el.dataset.image
+        effectivePrice: Number(el.dataset.effectivePrice || 0), image: el.dataset.image
     }));
     const rows = [...modal.querySelectorAll('#modalStores [data-variant-id]')];
     const carriedIds = new Set(rows.filter(row => !preferredStoreId || row.querySelector('button').dataset.storeId === String(preferredStoreId)).map(row => row.dataset.variantId));
@@ -51,13 +51,13 @@ window.initializeProductSelection = function(modal, preferredStoreId) {
             button.setAttribute('aria-pressed', String(!!active));
         });
         const hint = modal.querySelector('#modalStoreHint');
-        hint.textContent = !selectedVariant ? 'Vui lòng chọn size và màu để xem tồn kho.' :
-            availableRows.length ? 'Chọn cửa hàng để thêm vào giỏ.' : 'Cửa hàng không kinh doanh biến thể này.';
+        hint.textContent = !selectedVariant ? 'Vui lòng chọn size và màu để xem tồn kho' :
+            availableRows.length ? 'Chọn cửa hàng để thêm vào giỏ' : 'Cửa hàng không kinh doanh biến thể này';
         modal.querySelector('#modalVariantHint').textContent = '* Đang chọn: ' +
             (color === null ? '...' : color || 'Mặc định') + ' / ' + (size === null ? '...' : size || 'Mặc định');
         const price = modal.querySelector('#modalProductPrice');
         price.textContent = new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(
-            Number(price.dataset.basePrice || 0) + (selectedVariant ? selectedVariant.adjustment : 0));
+            selectedVariant ? Number(availableRows.find(row => row.querySelector('button').dataset.storeId === selectedStore)?.dataset.effectivePrice ?? selectedVariant.effectivePrice) : Number(price.dataset.basePrice || 0));
         const image = modal.querySelector('#modalProductImage');
         if (image) {
             if (!image.dataset.primaryImage) image.dataset.primaryImage = image.getAttribute('src');
@@ -71,10 +71,10 @@ window.initializeProductSelection = function(modal, preferredStoreId) {
         modal.querySelector('#modalQuantityMinus').disabled = !chosenRow || !Number.isSafeInteger(qty) || qty <= 1;
         modal.querySelector('#modalQuantityPlus').disabled = !chosenRow || !Number.isSafeInteger(qty) || qty >= stock;
         cart.disabled = !selectedVariant || !chosenRow || !Number.isSafeInteger(qty) || qty < 1 || qty > stock;
-        const selectionHint = !selectedVariant ? 'Chọn size và màu sản phẩm.' : !chosenRow ? 'Nhấn trạng thái tồn kho để chọn cửa hàng.' : cart.disabled ? 'Nhập số lượng hợp lệ trong tồn kho.' : 'Đã chọn ' + size + ' / ' + color + '. Nhấn giỏ hàng để thêm sản phẩm.';
+        const selectionHint = !selectedVariant ? 'Chọn size và màu sản phẩm' : !chosenRow ? 'Nhấn trạng thái tồn kho để chọn cửa hàng' : cart.disabled ? 'Nhập số lượng hợp lệ trong tồn kho' : 'Đã chọn ' + size + ' / ' + color + '. Nhấn giỏ hàng để thêm sản phẩm';
         modal.querySelector('#modalCartHint').textContent = selectionHint;
         cart.title = selectionHint;
-        quantity.setCustomValidity(chosenRow && (!Number.isSafeInteger(qty) || qty < 1 || qty > stock) ? 'Số lượng phải từ 1 đến tồn kho hiện tại.' : '');
+        quantity.setCustomValidity(chosenRow && (!Number.isSafeInteger(qty) || qty < 1 || qty > stock) ? 'Số lượng phải từ 1 đến tồn kho hiện tại' : '');
         cart.dataset.variantId = selectedVariant ? selectedVariant.id : '';
         cart.dataset.storeId = chosenRow ? selectedStore : '';
     }
@@ -88,7 +88,7 @@ window.initializeProductSelection = function(modal, preferredStoreId) {
         input:'#modalQuantity', step:'[data-quantity-step]',
         commit:(_,value) => {quantity.value = String(value);quantity.dataset.committed = value;refresh();},
         draft:refresh,
-        invalid:() => {window.showToast('Số lượng phải từ 1 đến tồn kho hiện tại.', 'error');refresh();}
+        invalid:() => {window.showToast('Số lượng phải từ 1 đến tồn kho hiện tại', 'error');refresh();}
     });refresh();
 };
 document.addEventListener('click', function(e) {
@@ -101,7 +101,7 @@ document.addEventListener('click', function(e) {
 }, true);
 async function postToCartAdd(productId, variantId, storeId, quantity) {
     if (!productId || !variantId || !storeId || !Number.isSafeInteger(Number(quantity)) || Number(quantity) < 1) {
-        window.showToast('Vui lòng chọn size, màu, cửa hàng và số lượng hợp lệ.', 'error'); return;
+        window.showToast('Vui lòng chọn size, màu, cửa hàng và số lượng hợp lệ', 'error'); return;
     }
     const fields = {productId, variantId, storeId, quantity, _csrf: document.querySelector('meta[name="_csrf"]').content};
     const button = document.getElementById('modalAddToCartBtn');button.disabled = true;
@@ -110,9 +110,9 @@ async function postToCartAdd(productId, variantId, storeId, quantity) {
         if (response.redirected) {location.href='/login';return;}
         const body = await response.json();
         if(body.state) window.updateCartBadge(body.state);
-        if(!response.ok) throw Error(body.error || 'Không thể thêm sản phẩm vào giỏ hàng.');
+        if(!response.ok) throw Error(body.error || 'Không thể thêm sản phẩm vào giỏ hàng');
         window.dispatchEvent(new CustomEvent('cart:changed', {detail:body.state}));
-        window.showToast('Đã thêm sản phẩm vào giỏ hàng.', 'success');
+        window.showToast('Đã thêm sản phẩm vào giỏ hàng', 'success');
     } catch(error) {window.showToast(error.message,'error');}
     finally {document.getElementById('modalQuantity')?.dispatchEvent(new Event('input', {bubbles:true}));}
 }

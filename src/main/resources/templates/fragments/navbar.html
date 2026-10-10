@@ -105,6 +105,12 @@
                                 </a>
                             </li>
                             <li>
+                                <a th:if="${canUseAiChat}" class="dropdown-item rounded-3 text-sm fw-medium py-2 d-flex align-items-center gap-2" th:href="@{/settings}">
+                                    <i class="bi bi-gear fs-5"></i> Cài đặt chung
+                                </a>
+                                <a th:if="${canUseStoreInbox}" class="dropdown-item rounded-3 text-sm fw-medium py-2 d-flex align-items-center gap-2" th:href="${storeInboxPath}">
+                                    <i class="bi bi-chat-square-text fs-5"></i> Hỗ trợ cửa hàng
+                                </a>
                                 <form th:action="@{/logout}" method="post" class="m-0 p-0">
                                     <button type="submit" class="dropdown-item rounded-3 text-sm fw-medium py-2 d-flex align-items-center gap-2 text-danger w-100 text-start">
                                         <i class="bi bi-box-arrow-right fs-5"></i> Đăng xuất

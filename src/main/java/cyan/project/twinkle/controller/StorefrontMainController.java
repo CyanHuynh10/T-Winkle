@@ -33,11 +33,13 @@ public class StorefrontMainController {
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String brand,
             @RequestParam(defaultValue = "popular") String sort,
+            @RequestParam(required=false) String size, @RequestParam(required=false) String color, @RequestParam(required=false) java.math.BigDecimal minPrice, @RequestParam(required=false) java.math.BigDecimal maxPrice, @RequestParam(required=false) Boolean available, @RequestParam(required=false) Boolean sale,
             @RequestParam(defaultValue = "0") int page, 
             @AuthenticationPrincipal CustomUserDetails userDetails,
             Model model) {
         String email = userDetails != null ? userDetails.getUsername() : null;
-        model.addAttribute("products", productService.getProducts(keyword, null, brand, sort, page, email));
+        model.addAttribute("products", productService.filteredProducts(keyword, null, brand, sort, page, email,null,new cyan.project.twinkle.service.PricingService.CatalogFilter(size,color,minPrice,maxPrice,available,sale)));
+        model.addAttribute("filterOptions",productService.filterOptions(null,null));
         model.addAttribute("categories", categoryRepository.findAll());
         model.addAttribute("brands", brandRepository.findAll());
         model.addAttribute("currentUri", "/categories");
@@ -50,11 +52,13 @@ public class StorefrontMainController {
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String brand,
             @RequestParam(defaultValue = "popular") String sort,
+            @RequestParam(required=false) String size, @RequestParam(required=false) String color, @RequestParam(required=false) java.math.BigDecimal minPrice, @RequestParam(required=false) java.math.BigDecimal maxPrice, @RequestParam(required=false) Boolean available, @RequestParam(required=false) Boolean sale,
             @RequestParam(defaultValue = "0") int page, 
             @AuthenticationPrincipal CustomUserDetails userDetails,
             Model model) {
         String email = userDetails != null ? userDetails.getUsername() : null;
-        model.addAttribute("products", productService.getProducts(keyword, slug, brand, sort, page, email));
+        model.addAttribute("products", productService.filteredProducts(keyword, slug, brand, sort, page, email,null,new cyan.project.twinkle.service.PricingService.CatalogFilter(size,color,minPrice,maxPrice,available,sale)));
+        model.addAttribute("filterOptions",productService.filterOptions(slug,null));
         model.addAttribute("categories", categoryRepository.findAll());
         model.addAttribute("brands", brandRepository.findAll());
         model.addAttribute("currentCategory", slug);

@@ -1,0 +1,14 @@
+SET NOCOUNT ON;
+SELECT t.name,c.name,TYPE_NAME(c.user_type_id) AS type,c.max_length,c.is_nullable,dc.definition AS default_value FROM sys.tables t JOIN sys.columns c ON c.object_id=t.object_id LEFT JOIN sys.default_constraints dc ON dc.object_id=c.default_object_id ORDER BY t.name,c.column_id;
+SELECT OBJECT_NAME(object_id) AS table_name,name,type_desc,is_unique,is_primary_key,filter_definition FROM sys.indexes WHERE index_id>0 ORDER BY object_id,index_id;
+SELECT OBJECT_NAME(parent_object_id) AS table_name,name,definition,is_disabled,is_not_trusted FROM sys.check_constraints;
+SELECT name,OBJECT_NAME(parent_object_id) AS child,OBJECT_NAME(referenced_object_id) AS parent,is_disabled,is_not_trusted FROM sys.foreign_keys;
+SELECT r.name,COUNT(ur.user_email) AS members FROM ROLES r LEFT JOIN USER_ROLES ur ON ur.role_id=r.id GROUP BY r.name;
+SELECT id,order_code,user_email,payment_method,status FROM ORDERS ORDER BY id;
+SELECT username,is_enabled FROM USERS ORDER BY username;
+SELECT method,status,COUNT(*) AS count FROM PAYMENTS GROUP BY method,status;
+SELECT status,COUNT(*) AS count FROM ORDER_STORE_FULFILLMENTS GROUP BY status;
+SELECT type,COUNT(*) AS count FROM OTP_VERIFICATIONS GROUP BY type;
+IF OBJECT_ID('dbo.SYSTEM_CONFIG_HISTORY','U') IS NOT NULL EXEC('SELECT config_key,COUNT(*) AS count FROM SYSTEM_CONFIG_HISTORY GROUP BY config_key');
+IF OBJECT_ID('dbo.SYSTEM_CONFIGS','U') IS NOT NULL EXEC('SELECT config_key FROM SYSTEM_CONFIGS');
+DBCC CHECKCONSTRAINTS WITH ALL_CONSTRAINTS;

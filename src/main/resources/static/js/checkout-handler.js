@@ -21,19 +21,25 @@ function selectCheckoutAddress(element, id) {
     bootstrap.Modal.getInstance(document.getElementById('addressModal')).hide();
 }
 let quoteRequest;
+function changeFulfillmentMode() {
+    const mode=document.getElementById('fulfillmentMode').value;
+    document.querySelector('[name=fulfillmentMode]').value=mode;
+    document.getElementById('deliveryAddressCard').hidden=mode==='PICKUP';
+    void applyCoupon();
+}
 async function applyCoupon() {
     const code = document.getElementById('couponInput').value.trim();
     if (quoteRequest) quoteRequest.abort(); quoteRequest = new AbortController();
     const hidden = document.getElementById('hiddenCouponCode'); hidden.value = '';
     try {
-        const response = await fetch('/checkout/quote?couponCode=' + encodeURIComponent(code), {signal:quoteRequest.signal});
+        const response = await fetch('/checkout/quote?couponCode=' + encodeURIComponent(code) + '&fulfillmentMode=' + document.querySelector('[name=fulfillmentMode]').value, {signal:quoteRequest.signal});
         const quote = await response.json();
-        if (!response.ok) throw new Error(quote.error || 'Không thể tính tổng đơn hàng.');
+        if (!response.ok) throw new Error(quote.error || 'Không thể tính tổng đơn hàng');
         hidden.value = code;
         const money = value => new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND'}).format(value);
         for(const [id,value] of Object.entries({summarySubtotal:quote.subtotal,summaryProductDiscount:quote.productDiscount,summaryShipping:quote.shippingFee,summaryCouponDiscount:quote.couponDiscount,summaryTotal:quote.total})) document.getElementById(id).textContent = money(value);
         const message = document.getElementById('couponMessage');message.className = 'mt-2 text-sm text-success';
-        message.textContent = code ? 'Đã áp dụng mã giảm giá.' : 'Đã bỏ mã giảm giá.';
+        message.textContent = code ? 'Đã áp dụng mã giảm giá' : 'Đã bỏ mã giảm giá';
     } catch(error) {
         if(error.name === 'AbortError') return;
         if(code) {document.getElementById('couponInput').value = '';await applyCoupon();}
@@ -49,9 +55,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const list = document.getElementById('couponBrowserList');list.replaceChildren();
         try {
             const response = await fetch('/checkout/coupons', {headers:{Accept:'application/json'}});
-            if (!response.ok || response.redirected) throw Error('Không thể tải mã giảm giá.');
+            if (!response.ok || response.redirected) throw Error('Không thể tải mã giảm giá');
             const coupons = await response.json();
-            if (!coupons.length) {list.textContent = 'Chưa có mã giảm giá.';return;}
+            if (!coupons.length) {list.textContent = 'Chưa có mã giảm giá';return;}
             const money = value => new Intl.NumberFormat('vi-VN', {style:'currency',currency:'VND'}).format(value);
             for (const coupon of coupons) {
                 const card = document.createElement('article');card.className = 'coupon-option border rounded-3 p-3 mb-3' + (coupon.available?'':' coupon-unavailable');card.dataset.couponCode = coupon.code;card.setAttribute('role','listitem');
@@ -65,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const apply = document.createElement('button');apply.type = 'button';apply.className = 'btn btn-sm coupon-apply rounded-pill';apply.textContent = 'Dùng mã';apply.disabled = !coupon.available;
                 apply.addEventListener('click', async () => {document.getElementById('couponInput').value = coupon.code;await applyCoupon();bootstrap.Modal.getInstance(document.getElementById('couponBrowser')).hide();});
                 const copy = document.createElement('button');copy.type = 'button';copy.className = 'btn btn-sm coupon-copy rounded-pill';copy.textContent = 'Sao chép';copy.disabled = !coupon.available;
-                copy.addEventListener('click', async () => {try {await navigator.clipboard.writeText(coupon.code);window.showToast('Đã sao chép mã giảm giá.','success');}catch{window.showToast('Không thể sao chép mã.','error');}});
+                copy.addEventListener('click', async () => {try {await navigator.clipboard.writeText(coupon.code);window.showToast('Đã sao chép mã giảm giá','success');}catch{window.showToast('Không thể sao chép mã','error');}});
                 actions.append(apply,copy);card.append(code,details,minimum,validity,usage,actions);list.append(card);
             }
         } catch(error) {list.textContent = error.message;window.showToast(error.message,'error');}

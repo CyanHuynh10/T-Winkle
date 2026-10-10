@@ -139,20 +139,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 e.stopPropagation();
                 const firstInvalid = form.querySelector(':invalid');
                 if (firstInvalid) {
-                    let errorMsg = "Vui lòng kiểm tra lại thông tin.";
+                    let errorMsg = "Vui lòng kiểm tra lại thông tin";
                     if (firstInvalid.validity.valueMissing) {
                         if (firstInvalid.type === 'email' || firstInvalid.id.toLowerCase().includes('email')) {
-                            errorMsg = "Email không được để trống.";
+                            errorMsg = "Email không được để trống";
                         } else if (firstInvalid.type === 'password' || firstInvalid.id.toLowerCase().includes('password')) {
-                            errorMsg = "Mật khẩu không được để trống.";
+                            errorMsg = "Mật khẩu không được để trống";
                         } else {
-                            errorMsg = "Trường này không được để trống.";
+                            errorMsg = "Trường này không được để trống";
                         }
                     } else if (firstInvalid.validity.typeMismatch) {
                         if (firstInvalid.type === 'email') {
-                            errorMsg = "Email không hợp lệ.";
+                            errorMsg = "Email không hợp lệ";
                         } else {
-                            errorMsg = "Định dạng không hợp lệ.";
+                            errorMsg = "Định dạng không hợp lệ";
                         }
                     } else if (firstInvalid.validity.tooShort) {
                         errorMsg = `Tối thiểu ${firstInvalid.minLength} ký tự.`;
@@ -254,7 +254,7 @@ window.showProductDetail = async function(productId, preferredStoreId, focusSele
         }, {once:true});
         bootstrap.Modal.getOrCreateInstance(modal).show();
     } catch (error) {
-        if (error.name !== 'AbortError') window.showToast('Không thể tải chi tiết sản phẩm.', 'error');
+        if (error.name !== 'AbortError') window.showToast('Không thể tải chi tiết sản phẩm', 'error');
     }
 };
 

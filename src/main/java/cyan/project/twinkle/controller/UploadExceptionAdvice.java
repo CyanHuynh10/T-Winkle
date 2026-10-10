@@ -9,7 +9,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class UploadExceptionAdvice {
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public String oversizedAvatar(RedirectAttributes flash) {
-        flash.addFlashAttribute("error", "Ảnh đại diện tối đa 5 MB.");
+        flash.addFlashAttribute("error", "Ảnh đại diện tối đa 5 MB");
         return "redirect:/profile";
     }
 }

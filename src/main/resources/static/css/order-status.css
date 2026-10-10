@@ -1,0 +1,26 @@
+/* Canonical semantic colors, loaded by all three UIs. */
+:root {
+ --status-payment-waiting-bg:#fff7ed;--status-payment-waiting-fg:#9a3412;--status-payment-waiting-border:#fed7aa;
+ --status-waiting-bg:#f1f5f9;--status-waiting-fg:#475569;--status-waiting-border:#cbd5e1;
+ --status-confirmed-bg:#eff6ff;--status-confirmed-fg:#1d4ed8;--status-confirmed-border:#bfdbfe;
+ --status-preparing-bg:#f5f3ff;--status-preparing-fg:#6d28d9;--status-preparing-border:#ddd6fe;
+ --status-ready-bg:#ecfeff;--status-ready-fg:#0e7490;--status-ready-border:#a5f3fc;
+ --status-shipping-bg:#fdf2f8;--status-shipping-fg:#be185d;--status-shipping-border:#fbcfe8;
+ --status-delivered-bg:#ecfdf5;--status-delivered-fg:#047857;--status-delivered-border:#a7f3d0;
+ --status-cancelled-bg:#fef2f2;--status-cancelled-fg:#b91c1c;--status-cancelled-border:#fecaca;
+ --status-cancellation-pending-bg:#fffbeb;--status-cancellation-pending-fg:#92400e;--status-cancellation-pending-border:#fde68a;
+ --status-refund-pending-bg:#faf5ff;--status-refund-pending-fg:#7e22ce;--status-refund-pending-border:#e9d5ff;
+ --status-refunded-bg:#f0fdfa;--status-refunded-fg:#115e59;--status-refunded-border:#99f6e4;
+}
+.order-status{display:inline-flex;align-items:center;gap:6px;border:1px solid;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:600}
+.order-status.waiting{background:var(--status-waiting-bg);color:var(--status-waiting-fg);border-color:var(--status-waiting-border)}
+.order-status.payment-waiting{background:var(--status-payment-waiting-bg);color:var(--status-payment-waiting-fg);border-color:var(--status-payment-waiting-border)}
+.order-status.confirmed{background:var(--status-confirmed-bg);color:var(--status-confirmed-fg);border-color:var(--status-confirmed-border)}
+.order-status.preparing{background:var(--status-preparing-bg);color:var(--status-preparing-fg);border-color:var(--status-preparing-border)}
+.order-status.ready{background:var(--status-ready-bg);color:var(--status-ready-fg);border-color:var(--status-ready-border)}
+.order-status.shipping{background:var(--status-shipping-bg);color:var(--status-shipping-fg);border-color:var(--status-shipping-border)}
+.order-status.delivered{background:var(--status-delivered-bg);color:var(--status-delivered-fg);border-color:var(--status-delivered-border)}
+.order-status.cancelled{background:var(--status-cancelled-bg);color:var(--status-cancelled-fg);border-color:var(--status-cancelled-border)}
+.order-status.cancellation-pending{background:var(--status-cancellation-pending-bg);color:var(--status-cancellation-pending-fg);border-color:var(--status-cancellation-pending-border)}
+.order-status.refund-pending{background:var(--status-refund-pending-bg);color:var(--status-refund-pending-fg);border-color:var(--status-refund-pending-border)}
+.order-status.refunded{background:var(--status-refunded-bg);color:var(--status-refunded-fg);border-color:var(--status-refunded-border)}

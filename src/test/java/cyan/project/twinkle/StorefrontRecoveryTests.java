@@ -40,7 +40,7 @@ class StorefrontRecoveryTests {
     @Autowired StorefrontProductService products;
     @Autowired jakarta.persistence.EntityManager entityManager;
     MockMvc mvc;
-    static final String EMAIL = "user1@twinkle.com";
+    static final String EMAIL = "24110064@student.hcmute.edu.vn";
 
     @BeforeEach void setup() { mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build(); }
     CustomUserDetails principal() { return new CustomUserDetails(users.findByEmail(EMAIL).orElseThrow()); }
@@ -143,6 +143,7 @@ class StorefrontRecoveryTests {
     }
 
     @Test @Transactional void productAggregatesAndCartRespectInventoryAndClosedStores() {
+        jdbc.update("UPDATE STORES SET status='CLOSED' WHERE store_id=2");
         for (int id : new int[]{1, 2}) {
             ProductDetailDTO detail = products.getProductDetailDTO(id, EMAIL);
             assertFalse(detail.getImages().isEmpty()); assertFalse(detail.getVariants().isEmpty());

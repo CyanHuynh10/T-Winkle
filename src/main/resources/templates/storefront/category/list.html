@@ -51,12 +51,12 @@
 
                     
                     <!-- Toolbar: Category (Left) + Filter & Sort (Right) -->
-                    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3 mb-4 animate-fade-up position-relative" style="animation-delay: 0.1s; z-index: 20;">
+                    <div id="catalogToolbar" class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3 mb-4 animate-fade-up position-relative" style="animation-delay: 0.1s; z-index: 20;">
                         
                         <!-- Categories (Pills) -->
-                        <div class="d-flex gap-2 overflow-auto hide-scrollbar pb-2 pb-lg-0" id="catalogCategories">
-                            <a class="tw-btn rounded-pill px-4" th:classappend="${selectedCategory == null ? 'tw-btn-primary' : 'tw-btn-outline bg-white'}" th:href="@{${store != null ? '/stores/' + store.slug + '/catagories' : '/categories'}(keyword=${param.keyword},sort=${param.sort})}">Tất cả</a>
-                            <a th:each="cat : ${categories}" class="tw-btn rounded-pill px-4" th:classappend="${selectedCategory == cat.slug ? 'tw-btn-primary' : 'tw-btn-outline bg-white'}" th:href="@{${store != null ? '/stores/' + store.slug + '/catagories/' + cat.slug : '/categories/' + cat.slug}(keyword=${param.keyword},sort=${param.sort})}" th:text="${cat.name}"></a>
+                        <div class="d-flex gap-2 overflow-auto hide-scrollbar pb-2 pb-lg-0" id="catalogCategories" style="min-width:0;max-width:100%">
+                            <a class="tw-btn rounded-pill px-4" th:classappend="${selectedCategory == null ? 'tw-btn-primary' : 'tw-btn-outline bg-white'}" th:href="@{${store != null ? '/stores/' + store.slug + '/catagories' : '/categories'}(keyword=${param.keyword},sort=${param.sort},brand=${param.brand},size=${param.size},color=${param.color},minPrice=${param.minPrice},maxPrice=${param.maxPrice},available=${param.available},sale=${param.sale})}">Tất cả</a>
+                            <a th:each="cat : ${categories}" class="tw-btn rounded-pill px-4" th:classappend="${selectedCategory == cat.slug ? 'tw-btn-primary' : 'tw-btn-outline bg-white'}" th:href="@{${store != null ? '/stores/' + store.slug + '/catagories/' + cat.slug : '/categories/' + cat.slug}(keyword=${param.keyword},sort=${param.sort},brand=${param.brand},size=${param.size},color=${param.color},minPrice=${param.minPrice},maxPrice=${param.maxPrice},available=${param.available},sale=${param.sale})}" th:text="${cat.name}"></a>
                         </div>
                         
                         <!-- Filter & Sort -->
@@ -65,6 +65,8 @@
                             
                             <style>
                                 /* Control Buttons (Filter, Sort) */
+                                #catalogToolbar:has(.dropdown-menu.show) { z-index: 1045 !important; }
+                                .storefront-page-main:has(#catalogToolbar .dropdown-menu.show) { z-index: 1045 !important; }
                                 .control-btn {
                                     border: 1px solid transparent !important; /* Remove black border */
                                     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important; /* Subtle shadow */
@@ -104,6 +106,18 @@
                                     font-weight: 600;
                                 }
                             </style>
+                            <div class="dropdown">
+                                <button class="tw-btn control-btn bg-white rounded-pill d-flex align-items-center gap-2 px-3 dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" aria-label="Bộ lọc sản phẩm"><i class="bi bi-funnel"></i><span>Bộ lọc</span></button>
+                                <form id="categoryFilters" class="dropdown-menu dropdown-menu-end border-0 shadow-sm p-3" style="width:min(340px,calc(100vw - 32px));max-height:70dvh;overflow:auto;background:rgba(255,255,255,.98)">
+                                    <label class="d-block mb-3">Thương hiệu<select name="brand" class="form-select mt-1"><option value="">Tất cả</option><option th:each="b : ${filterOptions?.brands}" th:value="${b.slug}" th:text="${b.name}"></option></select></label>
+                                    <div class="d-flex gap-2 mb-3"><label class="flex-fill">Giá từ<input class="form-control mt-1" type="number" name="minPrice" min="0" inputmode="numeric" placeholder="₫"></label><label class="flex-fill">Giá đến<input class="form-control mt-1" type="number" name="maxPrice" min="0" inputmode="numeric" placeholder="₫"></label></div>
+                                    <label class="d-block mb-3">Size<select name="size" class="form-select mt-1"><option value="">Tất cả</option><option th:each="v : ${filterOptions?.sizes}" th:value="${v}" th:text="${v}"></option></select></label>
+                                    <label class="d-block mb-3">Màu<select name="color" class="form-select mt-1"><option value="">Tất cả</option><option th:each="v : ${filterOptions?.colors}" th:value="${v}" th:text="${v}"></option></select></label>
+                                    <label class="d-block mb-3">Tình trạng<select name="available" class="form-select mt-1"><option value="">Tất cả</option><option value="true">Còn hàng</option><option value="false">Hết hàng</option></select></label>
+                                    <label class="d-flex gap-2 mb-3"><input class="form-check-input" type="checkbox" name="sale" value="true">Đang giảm giá</label>
+                                    <div class="d-flex gap-2"><button class="tw-btn tw-btn-primary rounded-pill" type="submit">Áp dụng</button><button id="clearCategoryFilters" class="tw-btn tw-btn-outline rounded-pill" type="button" hidden>Xóa bộ lọc</button></div>
+                                </form>
+                            </div>
                             <div class="dropdown">
                                 <button class="tw-btn control-btn bg-white rounded-pill d-flex align-items-center gap-2 px-3 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Sắp xếp sản phẩm">
                                     <i class="bi bi-sort-down"></i> <span class="d-none d-sm-inline" id="sortLabel">Phổ biến nhất</span>
@@ -173,16 +187,16 @@
     <nav aria-label="Phân trang sản phẩm">
         <ul class="pagination pagination-glass gap-2 mb-0 d-flex flex-wrap justify-content-center">
             <li class="page-item" th:classappend="${products.first ? 'disabled' : ''}">
-                <a class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm" th:href="@{${currentUri}(page=${products.number - 1},keyword=${param.keyword},sort=${param.sort},brand=${param.brand})}" aria-label="Trang trước" style="width: 40px; height: 40px;"><i class="bi bi-chevron-left"></i></a>
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm" th:href="@{${currentUri}(page=${products.number - 1},keyword=${param.keyword},sort=${param.sort},brand=${param.brand},size=${param.size},color=${param.color},minPrice=${param.minPrice},maxPrice=${param.maxPrice},available=${param.available},sale=${param.sale})}" aria-label="Trang trước" style="width: 40px; height: 40px;"><i class="bi bi-chevron-left"></i></a>
             </li>
             
             <li class="page-item" th:each="i : ${#numbers.sequence(0, products.totalPages - 1)}" th:classappend="${i == products.number ? 'active' : ''}">
                 <a th:if="${i == products.number}" class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm bg-primary text-white border-primary" href="#" style="width: 40px; height: 40px;" th:text="${i + 1}">1</a>
-                <a th:unless="${i == products.number}" class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm bg-white text-dark" th:href="@{${currentUri}(page=${i},keyword=${param.keyword},sort=${param.sort},brand=${param.brand})}" style="width: 40px; height: 40px;" th:text="${i + 1}">2</a>
+                <a th:unless="${i == products.number}" class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm bg-white text-dark" th:href="@{${currentUri}(page=${i},keyword=${param.keyword},sort=${param.sort},brand=${param.brand},size=${param.size},color=${param.color},minPrice=${param.minPrice},maxPrice=${param.maxPrice},available=${param.available},sale=${param.sale})}" style="width: 40px; height: 40px;" th:text="${i + 1}">2</a>
             </li>
             
             <li class="page-item" th:classappend="${products.last ? 'disabled' : ''}">
-                <a class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm" th:href="@{${currentUri}(page=${products.number + 1},keyword=${param.keyword},sort=${param.sort},brand=${param.brand})}" aria-label="Trang sau" style="width: 40px; height: 40px;"><i class="bi bi-chevron-right"></i></a>
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm" th:href="@{${currentUri}(page=${products.number + 1},keyword=${param.keyword},sort=${param.sort},brand=${param.brand},size=${param.size},color=${param.color},minPrice=${param.minPrice},maxPrice=${param.maxPrice},available=${param.available},sale=${param.sale})}" aria-label="Trang sau" style="width: 40px; height: 40px;"><i class="bi bi-chevron-right"></i></a>
             </li>
         </ul>
     </nav>
@@ -233,7 +247,7 @@
                                         </div>
                                     </div>
                                     
-                                    <p id="modalCartHint" class="text-muted-custom text-sm mb-3" role="status">Chọn size, màu và cửa hàng trước khi thêm vào giỏ.</p>
+                                    <p id="modalCartHint" class="text-muted-custom text-sm mb-3" role="status">Chọn size, màu và cửa hàng trước khi thêm vào giỏ</p>
                                     <div class="d-flex align-items-center gap-3 mb-4 fs-6">
                                         <div style="color: #FACC15;">
                                             <i th:each="star : ${#numbers.sequence(1, 5)}" th:class="${productDTO != null and star <= productDTO.ratingAverage ? 'bi bi-star-fill' : 'bi bi-star'}"></i>
@@ -252,7 +266,7 @@
 
                                     <!-- Active variants from PRODUCT_VARIANTS; controls are derived from this matrix. -->
                                     <div id="modalVariantMatrix" hidden>
-                                        <span th:each="variant : ${productDTO?.variants}" th:data-variant-id="${variant.id}" th:data-size="${variant.size}" th:data-color="${variant.color}" th:data-adjustment="${variant.priceAdjustment}" th:data-image="${variant.imageUrl}"></span>
+                                        <span th:each="variant : ${productDTO?.variants}" th:data-variant-id="${variant.id}" th:data-size="${variant.size}" th:data-color="${variant.color}" th:data-adjustment="${variant.priceAdjustment}" th:data-effective-price="${variant.effectivePrice}" th:data-image="${variant.imageUrl}"></span>
                                     </div>
                                     <div class="mb-3">
                                         <p class="fw-semibold text-dark mb-2 text-sm">CHỌN SIZE</p>
@@ -267,7 +281,7 @@
                                         <p class="fw-semibold text-dark mb-3 text-sm"><i class="bi bi-shop me-2"></i>Tình trạng tại cửa hàng</p>
                                         <p id="modalStoreHint" class="text-muted-custom text-sm">Vui lòng chọn size và màu để xem tồn kho.</p>
                                         <ul class="list-unstyled mb-0 text-sm" id="modalStores">
-                                            <li th:each="inventory : ${productDTO?.storeAvailability}" hidden th:data-variant-id="${inventory.variantId}" th:data-quantity="${inventory.quantity}" class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary border-opacity-25">
+                                            <li th:each="inventory : ${productDTO?.storeAvailability}" hidden th:data-variant-id="${inventory.variantId}" th:data-quantity="${inventory.quantity}" th:data-effective-price="${inventory.effectivePrice}" class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary border-opacity-25">
                                                 <span><span th:text="${inventory.storeName}"></span><small class="d-block text-muted-custom" th:text="${inventory.storeAddress}"></small></span>
                                                 <button type="button" class="btn btn-sm rounded-pill border px-3 py-2 fw-semibold stock-status store-select-btn" aria-label="Chọn cửa hàng" title="Nhấn để chọn cửa hàng này" th:classappend="${inventory.stockState == 'OUT' ? 'bg-danger bg-opacity-10 text-danger border-danger' : (inventory.stockState == 'LOW' ? 'bg-warning bg-opacity-10 text-warning border-warning' : 'bg-success bg-opacity-10 text-success border-success')}" th:data-store-id="${inventory.storeId}" th:disabled="${inventory.quantity <= 0}" th:text="${inventory.stockState == 'OUT' ? 'Hết hàng' : (inventory.stockState == 'LOW' ? 'Sắp hết' : 'Còn hàng')}"></button>
                                             </li>
@@ -308,11 +322,12 @@
                                         </div>
                                         <!-- Review List -->
                                         <div class="d-flex flex-column gap-3" id="revList">
-                                            <p th:if="${productDTO == null or #lists.isEmpty(productDTO.reviews)}" class="text-muted-custom text-center">Chưa có đánh giá cho sản phẩm này.</p>
+                                            <p th:if="${productDTO == null or #lists.isEmpty(productDTO.reviews)}" class="text-muted-custom text-center">Chưa có đánh giá cho sản phẩm này</p>
                                             <div th:each="review : ${productDTO?.reviews}" class="glass-card rounded-4 p-3 border shadow-sm">
                                                 <div class="d-flex justify-content-between"><strong th:text="${review.displayName}"></strong><small class="text-muted-custom" th:text="${#temporals.format(review.createdAt, 'dd/MM/yyyy HH:mm')}"></small></div>
                                                 <div class="text-warning my-2"><i th:each="star : ${#numbers.sequence(1, 5)}" th:class="${star <= review.rating ? 'bi bi-star-fill' : 'bi bi-star'}"></i></div>
                                                 <p class="mb-0 text-muted-custom" th:text="${review.comment}"></p>
+                                                <div th:if="${review.response != null}" class="ms-4 mt-3 border-start ps-3"><strong th:text="'Phản hồi từ ' + ${review.responseStore}"></strong><p class="mt-2 mb-1" th:text="${review.response}"></p><small th:text="${#temporals.format(review.responseAt, 'dd/MM/yyyy HH:mm')}"></small></div>
                                             </div>
                                         </div>
                                     </div>

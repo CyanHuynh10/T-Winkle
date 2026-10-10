@@ -1,88 +1,25 @@
 package cyan.project.twinkle.controller;
-
+import cyan.project.twinkle.manager.StoreFulfillmentService;
+import cyan.project.twinkle.chat.support.SupportAuthorizationService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-@Controller
-@RequestMapping("/manager")
-@lombok.RequiredArgsConstructor
+import org.springframework.security.core.Authentication;
+@Controller @RequiredArgsConstructor
 public class ManagerController {
-    private final cyan.project.twinkle.service.OrderFulfillmentService fulfillmentService;
-
-    @org.springframework.web.bind.annotation.PostMapping("/orders/{id}/status")
-    public String updateOrderStatus(@PathVariable Long id, @org.springframework.web.bind.annotation.RequestParam String status,
-            @org.springframework.security.core.annotation.AuthenticationPrincipal cyan.project.twinkle.security.CustomUserDetails actor,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes flash) {
-        try {fulfillmentService.transition(id, actor.getUsername(), status);flash.addFlashAttribute("success", "Đã cập nhật trạng thái đơn hàng.");}
-        catch(cyan.project.twinkle.exception.BusinessRuleException ex) {flash.addFlashAttribute("error", ex.getMessage());}
-        return "redirect:/manager/orders/" + id;
-    }
-
-    @GetMapping({"", "/", "/dashboard"})
-    public String dashboard(Model model) {
-        return "manager/dashboard";
-    }
-
-    @GetMapping("/products")
-    public String products(Model model) {
-        return "manager/product/list";
-    }
-
-    @GetMapping("/products/{id}")
-    public String productDetail(@PathVariable String id, Model model) {
-        return "manager/product/detail";
-    }
-
-    @GetMapping("/variants")
-    public String variants(Model model) {
-        return "manager/variant/list";
-    }
-
-    @GetMapping("/inventory")
-    public String inventory(Model model) {
-        return "manager/inventory/list";
-    }
-
-    @GetMapping("/orders")
-    public String orders(Model model) {
-        return "manager/order/list";
-    }
-
-    @GetMapping("/orders/{id}")
-    public String orderDetail(@PathVariable String id, Model model) {
-        return "manager/order/detail";
-    }
-
-    @GetMapping("/revenue")
-    public String revenue(Model model) {
-        return "manager/revenue/index";
-    }
-
-    @GetMapping("/store")
-    public String storeProfile(Model model) {
-        return "manager/store/profile";
-    }
-
-    @GetMapping("/promotions")
-    public String promotions(Model model) {
-        return "manager/promotion/list";
-    }
-
-    @GetMapping("/shipping")
-    public String shipping(Model model) {
-        return "manager/shipping/index";
-    }
-
-    @GetMapping("/chat")
-    public String chat(Model model) {
-        return "manager/chat";
-    }
-
-    @GetMapping("/account")
-    public String account(Model model) {
-        return "manager/account/profile";
-    }
+ private final StoreFulfillmentService fulfillment;
+ private final SupportAuthorizationService support;
+ @GetMapping({"/manager","/manager/","/manager/products","/manager/products/{id}","/manager/variants","/manager/inventory","/manager/orders","/manager/payments","/manager/reviews","/manager/orders/{id}","/manager/store-profile"})
+ public String manager(){return "manager/island";}
+ @GetMapping({"/manager/support","/manager/support/{id}"})
+ public String inbox(@PathVariable(required=false) Long id,Authentication auth,Model model){
+  if(id!=null)support.require(id,auth);
+  if(auth.getAuthorities().stream().anyMatch(a->a.getAuthority().equals("ROLE_MANAGER")))return "manager/island";
+  model.addAttribute("chatMode",id==null?"inbox":"support");model.addAttribute("conversationId",id);return "chat/island";
+ }
+ @GetMapping({"/manager/dashboard","/manager/revenue"}) public String dashboard(){return "redirect:/manager";}
+ @GetMapping({"/manager/store","/manager/account"}) public String profile(){return "redirect:/manager/store-profile";}
+ @GetMapping("/manager/chat") public String chat(){return "redirect:/manager/support";}
+ @PostMapping("/manager/orders/{id}/status") public String transition(@PathVariable long id,@RequestParam String status){fulfillment.transition(id,status);return "redirect:/manager/orders/"+id;}
 }

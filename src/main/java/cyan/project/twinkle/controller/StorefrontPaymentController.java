@@ -18,6 +18,7 @@ public class StorefrontPaymentController {
     private final BankPaymentService payments;
     private final BankTransferProperties bank;
     private final VietQrService vietQr;
+    private final cyan.project.twinkle.payment.PaymentVerificationService verification;
 
     /** Existing canonical order-ID route; GET never settles or creates commerce records. */
     @GetMapping("/{orderId}")
@@ -27,6 +28,7 @@ public class StorefrontPaymentController {
         if (!"BANKING".equals(payment.getMethod())) return "redirect:/orders/" + orderId;
         response.setHeader("Cache-Control", "no-store");
         response.setHeader("Referrer-Policy", "no-referrer");
+        model.addAttribute("verification", verification.latest(payment.getId()));
         model.addAttribute("order", payment.getOrder());model.addAttribute("payment", payment);model.addAttribute("bank", bank);
         if ("PENDING".equals(payment.getStatus())) {
             try { model.addAttribute("qrUrl", vietQr.imageUrl(payment.getOrder())); }
@@ -45,7 +47,13 @@ public class StorefrontPaymentController {
     public String confirm(@PathVariable Long paymentId, @AuthenticationPrincipal CustomUserDetails actor,
                           org.springframework.web.servlet.mvc.support.RedirectAttributes flash) {
         payments.confirm(paymentId, actor.getUsername());
-        flash.addFlashAttribute("success", "Đã xác nhận nhận tiền chuyển khoản.");
+        flash.addFlashAttribute("success", "Đã xác nhận nhận tiền chuyển khoản");
         return "redirect:/payments/manage";
+    }
+    @PostMapping("/{orderId}/report")
+    public String report(@PathVariable Long orderId,@AuthenticationPrincipal CustomUserDetails user,org.springframework.web.servlet.mvc.support.RedirectAttributes flash) {
+        verification.report(orderId,user.getUsername());
+        flash.addFlashAttribute("success","Đã báo chuyển khoản. Thanh toán đang chờ nhân viên xác minh");
+        return "redirect:/payments/"+orderId;
     }
 }

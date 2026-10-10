@@ -30,6 +30,12 @@
 <div th:if="${payment.status == 'PENDING'}" class="border-top pt-3 mt-3">
 <ol class="text-muted text-sm ps-3"><li>Mở ứng dụng ngân hàng.</li><li>Quét mã VietQR.</li><li>Kiểm tra đúng người nhận, số tiền và nội dung.</li><li>Hoàn tất chuyển khoản.</li></ol>
 <p class="text-warning text-sm mb-2">Vui lòng không thay đổi số tiền hoặc nội dung chuyển khoản.</p>
-<p class="text-muted text-sm mb-0">Thanh toán được xác nhận sau khi cửa hàng kiểm tra đã nhận tiền.</p>
+<p class="text-muted text-sm mb-2">Thanh toán được xác nhận sau khi cửa hàng kiểm tra đã nhận tiền.</p>
+<p th:if="${verification['status'] == 'PENDING'}" class="alert alert-info">Đang chờ xác minh</p>
+<p th:if="${verification['status'] == 'REJECTED'}" class="alert alert-warning" th:text="${verification['review_note']}"></p>
+<form th:if="${verification['status'] != 'PENDING' and order.status != 'Đã hủy'}" th:action="@{/payments/{id}/report(id=${order.id})}" method="post">
+<button class="btn btn-primary" type="submit">Tôi đã chuyển khoản</button>
+</form>
+<p th:if="${success}" class="alert alert-success mt-3" th:text="${success}"></p>
 </div>
 </div></div></main></div></body></html>

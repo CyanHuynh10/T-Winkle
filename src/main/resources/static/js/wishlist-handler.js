@@ -25,8 +25,8 @@ document.addEventListener('click', async function(e) {
             icon.classList.toggle('bi-heart-fill', inWishlist); icon.classList.toggle('bi-heart', !inWishlist);
         });
         if (location.pathname === '/wishlist') { location.reload(); return; }
-        window.showToast(inWishlist ? 'Đã thêm vào yêu thích.' : 'Đã bỏ khỏi yêu thích.', 'success');
+        window.showToast(inWishlist ? 'Đã thêm vào yêu thích' : 'Đã bỏ khỏi yêu thích', 'success');
     } catch (error) {
-        window.showToast('Không thể cập nhật yêu thích. Vui lòng thử lại.', 'error');
+        window.showToast('Không thể cập nhật yêu thích. Vui lòng thử lại', 'error');
     } finally { button.disabled = false; }
 }, true);

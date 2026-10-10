@@ -302,15 +302,15 @@ function resetReviewForm() {
 
 function submitReview() {
     if (ReviewState.selectedRating === 0) {
-        if (window.showToast) window.showToast('Vui lòng chọn mức đánh giá.', 'warning');
-        else alert('Vui lòng chọn mức đánh giá.');
+        if (window.showToast) window.showToast('Vui lòng chọn mức đánh giá', 'warning');
+        else alert('Vui lòng chọn mức đánh giá');
         return;
     }
 
     const comment = document.getElementById('revComment').value.trim();
     if (!comment) {
-        if (window.showToast) window.showToast('Vui lòng nhập bình luận.', 'warning');
-        else alert('Vui lòng nhập bình luận.');
+        if (window.showToast) window.showToast('Vui lòng nhập bình luận', 'warning');
+        else alert('Vui lòng nhập bình luận');
         return;
     }
 

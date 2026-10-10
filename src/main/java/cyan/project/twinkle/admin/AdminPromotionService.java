@@ -1,0 +1,29 @@
+package cyan.project.twinkle.admin;
+import jakarta.validation.constraints.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.*;
+@Service @RequiredArgsConstructor
+public class AdminPromotionService {
+ private final JdbcTemplate sql;private final AdminContextService context;private final AdminAuditService audit;
+ public record PromotionInput(@NotBlank @Size(max=120) String name,@Size(max=500) String description,@NotBlank @Pattern(regexp="PERCENT|FIXED") String discountType,@NotNull @DecimalMin(value="0",inclusive=false) BigDecimal discountValue,@NotNull LocalDateTime startsAt,@NotNull LocalDateTime endsAt,@NotBlank @Pattern(regexp="GLOBAL|STORE|CATEGORY|BRAND|PRODUCT|VARIANT") String scope,@NotNull List<@NotNull Long> targets,int priority,@NotBlank @Pattern(regexp="ACTIVE|INACTIVE") String status){}
+ public record CouponInput(@NotBlank @Pattern(regexp="[A-Z0-9_-]{1,50}") String code,@NotBlank @Size(max=120) String name,@Size(max=500) String description,@NotBlank @Pattern(regexp="PERCENT|FIXED|FREESHIP") String discountType,@NotNull @DecimalMin("0") BigDecimal discountValue,@NotNull @DecimalMin("0") BigDecimal minOrderValue,@DecimalMin("0") BigDecimal maxDiscountValue,@Min(1) Integer usageLimit,@Min(1) Integer perUserLimit,@NotNull LocalDateTime startsAt,@NotNull LocalDateTime endsAt,@NotNull Boolean active){}
+ private void discount(String type,BigDecimal value,LocalDateTime start,LocalDateTime end){if(!end.isAfter(start)||("PERCENT".equals(type)&&value.compareTo(BigDecimal.valueOf(100))>0))throw new IllegalArgumentException("Invalid discount or dates");}
+ public static String targetTable(String scope){return switch(scope){case "PRODUCT"->"PRODUCT_PROMOTIONS";case "STORE"->"STORE_PROMOTIONS";case "CATEGORY"->"CATEGORY_PROMOTIONS";case "BRAND"->"BRAND_PROMOTIONS";case "VARIANT"->"VARIANT_PROMOTIONS";default->throw new IllegalArgumentException();};}
+ public static String targetColumn(String scope){return scope.toLowerCase(Locale.ROOT)+"_id";}
+ @Transactional public int promotion(Integer id,PromotionInput input){String actor=context.actor();discount(input.discountType(),input.discountValue(),input.startsAt(),input.endsAt());if(input.targets().size()>500||(!input.scope().equals("GLOBAL")&&input.targets().isEmpty())||(input.scope().equals("GLOBAL")&&!input.targets().isEmpty()))throw new IllegalArgumentException("Invalid targets");int result;
+  if(id==null)result=sql.queryForObject("INSERT PROMOTIONS(name,description,discount_type,discount_value,starts_at,ends_at,status,scope,priority) OUTPUT INSERTED.id VALUES(?,?,?,?,?,?,?,?,?)",Integer.class,input.name(),input.description(),input.discountType(),input.discountValue(),input.startsAt(),input.endsAt(),input.status(),input.scope(),input.priority());
+  else{sql.queryForList("SELECT id FROM PROMOTIONS WITH(UPDLOCK,HOLDLOCK) WHERE id=?",id);if(sql.update("UPDATE PROMOTIONS SET name=?,description=?,discount_type=?,discount_value=?,starts_at=?,ends_at=?,status=?,scope=?,priority=? WHERE id=?",input.name(),input.description(),input.discountType(),input.discountValue(),input.startsAt(),input.endsAt(),input.status(),input.scope(),input.priority(),id)!=1)throw new IllegalArgumentException();result=id;}
+  for(String scope:List.of("PRODUCT","STORE","CATEGORY","BRAND","VARIANT"))sql.update("DELETE "+targetTable(scope)+" WHERE promotion_id=?",result);
+  if(!input.scope().equals("GLOBAL"))new HashSet<>(input.targets()).forEach(target->sql.update("INSERT "+targetTable(input.scope())+"(promotion_id,"+targetColumn(input.scope())+") VALUES(?,?)",result,target));audit.record(actor,"PROMOTION_CHANGED","PROMOTIONS",result,"Scope "+input.scope()+"; "+input.targets().size()+" targets.");return result;
+ }
+ @Transactional public int coupon(Integer id,CouponInput input){String actor=context.actor();discount(input.discountType(),input.discountValue(),input.startsAt(),input.endsAt());int result;
+  if(id==null)result=sql.queryForObject("INSERT COUPONS(code,name,description,discount_type,discount_value,min_order_value,max_discount_value,usage_limit,per_user_limit,starts_at,ends_at,is_active) OUTPUT INSERTED.id VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",Integer.class,input.code(),input.name(),input.description(),input.discountType(),input.discountValue(),input.minOrderValue(),input.maxDiscountValue(),input.usageLimit(),input.perUserLimit(),input.startsAt(),input.endsAt(),input.active());
+  else{int used=sql.queryForObject("SELECT used_count FROM COUPONS WITH(UPDLOCK,HOLDLOCK) WHERE id=?",Integer.class,id);if(input.usageLimit()!=null&&input.usageLimit()<used)throw new IllegalArgumentException("Limit below used count");sql.update("UPDATE COUPONS SET code=?,name=?,description=?,discount_type=?,discount_value=?,min_order_value=?,max_discount_value=?,usage_limit=?,per_user_limit=?,starts_at=?,ends_at=?,is_active=? WHERE id=?",input.code(),input.name(),input.description(),input.discountType(),input.discountValue(),input.minOrderValue(),input.maxDiscountValue(),input.usageLimit(),input.perUserLimit(),input.startsAt(),input.endsAt(),input.active(),id);result=id;}audit.record(actor,"COUPON_CHANGED","COUPONS",result,"Coupon saved; historical orders retain snapshots.");return result;
+ }
+ @Transactional public void deactivate(String area,int id){String actor=context.actor();switch(area){case "promotions"->sql.update("UPDATE PROMOTIONS SET status='INACTIVE' WHERE id=?",id);case "coupons"->sql.update("UPDATE COUPONS SET is_active=0 WHERE id=?",id);default->throw new IllegalArgumentException();}audit.record(actor,area.equals("promotions")?"PROMOTION_CHANGED":"COUPON_CHANGED",area,id,"Deactivated; history preserved.");}
+}

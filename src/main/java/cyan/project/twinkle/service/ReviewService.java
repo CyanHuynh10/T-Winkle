@@ -17,22 +17,22 @@ public class ReviewService {
 
     @Transactional
     public Long submitReview(String email, Long orderItemId, Integer rating, String comment) {
-        if (rating == null || rating < 1 || rating > 5) throw new BusinessRuleException("Đánh giá phải từ 1 đến 5 sao.");
+        if (rating == null || rating < 1 || rating > 5) throw new BusinessRuleException("Đánh giá phải từ 1 đến 5 sao");
         userRepository.findForUpdateByEmail(email);
 
         OrderItem orderItem = orderItemRepository.findById(orderItemId)
-                .orElseThrow(() -> new BusinessRuleException("Sản phẩm không tồn tại trong đơn hàng."));
+                .orElseThrow(() -> new BusinessRuleException("Sản phẩm không tồn tại trong đơn hàng"));
         
         Order order = orderItem.getOrder();
         if (!order.getUser().getEmail().equals(email)) {
-            throw new BusinessRuleException("Bạn không có quyền đánh giá sản phẩm này.");
+            throw new BusinessRuleException("Bạn không có quyền đánh giá sản phẩm này");
         }
         if (!"Đã giao".equals(order.getStatus())) {
-            throw new BusinessRuleException("Chỉ có thể đánh giá sản phẩm sau khi đơn hàng đã giao.");
+            throw new BusinessRuleException("Chỉ có thể đánh giá sản phẩm sau khi đơn hàng đã giao");
         }
 
         if (reviewRepository.existsByUserEmailAndProductId(email, orderItem.getProduct().getId())) {
-            throw new BusinessRuleException("Bạn đã đánh giá sản phẩm này rồi.");
+            throw new BusinessRuleException("Bạn đã đánh giá sản phẩm này rồi");
         }
 
         Review review = Review.builder()

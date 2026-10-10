@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface StoreRepository extends JpaRepository<Store, Integer> {
+    List<Store> findByManagerEmail(String email);
     Optional<Store> findBySlug(String slug);
 
     @Query("SELECT s FROM Store s WHERE :keyword IS NULL OR LOWER(s.name) LIKE LOWER(:keyword) OR LOWER(s.addressLine) LIKE LOWER(:keyword) OR LOWER(s.district) LIKE LOWER(:keyword) OR LOWER(s.ward) LIKE LOWER(:keyword) OR LOWER(s.city) LIKE LOWER(:keyword) ORDER BY s.name")

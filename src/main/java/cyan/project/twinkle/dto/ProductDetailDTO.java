@@ -35,6 +35,10 @@ public class ProductDetailDTO {
         private Integer rating;
         private String comment;
         private java.time.LocalDateTime createdAt;
+        private String response;
+        private String responseStore;
+        private java.time.LocalDateTime responseAt;
+        public ReviewDTO(String displayName,Integer rating,String comment,java.time.LocalDateTime createdAt){this(displayName,rating,comment,createdAt,null,null,null);}
     }
 
     @Data
@@ -44,6 +48,7 @@ public class ProductDetailDTO {
         private String color;
         private String sku;
         private BigDecimal priceAdjustment;
+        private BigDecimal effectivePrice;
         private String imageUrl;
         private Long soldCount;
         private Double ratingAverage;
@@ -70,6 +75,7 @@ public class ProductDetailDTO {
         private Integer quantity;
         private String stockState;
         private String storeStatus;
+        private BigDecimal effectivePrice;
         public StoreInventoryDTO(Integer storeId, String storeName, String storeAddress, Long variantId, Integer quantity, String storeStatus) {
             this(storeId, storeName, storeAddress, variantId, quantity); this.storeStatus = storeStatus;
         }

@@ -47,8 +47,6 @@ public class EmailService {
         context.setVariable("paymentMethod", switch (payment.getMethod()) {
             case "COD" -> "Thanh toán khi nhận hàng";
             case "BANKING" -> "Chuyển khoản ngân hàng";
-            case "VNPAY" -> "VNPay (đơn hàng trước đây)";
-            case "MOMO" -> "MoMo (đơn hàng trước đây)";
             default -> payment.getMethod();
         });
         context.setVariable("paymentStatus", switch (payment.getStatus()) {

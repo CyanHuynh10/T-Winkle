@@ -32,6 +32,6 @@ public class StorefrontStoreService {
     @Transactional(readOnly = true)
     public Store getStoreBySlug(String slug) {
         return storeRepository.findBySlug(slug)
-                .orElseThrow(() -> new BusinessRuleException("Cửa hàng không tồn tại."));
+                .orElseThrow(() -> new BusinessRuleException("Cửa hàng không tồn tại"));
     }
 }

@@ -1,12 +1,8 @@
-# SVN-Gilroy Font
-**[SVN-GILROY ASSET REQUIRED]**
+# SVN-Gilroy fonts
 
-Please place the SVN-Gilroy font files (.woff2, .woff, .ttf, or .otf) in this directory.
+All 20 SVN-Gilroy OTF files are required runtime assets for the approved typography.
+Keep their filenames and the existing font CSS unchanged.
 
-Naming convention reference:
-- `SVN-Gilroy-Regular.woff2`
-- `SVN-Gilroy-Medium.woff2`
-- `SVN-Gilroy-SemiBold.woff2`
-- `SVN-Gilroy-Bold.woff2`
-
-Currently, the application will fallback to `Inter` and `System Fonts` until these files are provided.
+The project owner confirms licenses permitting their use and redistribution with
+T-Winkle source. This is owner-provided authorization, not independent legal
+verification; this README does not itself grant a license.

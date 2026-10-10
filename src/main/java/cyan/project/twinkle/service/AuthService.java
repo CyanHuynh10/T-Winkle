@@ -44,11 +44,11 @@ public class AuthService {
     @Transactional
     public void registerUser(RegisterRequest request) throws Exception {
         if (!request.getPassword().equals(request.getConfirmPassword())) {
-            throw new Exception("Xác nhận mật khẩu không khớp.");
+            throw new Exception("Xác nhận mật khẩu không khớp");
         }
         
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new Exception("Email đã tồn tại.");
+            throw new Exception("Email đã tồn tại");
         }
 
         User user = new User();
@@ -69,7 +69,7 @@ public class AuthService {
     @Transactional
     public void resendOtp(String email, String type) throws Exception {
         if (!"REGISTER".equals(type) && !"FORGOT_PASSWORD".equals(type)) {
-            throw new Exception("Loại OTP không hợp lệ.");
+            throw new Exception("Loại OTP không hợp lệ");
         }
 
         Optional<User> userOpt = userRepository.findByEmail(email);
@@ -77,17 +77,18 @@ public class AuthService {
             if ("FORGOT_PASSWORD".equals(type)) {
                 return; // Enumeration protection
             }
-            throw new Exception("Tài khoản không tồn tại.");
+            throw new Exception("Tài khoản không tồn tại");
         }
         generateAndSendOtp(userOpt.get(), type);
     }
 
     @Transactional
     public void generateAndSendOtp(User user, String type) throws Exception {
-        List<OtpVerification> oldOtps = otpRepository.findByUserAndTypeAndIsUsedFalseOrderByIdDesc(user, type);
+        user = userRepository.findForUpdateByEmail(user.getEmail()).orElseThrow(() -> new Exception("Tài khoản không tồn tại"));
+        List<OtpVerification> oldOtps = otpRepository.findByUserAndTypeOrderByIdDesc(user, type);
         for (OtpVerification otp : oldOtps) {
             if (otp.getCreatedAt().plusSeconds(60).isAfter(LocalDateTime.now())) {
-                throw new Exception("Vui lòng đợi 60 giây trước khi yêu cầu gửi lại OTP.");
+                throw new Exception("Vui lòng đợi 60 giây trước khi yêu cầu gửi lại OTP");
             }
             otp.setIsUsed(true);
             otpRepository.save(otp);
@@ -104,17 +105,17 @@ public class AuthService {
         otpVerification.setType(type);
         otpRepository.save(otpVerification);
 
-        emailService.sendEmail(user.getEmail(), "Mã OTP xác thực T-Winkle", "Mã OTP của bạn là: " + rawOtp + ". Mã có hiệu lực trong 5 phút.");
+        emailService.sendEmail(user.getEmail(), "Mã OTP xác thực T-Winkle", "Mã OTP của bạn là: " + rawOtp + ". Mã có hiệu lực trong 5 phút");
     }
 
     @Transactional
     public void verifyOtp(String email, String otpCode, String expectedType) throws Exception {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new Exception("Thông tin xác thực không hợp lệ.")); // Generic message
+        User user = userRepository.findForUpdateByEmail(email)
+                .orElseThrow(() -> new Exception("Thông tin xác thực không hợp lệ")); // Generic message
 
         List<OtpVerification> otps = otpRepository.findByUserAndTypeAndIsUsedFalseOrderByIdDesc(user, expectedType);
         if (otps.isEmpty()) {
-            throw new Exception("Không tìm thấy mã OTP hoặc mã đã hết hạn.");
+            throw new Exception("Không tìm thấy mã OTP hoặc mã đã hết hạn");
         }
 
         OtpVerification latestOtp = otps.get(0);
@@ -122,13 +123,13 @@ public class AuthService {
         if (latestOtp.getExpiresAt().isBefore(LocalDateTime.now())) {
             latestOtp.setIsUsed(true);
             otpRepository.save(latestOtp);
-            throw new Exception("Mã OTP đã hết hạn..");
+            throw new Exception("Mã OTP đã hết hạn");
         }
 
         if (latestOtp.getAttempts() >= 5) {
             latestOtp.setIsUsed(true);
             otpRepository.save(latestOtp);
-            throw new Exception("Mã OTP đã bị khóa do nhập sai quá nhiều lần.");
+            throw new Exception("Mã OTP đã bị khóa do nhập sai quá nhiều lần");
         }
 
         if (!passwordEncoder.matches(otpCode, latestOtp.getHashedOtp())) {
@@ -137,7 +138,7 @@ public class AuthService {
                 latestOtp.setIsUsed(true);
             }
             otpRepository.save(latestOtp);
-            throw new Exception("OTP không chính xác..");
+            throw new Exception("OTP không chính xác");
         }
 
         latestOtp.setIsUsed(true);
@@ -162,9 +163,41 @@ public class AuthService {
     }
 
     @Transactional
-    public String generateResetTokenAfterOtp(String email) throws Exception {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new Exception("Lỗi hệ thống."));
+    public String requestPasswordChange(String email, String current, String next, String confirm) throws Exception {
+        User user = userRepository.findForUpdateByEmail(email).orElseThrow(() -> new Exception("Tài khoản không tồn tại"));
+        validateNewPassword(next, confirm);
+        if (current == null || !passwordEncoder.matches(current, user.getPasswordHash())) throw new Exception("Mật khẩu hiện tại không chính xác");
+        if (passwordEncoder.matches(next, user.getPasswordHash())) throw new Exception("Mật khẩu mới phải khác mật khẩu hiện tại");
+        generateAndSendOtp(user, "CHANGE_PASSWORD");
+        return passwordEncoder.encode(next);
+    }
+
+    @Transactional
+    public void confirmPasswordChange(String email, String otp, String pendingHash, String originalHash) throws Exception {
+        User user = userRepository.findForUpdateByEmail(email).orElseThrow(() -> new Exception("Tài khoản không tồn tại"));
+        if (pendingHash == null || originalHash == null || !originalHash.equals(user.getPasswordHash())) throw new Exception("Yêu cầu đổi mật khẩu đã hết hiệu lực");
+        if (otp == null || !otp.matches("[0-9]{6}")) throw new Exception("Mã OTP gồm 6 chữ số");
+        verifyOtp(email, otp, "CHANGE_PASSWORD");
+        user.setPasswordHash(pendingHash);
+        userRepository.save(user);
+        for (var token : resetTokenRepository.findByUserAndIsUsedFalseOrderByIdDesc(user)) { token.setIsUsed(true); resetTokenRepository.save(token); }
+    }
+
+    private void validateNewPassword(String next, String confirm) throws Exception {
+        if (next == null || next.length() < 8 || next.length() > 72 || next.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > 72) throw new Exception("Mật khẩu phải có từ 8 đến 72 ký tự và không quá 72 byte");
+        if (!next.equals(confirm)) throw new Exception("Xác nhận mật khẩu không khớp");
+    }
+
+    @Transactional
+    public String verifyForgotPasswordOtp(String email, String otp) throws Exception {
+        // Keep OTP consumption and token issuance under the same account lock as Admin reset.
+        verifyOtp(email, otp, "FORGOT_PASSWORD");
+        return generateResetTokenAfterOtp(email);
+    }
+
+    private String generateResetTokenAfterOtp(String email) throws Exception {
+        User user = userRepository.findForUpdateByEmail(email)
+                .orElseThrow(() -> new Exception("Lỗi hệ thống"));
         
         List<PasswordResetToken> oldTokens = resetTokenRepository.findByUserAndIsUsedFalseOrderByIdDesc(user);
         for (PasswordResetToken token : oldTokens) {
@@ -186,15 +219,15 @@ public class AuthService {
     @Transactional
     public void resetPassword(ResetPasswordRequest request) throws Exception {
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
-            throw new Exception("Xác nhận mật khẩu không khớp.");
+            throw new Exception("Xác nhận mật khẩu không khớp");
         }
 
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new Exception("Token hoặc email không hợp lệ.")); // Generic message
+        User user = userRepository.findForUpdateByEmail(request.getEmail())
+                .orElseThrow(() -> new Exception("Token hoặc email không hợp lệ")); // Generic message
 
         List<PasswordResetToken> tokens = resetTokenRepository.findByUserAndIsUsedFalseOrderByIdDesc(user);
         if (tokens.isEmpty()) {
-            throw new Exception("Token không hợp lệ hoặc đã hết hạn.");
+            throw new Exception("Token không hợp lệ hoặc đã hết hạn");
         }
 
         PasswordResetToken validToken = null;
@@ -206,7 +239,7 @@ public class AuthService {
         }
 
         if (validToken == null || validToken.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new Exception("Token không hợp lệ hoặc đã hết hạn.");
+            throw new Exception("Token không hợp lệ hoặc đã hết hạn");
         }
 
         validToken.setIsUsed(true);

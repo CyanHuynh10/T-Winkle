@@ -55,12 +55,12 @@ public class StorefrontOrderController {
         var stages = new java.util.ArrayList<cyan.project.twinkle.dto.TrackingStage>();
         for (int i=0; i<history.size(); i++) {
             var event = history.get(i);
-            String color = switch (event.getStatus()) {case "Chờ xác nhận" -> "waiting";case "Đã giao" -> "delivered";case "Đã hủy" -> "cancelled";default -> "confirmed";};
+            String color = cyan.project.twinkle.service.OrderStatus.of(event.getStatus()).style();
             stages.add(new cyan.project.twinkle.dto.TrackingStage(event.getStatus(),event.getCreatedAt(),event.getNote(),color,true,
                     i == history.size()-1 && event.getStatus().equals(order.getStatus())));
         }
         if (!"Đã hủy".equals(order.getStatus())) {
-            var sequence = java.util.List.of("Chờ xác nhận","Đã xác nhận","Đã giao");
+            var sequence = cyan.project.twinkle.service.OrderStatus.sequence(order.getFulfillmentMode());
             int current = sequence.indexOf(order.getStatus());
             if (current >= 0) for (int i=current+1; i<sequence.size(); i++) {
                 String next = sequence.get(i);

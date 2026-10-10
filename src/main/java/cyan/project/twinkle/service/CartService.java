@@ -75,37 +75,37 @@ public class CartService {
     @Transactional
     public void addToCart(String email, Integer productId, Long variantId, Integer storeId, Integer quantity) {
         LocalDateTime now = LocalDateTime.now();
-        if (quantity == null || quantity <= 0) throw new BusinessRuleException("Số lượng phải lớn hơn 0.");
+        if (quantity == null || quantity <= 0) throw new BusinessRuleException("Số lượng phải lớn hơn 0");
 
         Cart cart = getOrCreateActiveCart(email);
-        ProductVariant variant = variantRepository.findById(variantId).orElseThrow(() -> new BusinessRuleException("Biến thể không tồn tại."));
+        ProductVariant variant = variantRepository.findById(variantId).orElseThrow(() -> new BusinessRuleException("Biến thể không tồn tại"));
         if (productId != null && !productId.equals(variant.getProduct().getId())) {
-            throw new BusinessRuleException("Biến thể không thuộc sản phẩm đã chọn.");
+            throw new BusinessRuleException("Biến thể không thuộc sản phẩm đã chọn");
         }
         if (!"ACTIVE".equals(variant.getStatus()) || !"ACTIVE".equals(variant.getProduct().getStatus())) {
-            throw new BusinessRuleException("Sản phẩm đã ngừng kinh doanh.");
+            throw new BusinessRuleException("Sản phẩm đã ngừng kinh doanh");
         }
-        Store store = storeRepository.findById(storeId).orElseThrow(() -> new BusinessRuleException("Cửa hàng không tồn tại."));
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> new BusinessRuleException("Cửa hàng không tồn tại"));
 
         StoreInventoryId invId = new StoreInventoryId(store.getId(), variant.getId());
-        StoreInventory inventory = inventoryRepository.findById(invId).orElseThrow(() -> new BusinessRuleException("Sản phẩm không có sẵn."));
-        if (inventory.getQuantity() <= 0) throw new BusinessRuleException("Hết hàng tại cửa hàng này.");
+        StoreInventory inventory = inventoryRepository.findById(invId).orElseThrow(() -> new BusinessRuleException("Sản phẩm không có sẵn"));
+        if (inventory.getQuantity() <= 0) throw new BusinessRuleException("Hết hàng tại cửa hàng này");
 
         Optional<CartItem> existingItem = cartItemRepository.findByCartIdAndVariantIdAndStoreId(cart.getId(), variantId, storeId);
 
         if (existingItem.isPresent()) {
             CartItem item = existingItem.get();
             long newQty = (long) item.getQuantity() + quantity;
-            if (newQty > inventory.getQuantity()) throw new BusinessRuleException("Vượt quá tồn kho.");
+            if (newQty > inventory.getQuantity()) throw new BusinessRuleException("Vượt quá tồn kho");
             item.setQuantity((int) newQty);
-            item.setUnitPrice(pricingService.calculateEffectivePrice(variant.getProduct(), now).add(variant.getPriceAdjustment()));
+            item.setUnitPrice(pricingService.calculateItemPrice(variant.getProduct(),variant,storeId,now));
             cartItemRepository.save(item);
         } else {
-            if (quantity > inventory.getQuantity()) throw new BusinessRuleException("Vượt quá tồn kho.");
+            if (quantity > inventory.getQuantity()) throw new BusinessRuleException("Vượt quá tồn kho");
             CartItem newItem = CartItem.builder()
                     .cart(cart).product(variant.getProduct()).variant(variant).store(store)
                     .quantity(quantity).selected(true)
-                    .unitPrice(pricingService.calculateEffectivePrice(variant.getProduct(), now).add(variant.getPriceAdjustment()))
+                    .unitPrice(pricingService.calculateItemPrice(variant.getProduct(),variant,storeId,now))
                     .build();
             cartItemRepository.save(newItem);
         }
@@ -116,20 +116,20 @@ public class CartService {
         LocalDateTime now = LocalDateTime.now();
         Cart cart = getOrCreateActiveCart(email);
         CartItem item = cartItemRepository.findByIdAndCartId(cartItemId, cart.getId())
-                .orElseThrow(() -> new BusinessRuleException("Sản phẩm không hợp lệ."));
+                .orElseThrow(() -> new BusinessRuleException("Sản phẩm không hợp lệ"));
         
-        if (quantity == null || quantity < 1) throw new BusinessRuleException("Số lượng phải từ 1 trở lên.");
-        if (!item.getProduct().getId().equals(item.getVariant().getProduct().getId())) throw new BusinessRuleException("Biến thể không thuộc sản phẩm.");
+        if (quantity == null || quantity < 1) throw new BusinessRuleException("Số lượng phải từ 1 trở lên");
+        if (!item.getProduct().getId().equals(item.getVariant().getProduct().getId())) throw new BusinessRuleException("Biến thể không thuộc sản phẩm");
         if (!"ACTIVE".equals(item.getVariant().getStatus()) || !"ACTIVE".equals(item.getProduct().getStatus())) {
-            throw new BusinessRuleException("Sản phẩm không khả dụng.");
+            throw new BusinessRuleException("Sản phẩm không khả dụng");
         }
 
         StoreInventoryId invId = new StoreInventoryId(item.getStore().getId(), item.getVariant().getId());
-        StoreInventory inventory = inventoryRepository.findById(invId).orElseThrow(() -> new BusinessRuleException("Cửa hàng không kinh doanh biến thể này."));
-        if (quantity > inventory.getQuantity()) throw new BusinessRuleException("Vượt quá tồn kho.");
+        StoreInventory inventory = inventoryRepository.findById(invId).orElseThrow(() -> new BusinessRuleException("Cửa hàng không kinh doanh biến thể này"));
+        if (quantity > inventory.getQuantity()) throw new BusinessRuleException("Vượt quá tồn kho");
         
         item.setQuantity(quantity);
-        item.setUnitPrice(pricingService.calculateEffectivePrice(item.getProduct(), now).add(item.getVariant().getPriceAdjustment()));
+        item.setUnitPrice(pricingService.calculateItemPrice(item.getProduct(),item.getVariant(),item.getStore().getId(),now));
         cartItemRepository.save(item);
     }
 
@@ -153,10 +153,10 @@ public class CartService {
     }
 
     public String unavailableReason(CartItem item, int stock) {
-        if (!"ACTIVE".equals(item.getProduct().getStatus()) || !"ACTIVE".equals(item.getVariant().getStatus())) return "Sản phẩm đã ngừng kinh doanh.";
-        if (!item.getProduct().getId().equals(item.getVariant().getProduct().getId())) return "Biến thể không thuộc sản phẩm.";
-        if (stock < 1) return "Sản phẩm đã hết hàng tại cửa hàng này.";
-        if (item.getQuantity() == null || item.getQuantity() < 1 || item.getQuantity() > stock) return "Số lượng trong giỏ vượt quá tồn kho hiện tại.";
+        if (!"ACTIVE".equals(item.getProduct().getStatus()) || !"ACTIVE".equals(item.getVariant().getStatus())) return "Sản phẩm đã ngừng kinh doanh";
+        if (!item.getProduct().getId().equals(item.getVariant().getProduct().getId())) return "Biến thể không thuộc sản phẩm";
+        if (stock < 1) return "Sản phẩm đã hết hàng tại cửa hàng này";
+        if (item.getQuantity() == null || item.getQuantity() < 1 || item.getQuantity() > stock) return "Số lượng trong giỏ vượt quá tồn kho hiện tại";
         return null;
     }
 

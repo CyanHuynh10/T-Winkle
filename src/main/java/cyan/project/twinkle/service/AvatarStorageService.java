@@ -25,23 +25,23 @@ public class AvatarStorageService {
 
     public String store(MultipartFile file) {
         if (file.getSize() > 5 * 1024 * 1024) {
-            throw new BusinessRuleException("Ảnh đại diện tối đa 5 MB.");
+            throw new BusinessRuleException("Ảnh đại diện tối đa 5 MB");
         }
         try {
             byte[] bytes = file.getBytes();
             try (var input = ImageIO.createImageInputStream(new ByteArrayInputStream(bytes))) {
                 var readers = ImageIO.getImageReaders(input);
-                if (!readers.hasNext()) throw new BusinessRuleException("Ảnh đại diện phải là ảnh PNG hoặc JPEG hợp lệ.");
+                if (!readers.hasNext()) throw new BusinessRuleException("Ảnh đại diện phải là ảnh PNG hoặc JPEG hợp lệ");
                 var reader = readers.next();
                 try {
                     String format = reader.getFormatName().toLowerCase(Locale.ROOT);
                     if (!format.equals("png") && !format.equals("jpeg")) {
-                        throw new BusinessRuleException("Chỉ hỗ trợ ảnh PNG hoặc JPEG.");
+                        throw new BusinessRuleException("Chỉ hỗ trợ ảnh PNG hoặc JPEG");
                     }
                     reader.setInput(input);
                     int width = reader.getWidth(0), height = reader.getHeight(0);
                     if (width < 1 || height < 1 || width > 4096 || height > 4096) {
-                        throw new BusinessRuleException("Kích thước ảnh tối đa 4096 × 4096.");
+                        throw new BusinessRuleException("Kích thước ảnh tối đa 4096 × 4096");
                     }
                     var decoded = reader.read(0);
                     Files.createDirectories(directory);
@@ -63,7 +63,7 @@ public class AvatarStorageService {
                 } finally { reader.dispose(); }
             }
         } catch (IOException ex) {
-            throw new BusinessRuleException("Không thể lưu ảnh đại diện. Vui lòng thử lại.");
+            throw new BusinessRuleException("Không thể lưu ảnh đại diện. Vui lòng thử lại");
         }
     }
 }

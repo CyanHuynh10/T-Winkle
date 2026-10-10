@@ -34,8 +34,7 @@ build/
 
 ### Environment ###
 .env
-.env.local
-.env.*.local
+.env.*
 !.env.example
 
 # Persisted user-uploaded media
@@ -48,7 +47,22 @@ node_modules/
 .DS_Store
 Thumbs.db
 
-# Integration reports are source documentation; captures are disposable.
-docs/integration-audit/*.png
-docs/integration-audit/*.json
-docs/integration-audit/*.html
+# Local personal reports and documentation
+/docs/
+
+# Browser execution output; maintained tests remain source
+test-results/
+playwright-report/
+blob-report/
+/screenshots/
+/captures/
+
+# Local recovery/private output; SQL migrations remain visible
+*.bak
+*.trn
+/backups/
+/private-exports/
+/runtime-private/
+*.private.json
+private-login.json
+private-credentials.json

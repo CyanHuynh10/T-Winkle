@@ -9,5 +9,6 @@ import java.util.List;
 
 @Repository
 public interface OtpVerificationRepository extends JpaRepository<OtpVerification, Long> {
+    java.util.List<OtpVerification> findByUserAndTypeOrderByIdDesc(User user, String type);
     List<OtpVerification> findByUserAndTypeAndIsUsedFalseOrderByIdDesc(User user, String type);
 }

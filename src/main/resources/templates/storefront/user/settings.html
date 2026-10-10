@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: base('Cài đặt chung - T-Winkle', ~{::div.settings-container})}">
+<body><div class="settings-container">
+ <div th:replace="~{fragments/navbar :: navbar}"></div>
+ <main class="container storefront-page-main py-5" style="max-width:760px;min-height:65vh">
+  <h1 class="storefront-page-title text-center mb-4">Cài đặt chung</h1>
+  <div th:if="${success}" class="alert alert-success" role="status" th:text="${success}"></div>
+  <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+  <section class="glass-card bg-white rounded-4 p-4 p-md-5 border shadow-sm">
+   <h2 class="h4 fw-bold">Đổi mật khẩu</h2>
+   <p class="text-muted">Xác nhận bằng mã OTP gửi đến email tài khoản. Mã có hiệu lực trong 5 phút. Sau khi đổi mật khẩu, vui lòng đăng nhập lại.</p>
+   <form th:action="@{/settings/password/request}" method="post" class="d-grid gap-3">
+    <label>Mật khẩu hiện tại<input class="form-control mt-1" type="password" name="currentPassword" autocomplete="current-password" required maxlength="72"></label>
+    <label>Mật khẩu mới<input class="form-control mt-1" type="password" name="newPassword" autocomplete="new-password" required minlength="8" maxlength="72"></label>
+    <label>Xác nhận mật khẩu mới<input class="form-control mt-1" type="password" name="confirmPassword" autocomplete="new-password" required minlength="8" maxlength="72"></label>
+    <button class="tw-btn tw-btn-primary" type="submit">Gửi mã OTP</button>
+   </form>
+   <form th:if="${awaitingOtp}" th:action="@{/settings/password/confirm}" method="post" class="d-grid gap-3 border-top pt-4 mt-4">
+    <label>Mã OTP<input class="form-control mt-1" name="otp" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" required></label>
+    <button class="tw-btn tw-btn-primary" type="submit">Xác nhận đổi mật khẩu</button>
+   </form>
+  </section>
+ </main>
+</div></body></html>

@@ -1,0 +1,35 @@
+package cyan.project.twinkle.admin;
+import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import java.util.*;
+@RestController @RequestMapping("/api/admin") @RequiredArgsConstructor
+public class AdminApiController {
+ private final AdminContextService context;private final AdminQueryService queries;private final AdminUserService users;private final AdminCatalogService catalog;private final AdminStoreService stores;private final AdminRequestService requests;private final AdminPromotionService promotions;private final AdminDashboardService dashboard;private final cyan.project.twinkle.manager.StoreFulfillmentService fulfillment;private final AdminAuditService audit;
+ private Map<String,Object> ok(){return Map.of("message","Đã lưu thay đổi");}
+ @GetMapping("/context") public Map<String,Object> context(){return Map.of("email",context.actor());}
+ @GetMapping("/options") public List<Map<String,Object>> options(@RequestParam String kind,@RequestParam(defaultValue="") String search){return queries.options(kind,search);}
+ @GetMapping("/dashboard") public Map<String,Object> dashboard(@RequestParam(defaultValue="MONTH") String range,@RequestParam(required=false) String mode,@RequestParam(required=false) String date,@RequestParam(required=false) String from,@RequestParam(required=false) String to,@RequestParam(required=false) String month,@RequestParam(required=false) Integer year,@RequestParam(required=false) Integer storeId){return dashboard.dashboard(new cyan.project.twinkle.manager.DashboardPeriod(mode==null?range:mode,date,from,to,month,year),storeId);}
+ @GetMapping("/system-config") public Map<String,Object> config(){context.actor();return Map.of("history",queries.list("audit",0,30,"","",null,"id","desc","","","","","",""));}
+ @GetMapping("/{area}") public AdminQueryService.Page list(@PathVariable String area,@RequestParam(defaultValue="0") int page,@RequestParam(defaultValue="30") int size,@RequestParam(defaultValue="") String search,@RequestParam(defaultValue="") String status,@RequestParam(required=false) Integer storeId,@RequestParam(defaultValue="id") String sort,@RequestParam(defaultValue="desc") String direction,@RequestParam(defaultValue="") String role,@RequestParam(defaultValue="") String method,@RequestParam(defaultValue="") String paymentStatus,@RequestParam(defaultValue="") String fromDate,@RequestParam(defaultValue="") String toDate,@RequestParam(defaultValue="") String requestType){return queries.list(area,page,size,search,status,storeId,sort,direction,role,method,paymentStatus,fromDate,toDate,requestType);}
+ @GetMapping("/{area}/{id}") public Map<String,Object> detail(@PathVariable String area,@PathVariable String id){return queries.detail(area,id);}
+ @PostMapping("/users") public Map<String,Object> createUser(@Valid @RequestBody AdminUserService.Account input){users.save(input,true);return ok();}
+ @PostMapping("/users/{email}") public Map<String,Object> user(@PathVariable String email,@Valid @RequestBody AdminUserService.Account input){if(!email.equalsIgnoreCase(input.email()))throw new IllegalArgumentException();users.save(input,false);return ok();}
+ @PostMapping("/users/{email}/delete") public Map<String,Object> deleteUser(@PathVariable String email){users.delete(email);return ok();}
+ @PostMapping("/users/{email}/reset-default-password") public Map<String,Object> resetDefaultPassword(@PathVariable String email){users.resetDefaultPassword(email);return Map.of("message","Đã đặt lại mật khẩu mặc định");}
+ @PostMapping({"/stores","/stores/{id}"}) public Map<String,Object> store(@PathVariable(required=false) Integer id,@Valid @RequestBody AdminStoreService.StoreInput input){return Map.of("id",stores.save(id,input));}
+ @PostMapping("/stores/{id}/delete") public Map<String,Object> storeDelete(@PathVariable int id){stores.delete(id);return ok();}
+ @PostMapping({"/products","/products/{id}"}) public Map<String,Object> product(@PathVariable(required=false) Integer id,@Valid @RequestBody AdminCatalogService.ProductInput input){return Map.of("id",catalog.product(id,input));}
+ @PostMapping({"/variants","/variants/{id}"}) public Map<String,Object> variant(@PathVariable(required=false) Long id,@Valid @RequestBody AdminCatalogService.VariantInput input){return Map.of("id",catalog.variant(id,input));}
+ @PostMapping({"/categories","/categories/{id}","/brands","/brands/{id}"}) public Map<String,Object> master(jakarta.servlet.http.HttpServletRequest request,@PathVariable(required=false) Integer id,@Valid @RequestBody AdminCatalogService.MasterInput input){return Map.of("id",catalog.master(request.getRequestURI().split("/")[3],id,input));}
+ @PostMapping("/{area:products|variants|brands|categories}/{id}/delete") public Map<String,Object> deleteMaster(@PathVariable String area,@PathVariable long id){catalog.delete(area,id);return ok();}
+ @PostMapping("/catalog-requests/{id}/review") public Map<String,Object> reviewCatalog(@PathVariable long id,@Valid @RequestBody AdminRequestService.Review input){requests.catalog(id,input);return ok();}
+ @PostMapping("/restock-requests/{id}/review") public Map<String,Object> reviewRestock(@PathVariable long id,@Valid @RequestBody AdminRequestService.Review input){requests.restock(id,input);return ok();}
+ public record Adjustment(@jakarta.validation.constraints.Min(0) int quantity,@jakarta.validation.constraints.NotBlank @jakarta.validation.constraints.Size(max=1000) String reason,@jakarta.validation.constraints.Pattern(regexp="MANUAL_ADJUSTMENT|CORRECTION|RETURN") String type){}
+ @PostMapping("/inventory/{store}/{variant}/adjust") public Map<String,Object> adjust(@PathVariable int store,@PathVariable long variant,@Valid @RequestBody Adjustment input){requests.adjust(store,variant,input.quantity(),input.reason(),input.type()==null?"MANUAL_ADJUSTMENT":input.type(),null);return ok();}
+ public record Transition(@jakarta.validation.constraints.Min(1) int storeId,@jakarta.validation.constraints.NotBlank String status){}
+ @PostMapping("/orders/{id}/transition") @org.springframework.transaction.annotation.Transactional public Map<String,Object> transition(@PathVariable long id,@Valid @RequestBody Transition input){fulfillment.transitionAdmin(id,input.storeId(),input.status());audit.record(context.actor(),"ORDER_TRANSITION","ORDERS",id,"Store "+input.storeId()+": "+input.status());return ok();}
+ @PostMapping({"/promotions","/promotions/{id}"}) public Map<String,Object> promotion(@PathVariable(required=false) Integer id,@Valid @RequestBody AdminPromotionService.PromotionInput input){return Map.of("id",promotions.promotion(id,input));}
+ @PostMapping({"/coupons","/coupons/{id}"}) public Map<String,Object> coupon(@PathVariable(required=false) Integer id,@Valid @RequestBody AdminPromotionService.CouponInput input){return Map.of("id",promotions.coupon(id,input));}
+ @PostMapping("/{area:promotions|coupons}/{id}/deactivate") public Map<String,Object> deactivate(@PathVariable String area,@PathVariable int id){promotions.deactivate(area,id);return ok();}
+}

@@ -35,10 +35,10 @@ public class StorefrontCheckoutController {
 
     @GetMapping("/quote")
     @ResponseBody
-    public org.springframework.http.ResponseEntity<?> quote(@RequestParam(required=false) String couponCode,
+    public org.springframework.http.ResponseEntity<?> quote(@RequestParam(required=false) String couponCode, @RequestParam(defaultValue="DELIVERY") String fulfillmentMode,
                                                            @AuthenticationPrincipal CustomUserDetails user) {
         if (user == null) return org.springframework.http.ResponseEntity.status(401).build();
-        try {return org.springframework.http.ResponseEntity.ok(checkoutService.quote(user.getUsername(), couponCode));}
+        try {return org.springframework.http.ResponseEntity.ok(checkoutService.quote(user.getUsername(), couponCode, fulfillmentMode));}
         catch(cyan.project.twinkle.exception.BusinessRuleException ex) {return org.springframework.http.ResponseEntity.badRequest().body(java.util.Map.of("error", ex.getMessage()));}
     }
 
@@ -66,7 +66,7 @@ public class StorefrontCheckoutController {
         model.addAttribute("bankingAvailable", vietQr.available());
         var blocked = cartService.state(userDetails.getUsername()).items().stream().filter(i -> i.selected() && !i.available()).toList();
         model.addAttribute("blockedItems", blocked);
-        model.addAttribute("placementAllowed", blocked.isEmpty() && !addresses.isEmpty());
+        model.addAttribute("placementAllowed", blocked.isEmpty());
         
         var quote = checkoutService.quote(userDetails.getUsername(), null);
         model.addAttribute("quote", quote);

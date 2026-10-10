@@ -1,0 +1,6 @@
+<span xmlns:th="http://www.thymeleaf.org" th:fragment="status(order)">
+ <span class="order-status" th:classappend="${order.statusStyle}" th:text="${order.displayStatus}"></span>
+ <span th:if="${order.cancellationPending}" class="order-status cancellation-pending">Chờ xác nhận hủy</span>
+ <span th:if="${order.refundStatus == 'PENDING'}" class="order-status refund-pending">Chờ hoàn tiền</span>
+ <span th:if="${order.refundStatus == 'COMPLETED'}" class="order-status refunded">Hoàn tiền</span>
+</span>

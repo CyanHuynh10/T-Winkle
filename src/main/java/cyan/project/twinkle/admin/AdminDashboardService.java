@@ -1,0 +1,31 @@
+package cyan.project.twinkle.admin;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
+import java.time.*;
+import java.util.*;
+import java.math.BigDecimal;
+import cyan.project.twinkle.manager.ManagerDashboardService;
+@Service @RequiredArgsConstructor
+public class AdminDashboardService {
+ private final JdbcTemplate sql;private final AdminContextService context;private final Clock managerClock;
+ @Transactional(readOnly=true) public Map<String,Object> dashboard(String range,Integer store){return dashboard(new cyan.project.twinkle.manager.DashboardPeriod(range,null,null,null,null,null),store);}
+ @Transactional(readOnly=true) public Map<String,Object> dashboard(cyan.project.twinkle.manager.DashboardPeriod period,Integer store){context.actor();String range=period.mode();var w=period.window(managerClock);var result=new LinkedHashMap<String,Object>();result.put("range",range);result.put("start",w.start());result.put("end",w.end());
+  String source=" FROM ORDER_ITEMS i JOIN ORDERS o ON o.id=i.order_id JOIN PRODUCTS p ON p.id=i.product_id JOIN BRANDS b ON b.id=p.brand_id JOIN CATEGORIES c ON c.id=p.category_id JOIN STORES s ON s.store_id=i.store_id LEFT JOIN ORDER_STORE_FULFILLMENTS f ON f.order_id=o.id AND f.store_id=i.store_id WHERE (? IS NULL OR i.store_id=?) AND o.created_at>=? AND o.created_at<?";Object[] args={store,store,w.start(),w.end()};String delivered="COALESCE(f.status,o.status)=N'Đã giao'";
+  var kpi=sql.queryForMap("SELECT COUNT(DISTINCT o.id) AS orders,COUNT(DISTINCT CASE WHEN "+delivered+" THEN o.id END) AS delivered_orders,COALESCE(SUM(CASE WHEN "+delivered+" THEN i.line_total ELSE 0 END),0) AS revenue,COALESCE(SUM(CASE WHEN "+delivered+" THEN i.quantity ELSE 0 END),0) AS items_sold,COUNT(DISTINCT CASE WHEN COALESCE(f.status,o.status)=N'Chờ xác nhận đơn hàng' THEN o.id END) AS pending_orders"+source,args);long deliveredOrders=((Number)kpi.get("delivered_orders")).longValue();kpi.put("average_order_value",deliveredOrders==0?BigDecimal.ZERO:((BigDecimal)kpi.get("revenue")).divide(BigDecimal.valueOf(deliveredOrders),2,java.math.RoundingMode.HALF_UP));
+  kpi.putAll(sql.queryForMap("SELECT COALESCE(SUM(CASE WHEN quantity=0 THEN 1 ELSE 0 END),0) AS out_of_stock,COALESCE(SUM(CASE WHEN quantity>0 AND quantity<=reorder_level THEN 1 ELSE 0 END),0) AS low_stock FROM STORE_INVENTORY WHERE (? IS NULL OR store_id=?)",store,store));
+  kpi.put("pending_verifications",sql.queryForObject("SELECT COUNT(*) FROM PAYMENT_VERIFICATIONS v JOIN PAYMENTS p ON p.id=v.payment_id WHERE v.status='PENDING' AND (? IS NULL OR EXISTS(SELECT 1 FROM ORDER_ITEMS i WHERE i.order_id=p.order_id AND i.store_id=?))",Integer.class,store,store));
+  for(var item:Map.of("pending_catalog","CATALOG_CHANGE_REQUESTS","pending_restock","INVENTORY_RESTOCK_REQUESTS").entrySet())kpi.put(item.getKey(),sql.queryForObject("SELECT COUNT(*) FROM "+item.getValue()+" WHERE status='PENDING' AND (? IS NULL OR store_id=?)",Integer.class,store,store));
+  kpi.put("active_users",sql.queryForObject("SELECT COUNT(*) FROM USERS WHERE is_enabled=1",Integer.class));kpi.put("active_stores",sql.queryForObject("SELECT COUNT(*) FROM STORES WHERE status='OPEN' AND (? IS NULL OR store_id=?)",Integer.class,store,store));kpi.put("open_conversations",sql.queryForObject("SELECT COUNT(*) FROM SUPPORT_CONVERSATIONS WHERE status='OPEN' AND (? IS NULL OR store_id=?)",Integer.class,store,store));result.put("kpi",kpi);
+  result.put("trend",sql.queryForList("SELECT "+w.grouping()+" AS label,COALESCE(SUM(CASE WHEN "+delivered+" THEN i.line_total ELSE 0 END),0) AS value"+source+" GROUP BY "+w.grouping()+" ORDER BY "+w.grouping(),args));
+  for(var dimension:Map.of("revenue_by_store","s.name","top_products","i.product_name","top_brands","b.name","top_categories","c.name").entrySet())result.put(dimension.getKey(),sql.queryForList("SELECT TOP(10) "+dimension.getValue()+" AS label,SUM(i.line_total) AS value"+source+" AND "+delivered+" GROUP BY "+dimension.getValue()+" ORDER BY value DESC,"+dimension.getValue(),args));
+  for(var dimension:Map.of("orders_by_store","s.name","order_status","COALESCE(f.status,o.status)","payment_method","o.payment_method").entrySet())result.put(dimension.getKey(),sql.queryForList("SELECT "+dimension.getValue()+" AS label,COUNT(DISTINCT o.id) AS value"+source+" GROUP BY "+dimension.getValue(),args));
+  result.put("inventory",sql.queryForList("SELECT CASE WHEN quantity=0 THEN 'OUT' WHEN quantity<=reorder_level THEN 'LOW' ELSE 'AVAILABLE' END AS label,COUNT(*) AS value FROM STORE_INVENTORY WHERE (? IS NULL OR store_id=?) GROUP BY CASE WHEN quantity=0 THEN 'OUT' WHEN quantity<=reorder_level THEN 'LOW' ELSE 'AVAILABLE' END",store,store));
+  for(String table:List.of("INVENTORY_RESTOCK_REQUESTS","SUPPORT_CONVERSATIONS"))result.put(table.equals("INVENTORY_RESTOCK_REQUESTS")?"restock":"support",sql.queryForList("SELECT status AS label,COUNT(*) AS value FROM "+table+" WHERE (? IS NULL OR store_id=?) GROUP BY status",store,store));
+  result.put("coupon_redemption",sql.queryForList("SELECT TOP(10) c.code AS label,COUNT(*) AS value FROM COUPON_USAGES u JOIN COUPONS c ON c.id=u.coupon_id JOIN ORDERS o ON o.id=u.order_id WHERE o.created_at>=? AND o.created_at<? AND (? IS NULL OR EXISTS(SELECT 1 FROM ORDER_ITEMS i WHERE i.order_id=o.id AND i.store_id=?)) GROUP BY c.code ORDER BY value DESC,c.code",w.start(),w.end(),store,store));
+  result.put("user_growth",sql.queryForList("SELECT CONVERT(varchar(10),created_at,23) AS label,COUNT(*) AS value FROM USERS WHERE created_at>=? AND created_at<? GROUP BY CONVERT(varchar(10),created_at,23) ORDER BY label",w.start(),w.end()));
+  result.put("payment_status",sql.queryForList("SELECT p.status AS label,COUNT(*) AS value FROM PAYMENTS p JOIN ORDERS o ON o.id=p.order_id WHERE o.created_at>=? AND o.created_at<? AND (? IS NULL OR EXISTS(SELECT 1 FROM ORDER_ITEMS i WHERE i.order_id=o.id AND i.store_id=?)) GROUP BY p.status",w.start(),w.end(),store,store));
+  result.put("promotion_performance",sql.queryForList("SELECT s.name AS label,COALESCE(SUM(i.discount_amount*i.quantity),0) AS value"+source+" AND "+delivered+" GROUP BY s.name ORDER BY value DESC,s.name",args));return result;
+ }
+}

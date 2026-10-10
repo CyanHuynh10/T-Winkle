@@ -16,6 +16,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class AuthController {
+    private String businessMessage(Exception failure) {
+        return failure instanceof RuntimeException ? "Chưa thể xử lý yêu cầu, vui lòng kiểm tra thông tin và thử lại" : failure.getMessage();
+    }
 
     private final AuthService authService;
 
@@ -25,6 +28,7 @@ public class AuthController {
 
     @GetMapping("/login")
     public String loginPage(@RequestParam(value = "error", required = false) String error,
+                            @RequestParam(value = "passwordChanged", required = false) String passwordChanged,
                             @RequestParam(value = "logout", required = false) String logout,
                             HttpSession session, Model model) {
         if (error != null) {
@@ -32,12 +36,13 @@ public class AuthController {
             if (exception != null && exception.getMessage() != null && exception.getMessage().contains("tạm khóa")) {
                 model.addAttribute("error", exception.getMessage());
             } else {
-                model.addAttribute("error", "Email hoặc mật khẩu không chính xác.");
+                model.addAttribute("error", "Email hoặc mật khẩu không chính xác");
             }
         }
         if (logout != null) {
-            model.addAttribute("success", "Đăng xuất thành công.");
+            model.addAttribute("success", "Đăng xuất thành công");
         }
+        if(passwordChanged!=null) model.addAttribute("success","Mật khẩu đã được thay đổi, vui lòng đăng nhập lại");
         return "auth/login";
     }
 
@@ -59,10 +64,10 @@ public class AuthController {
             authService.registerUser(request);
             session.setAttribute("AUTH_FLOW_EMAIL", request.getEmail());
             session.setAttribute("AUTH_FLOW_TYPE", "REGISTER");
-            redirectAttributes.addFlashAttribute("success", "Đăng ký tài khoản thành công. Vui lòng kiểm tra email để nhập mã OTP.");
+            redirectAttributes.addFlashAttribute("success", "Đăng ký tài khoản thành công. Vui lòng kiểm tra email để nhập mã OTP");
             return "redirect:/otp";
         } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
+            model.addAttribute("error", businessMessage(e));
             return "auth/register";
         }
     }
@@ -97,22 +102,22 @@ public class AuthController {
         }
 
         try {
-            authService.verifyOtp(email, request.getOtpCode(), type);
             if ("REGISTER".equals(type)) {
+                authService.verifyOtp(email, request.getOtpCode(), type);
                 session.removeAttribute("AUTH_FLOW_EMAIL");
                 session.removeAttribute("AUTH_FLOW_TYPE");
-                redirectAttributes.addFlashAttribute("success", "Xác thực tài khoản thành công. Vui lòng đăng nhập.");
+                redirectAttributes.addFlashAttribute("success", "Xác thực tài khoản thành công. Vui lòng đăng nhập");
                 return "redirect:/login";
             } else if ("FORGOT_PASSWORD".equals(type)) {
-                String resetToken = authService.generateResetTokenAfterOtp(email);
+                String resetToken = authService.verifyForgotPasswordOtp(email, request.getOtpCode());
                 session.removeAttribute("AUTH_FLOW_EMAIL");
                 session.removeAttribute("AUTH_FLOW_TYPE");
                 String baseUrl = org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
-                redirectAttributes.addFlashAttribute("success", "Xác thực OTP thành công. Vui lòng tạo mật khẩu mới.");
+                redirectAttributes.addFlashAttribute("success", "Xác thực OTP thành công. Vui lòng tạo mật khẩu mới");
                 return "redirect:" + baseUrl + "/reset-password?token=" + resetToken + "&email=" + email;
             }
         } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
+            model.addAttribute("error", businessMessage(e));
             request.setEmail(email);
             return "auth/otp";
         }
@@ -128,9 +133,9 @@ public class AuthController {
         }
         try {
             authService.resendOtp(email, type);
-            redirectAttributes.addFlashAttribute("success", "Mã OTP mới đã được gửi đến email của bạn.");
+            redirectAttributes.addFlashAttribute("success", "Mã OTP mới đã được gửi đến email của bạn");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", businessMessage(e));
         }
         return "redirect:/otp";
     }
@@ -155,7 +160,7 @@ public class AuthController {
         }
         session.setAttribute("AUTH_FLOW_EMAIL", request.getEmail());
         session.setAttribute("AUTH_FLOW_TYPE", "FORGOT_PASSWORD");
-        redirectAttributes.addFlashAttribute("success", "Nếu email tồn tại trong hệ thống, mã OTP xác nhận đã được gửi.");
+        redirectAttributes.addFlashAttribute("success", "Nếu email tồn tại trong hệ thống, mã OTP xác nhận đã được gửi");
         return "redirect:/otp";
     }
 
@@ -178,10 +183,10 @@ public class AuthController {
         }
         try {
             authService.resetPassword(request);
-            redirectAttributes.addFlashAttribute("success", "Mật khẩu đã được thay đổi thành công. Vui lòng đăng nhập.");
+            redirectAttributes.addFlashAttribute("success", "Mật khẩu đã được thay đổi thành công. Vui lòng đăng nhập");
             return "redirect:/login";
         } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
+            model.addAttribute("error", businessMessage(e));
             return "auth/reset-password";
         }
     }

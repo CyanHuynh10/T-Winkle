@@ -1,0 +1,7 @@
+SET NOCOUNT ON;
+DECLARE @dir NVARCHAR(4000)=CONVERT(NVARCHAR(4000),SERVERPROPERTY('InstanceDefaultBackupPath'));
+IF @dir IS NULL THROW 51200,'SQL Server default backup path is unavailable.',1;
+DECLARE @path NVARCHAR(4000)=@dir+N'\T_Winkle_pre_test_data_cleanup_20261006_'+REPLACE(CONVERT(VARCHAR(8),GETDATE(),108),':','')+N'.bak';
+BACKUP DATABASE T_Winkle TO DISK=@path WITH COPY_ONLY,CHECKSUM,INIT,STATS=10;
+RESTORE VERIFYONLY FROM DISK=@path WITH CHECKSUM;
+SELECT @path AS recovery_backup_path;

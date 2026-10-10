@@ -23,6 +23,7 @@ import org.springframework.security.web.session.HttpSessionEventPublisher;
 public class SecurityConfig {
 
     private final UserDetailsService customUserDetailsService;
+    private final RoleBasedAuthenticationSuccessHandler loginSuccess;
 
     @Bean
     public SecurityContextRepository securityContextRepository() {
@@ -32,6 +33,11 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public org.springframework.security.core.session.SessionRegistry sessionRegistry() {
+        return new org.springframework.security.core.session.SessionRegistryImpl();
     }
 
     @Bean
@@ -58,11 +64,16 @@ public class SecurityConfig {
                 .securityContextRepository(securityContextRepository())
             )
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/manager/**").hasRole("MANAGER")
+                .requestMatchers("/manager/support", "/manager/support/**").hasRole("MANAGER")
+                .requestMatchers("/api/ai-chat/**").hasRole("USER")
+                .requestMatchers("/api/support/**", "/ws/chat", "/ws/chat/**").authenticated()
                 .requestMatchers("/payments/manage", "/payments/manage/**").hasAnyRole("MANAGER", "ADMIN")
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/admin", "/admin/**").hasRole("ADMIN")
                 .requestMatchers("/manager/**").hasRole("MANAGER")
-                .requestMatchers("/shipper/**").hasRole("SHIPPER")
-                .requestMatchers("/support/**").hasRole("SUPPORT")
+                .requestMatchers("/settings", "/settings/**").authenticated()
+                .requestMatchers("/support", "/support/**").hasRole("SUPPORT")
                 .requestMatchers("/chat/**").hasRole("USER")
                 .requestMatchers(
                     "/cart/**",
@@ -76,11 +87,29 @@ public class SecurityConfig {
                 ).authenticated()
                 .anyRequest().permitAll()
             )
+            .exceptionHandling(errors -> errors
+                .authenticationEntryPoint((request,response,exception) -> {
+                    if(!request.getRequestURI().startsWith(request.getContextPath()+"/api/manager/") && !request.getRequestURI().startsWith(request.getContextPath()+"/api/admin/")) {
+                        new org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint("/login").commence(request,response,exception);
+                        return;
+                    }
+                    response.setStatus(401); response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"code\":\"NOT_AUTHORIZED\",\"message\":\"Vui lòng đăng nhập lại\"}");
+                })
+                .accessDeniedHandler((request,response,exception) -> {
+                    if(!request.getRequestURI().startsWith(request.getContextPath()+"/api/manager/") && !request.getRequestURI().startsWith(request.getContextPath()+"/api/admin/")) {
+                        new org.springframework.security.web.access.AccessDeniedHandlerImpl().handle(request,response,exception);
+                        return;
+                    }
+                    response.setStatus(403); response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"code\":\"NOT_AUTHORIZED\",\"message\":\"Bạn không có quyền thực hiện thao tác này\"}");
+                })
+            )
             .formLogin(form -> form
                 .loginPage("/login")
                 .usernameParameter("email")
                 .passwordParameter("password")
-                .defaultSuccessUrl("/", false)
+                .successHandler(loginSuccess)
                 .permitAll()
             )
             .logout(logout -> logout
@@ -92,6 +121,7 @@ public class SecurityConfig {
             )
             .sessionManagement(session -> session
                 .maximumSessions(1)
+                .sessionRegistry(sessionRegistry())
                 .expiredUrl("/login?expired")
             );
 

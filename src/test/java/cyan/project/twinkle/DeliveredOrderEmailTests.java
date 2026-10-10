@@ -47,14 +47,14 @@ class DeliveredOrderEmailTests {
     @BeforeEach void fixture() {
         String tag="DM"+System.nanoTime();buyer=tag+"b@twinkle.test";admin=tag+"a@twinkle.test";code="TW"+tag;
         for(String email:List.of(buyer,admin)) {
-            sql.update("INSERT USERS(email,username,full_name,password_hash,is_enabled) SELECT ?,?,'Synthetic account',password_hash,1 FROM USERS WHERE email='user3@twinkle.com'",email,email);
+            sql.update("INSERT USERS(email,username,full_name,password_hash,is_enabled) VALUES(?,?,'Synthetic account','!unusable-test-password',1)",email,email);
             sql.update("INSERT USER_ROLES(user_email,role_id) SELECT ?,id FROM ROLES WHERE name=?",email,email.equals(admin)?"ROLE_ADMIN":"ROLE_USER");
         }
-        sql.update("INSERT ORDERS(order_code,user_email,status,recipient_name,recipient_phone,shipping_address_line,shipping_ward,shipping_district,shipping_city,shipping_note,payment_method,subtotal,product_discount,shipping_fee,coupon_discount,total,created_at,updated_at) VALUES(?,?,N'Đã xác nhận',N'Hà <script>unsafe</script>','0900000000',N'Snapshot <b>street</b>','Ward','District','City',N'Note <img src=x>','BANKING',300000,15000,30000,20000,295000,'2026-10-01T08:15:00','2026-10-01T08:15:00')",code,buyer);
+        sql.update("INSERT ORDERS(order_code,user_email,status,recipient_name,recipient_phone,shipping_address_line,shipping_ward,shipping_district,shipping_city,shipping_note,payment_method,subtotal,product_discount,shipping_fee,coupon_discount,total,created_at,updated_at) VALUES(?,?,N'Đang giao',N'Hà <script>unsafe</script>','0900000000',N'Snapshot <b>street</b>','Ward','District','City',N'Note <img src=x>','BANKING',300000,15000,30000,20000,295000,'2026-10-01T08:15:00','2026-10-01T08:15:00')",code,buyer);
         id=sql.queryForObject("SELECT id FROM ORDERS WHERE order_code=?",Long.class,code);
-        for(int i=0;i<2;i++)sql.update("INSERT ORDER_ITEMS(order_id,product_id,variant_id,store_id,product_name,variant_name,unit_price,discount_amount,quantity,line_total) SELECT TOP(1) ?,oi.product_id,oi.variant_id,oi.store_id,?,N'Size 42 - Snapshot cyan',?,0,?,? FROM ORDER_ITEMS oi WHERE oi.order_id=1 ORDER BY oi.id",id,"Snapshot shoe "+i+" <b>name</b>",i==0?100000:85000,i==0?2:1,i==0?200000:85000);
+        for(int i=0;i<2;i++)sql.update("INSERT ORDER_ITEMS(order_id,product_id,variant_id,store_id,product_name,variant_name,unit_price,discount_amount,quantity,line_total) SELECT TOP(1) ?,v.product_id,si.variant_id,si.store_id,?,N'Size 42 - Snapshot cyan',?,0,?,? FROM STORE_INVENTORY si JOIN PRODUCT_VARIANTS v ON v.id=si.variant_id ORDER BY si.store_id,si.variant_id",id,"Snapshot shoe "+i+" <b>name</b>",i==0?100000:85000,i==0?2:1,i==0?200000:85000);
         sql.update("INSERT PAYMENTS(order_id,method,status,amount) VALUES(?,'BANKING','PENDING',295000)",id);
-        sql.update("INSERT ORDER_STATUS_HISTORY(order_id,status,created_at) VALUES(?,N'Đã xác nhận','2026-10-01T08:16:00')",id);
+        sql.update("INSERT ORDER_STATUS_HISTORY(order_id,status,created_at) VALUES(?,N'Đang giao','2026-10-01T08:16:00')",id);
         when(sender.createMimeMessage()).thenAnswer(invocation->new MimeMessage(Session.getInstance(new Properties())));
         doAnswer(invocation->{((MimeMessage)invocation.getArgument(0)).saveChanges();return null;}).when(sender).send(any(MimeMessage.class));
     }
@@ -88,7 +88,9 @@ class DeliveredOrderEmailTests {
         java.nio.file.Files.writeString(preview,body,java.nio.charset.StandardCharsets.UTF_8);
     }
     @Test void otherStatusAndReadPathsDoNotSend() {
-        sql.update("UPDATE ORDERS SET status=N'Chờ xác nhận' WHERE id=?",id);
+        sql.update("UPDATE ORDERS SET status=N'Chờ xác nhận đơn hàng' WHERE id=?",id);
+        assertThrows(BusinessRuleException.class,()->fulfillment.transition(id,admin,"Đã xác nhận"));
+        sql.update("UPDATE PAYMENTS SET status='PAID',paid_at=SYSDATETIME() WHERE order_id=?",id);
         fulfillment.transition(id,admin,"Đã xác nhận");orders.getOrderDetail(id,buyer);orders.getOrderTracking(id,buyer);
         verifyNoInteractions(sender);assertNull(sentAt());
     }
@@ -111,7 +113,7 @@ class DeliveredOrderEmailTests {
     }
     @Test void rolledBackDeliveryPublishesNoMail() {
         assertThrows(IllegalStateException.class,()->new TransactionTemplate(transactions).executeWithoutResult(tx->{fulfillment.transition(id,admin,"Đã giao");throw new IllegalStateException("Controlled rollback");}));
-        assertEquals("Đã xác nhận",status());assertNull(sentAt());verifyNoInteractions(sender);
+        assertEquals("Đang giao",status());assertNull(sentAt());verifyNoInteractions(sender);
         assertEquals(0,sql.queryForObject("SELECT COUNT(*) FROM ORDER_STATUS_HISTORY WHERE order_id=? AND status=N'Đã giao'",Integer.class,id));
     }
     @Test void concurrentDeliveryRequestsSendOnce() throws Exception {
@@ -128,7 +130,7 @@ class DeliveredOrderEmailTests {
         assertEquals(buyer,message.getTo()[0]);assertEquals("Mã OTP xác thực T-Winkle",message.getSubject());assertTrue(message.getText().matches(".*[0-9]{6}.*"));verify(sender,never()).send(any(MimeMessage.class));
         assertEquals(1,sql.queryForObject("SELECT COUNT(*) FROM OTP_VERIFICATIONS WHERE user_email=? AND type='FORGOT_PASSWORD'",Integer.class,buyer));
     }
-    @ParameterizedTest @CsvSource({"COD,PAID,Thanh toán khi nhận hàng,Đã thanh toán","BANKING,PENDING,Chuyển khoản ngân hàng,Chờ xác nhận thanh toán","BANKING,FAILED,Chuyển khoản ngân hàng,Thanh toán thất bại","BANKING,REFUNDED,Chuyển khoản ngân hàng,Đã hoàn tiền","VNPAY,PAID,VNPay (đơn hàng trước đây),Đã thanh toán","MOMO,PAID,MoMo (đơn hàng trước đây),Đã thanh toán"})
+    @ParameterizedTest @CsvSource({"COD,PAID,Thanh toán khi nhận hàng,Đã thanh toán","BANKING,PENDING,Chuyển khoản ngân hàng,Chờ xác nhận thanh toán","BANKING,FAILED,Chuyển khoản ngân hàng,Thanh toán thất bại","BANKING,REFUNDED,Chuyển khoản ngân hàng,Đã hoàn tiền"})
     void readablePaymentLabels(String method,String paymentStatus,String methodLabel,String statusLabel) throws Exception {
         sql.update("UPDATE ORDERS SET payment_method=? WHERE id=?",method,id);sql.update("UPDATE PAYMENTS SET method=?,status=? WHERE order_id=?",method,paymentStatus,id);
         fulfillment.transition(id,admin,"Đã giao");String body=html();assertTrue(body.contains(methodLabel));assertTrue(body.contains(statusLabel));

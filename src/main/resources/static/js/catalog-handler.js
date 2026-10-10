@@ -29,3 +29,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// Filter actions preserve the active search/sort; any changed filter restarts pagination.
+document.addEventListener('DOMContentLoaded',()=>{
+ const form=document.getElementById('categoryFilters');if(!form)return;
+ const fields=['brand','minPrice','maxPrice','size','color','available','sale'];const current=new URL(location.href);
+ fields.forEach(k=>{const el=form.elements.namedItem(k);if(!el)return;if(el.type==='checkbox')el.checked=current.searchParams.get(k)==='true';else el.value=current.searchParams.get(k)||'';});
+ const clear=document.getElementById('clearCategoryFilters');if(clear)clear.hidden=!fields.some(k=>current.searchParams.has(k));
+ form.addEventListener('submit',event=>{event.preventDefault();const url=new URL(location.href);fields.forEach(k=>url.searchParams.delete(k));const data=new FormData(form);for(const [k,v] of data)if(String(v).trim())url.searchParams.set(k,String(v));url.searchParams.delete('page');location.assign(url.pathname+url.search);});
+ clear?.addEventListener('click',()=>{const url=new URL(location.href);fields.forEach(k=>url.searchParams.delete(k));url.searchParams.delete('page');location.assign(url.pathname+url.search);});
+});

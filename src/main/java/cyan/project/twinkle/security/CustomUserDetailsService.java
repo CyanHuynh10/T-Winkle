@@ -17,6 +17,6 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email)
                 .map(CustomUserDetails::new)
-                .orElseThrow(() -> new UsernameNotFoundException("Tài khoản không tồn tại."));
+                .orElseThrow(() -> new UsernameNotFoundException("Tài khoản không tồn tại"));
     }
 }

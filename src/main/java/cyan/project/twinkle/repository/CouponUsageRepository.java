@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CouponUsageRepository extends JpaRepository<CouponUsage, Long> {
     long countByCouponIdAndUserEmail(Integer couponId, String email);
+
 }

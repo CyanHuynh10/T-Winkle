@@ -1,0 +1,17 @@
+SET NOCOUNT ON;
+SELECT 'retired_role_rows' AS audit,COUNT(*) AS count FROM ROLES WHERE name NOT IN('ROLE_USER','ROLE_MANAGER','ROLE_SUPPORT','ROLE_ADMIN');
+SELECT 'unsupported_order_methods' AS audit,COUNT(*) AS count FROM ORDERS WHERE payment_method NOT IN('COD','BANKING');
+SELECT 'unsupported_payment_methods' AS audit,COUNT(*) AS count FROM PAYMENTS WHERE method NOT IN('COD','BANKING');
+SELECT 'obsolete_config_tables' AS audit,COUNT(*) AS count FROM sys.tables WHERE name IN('SYSTEM_CONFIGS','SYSTEM_CONFIG_HISTORY');
+SELECT 'orders_without_payment' AS audit,COUNT(*) AS count FROM ORDERS o WHERE NOT EXISTS(SELECT 1 FROM PAYMENTS p WHERE p.order_id=o.id);
+SELECT 'refund_record_mismatch' AS audit,COUNT(*) AS count FROM PAYMENT_REFUNDS r JOIN PAYMENTS p ON p.id=r.payment_id WHERE p.order_id<>r.order_id OR p.amount<>r.amount OR (r.status='COMPLETED' AND p.status<>'REFUNDED');
+SELECT 'pickup_shipping_states' AS audit,COUNT(*) AS count FROM ORDER_STORE_FULFILLMENTS f JOIN ORDERS o ON o.id=f.order_id WHERE o.fulfillment_mode='PICKUP' AND f.status=N'Đang giao';
+SELECT 'sample_orders_remaining' AS audit,COUNT(*) AS count FROM ORDERS WHERE order_code IN('TW202609230002','TW202609200003','TW202609150005');
+SELECT 'known_fixture_users' AS audit,COUNT(*) AS count FROM USERS WHERE email LIKE 'TWFINALFIX%' OR email LIKE 'TWADMINTEST%' OR email LIKE 'TWMGRDEMO%' OR email LIKE 'DM%@twinkle.test' OR email LIKE '%@test.invalid' OR email LIKE '%@twinkle.test';
+SELECT 'known_fixture_stores' AS audit,COUNT(*) AS count FROM STORES WHERE slug LIKE 'twfinalfix%' OR slug LIKE 'TWMGRDEMO%' OR slug LIKE 'TWADMINTEST%';
+SELECT 'known_fixture_orders' AS audit,COUNT(*) AS count FROM ORDERS WHERE order_code LIKE 'TWFINALFIX%' OR order_code LIKE 'TWDM%' OR order_code LIKE 'TWMGRDEMO%' OR order_code LIKE 'DEMO-SI%';
+SELECT 'users' AS audit,COUNT(*) AS count FROM USERS;
+SELECT 'stores' AS audit,COUNT(*) AS count FROM STORES;
+SELECT 'orders' AS audit,COUNT(*) AS count FROM ORDERS;
+SELECT 'payments' AS audit,COUNT(*) AS count FROM PAYMENTS;
+SELECT id,order_code,status,fulfillment_mode FROM ORDERS ORDER BY id;

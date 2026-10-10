@@ -35,7 +35,7 @@ public class StorefrontUserService {
         User user = userRepository.findByEmail(email).orElseThrow();
         if (form.getUsername() != null && !form.getUsername().trim().isEmpty() && !form.getUsername().equals(user.getUsername())) {
             if (userRepository.existsByUsername(form.getUsername().trim())) {
-                throw new BusinessRuleException("Tên người dùng đã tồn tại. Vui lòng chọn tên khác.");
+                throw new BusinessRuleException("Tên người dùng đã tồn tại. Vui lòng chọn tên khác");
             }
             user.setUsername(form.getUsername().trim());
         }
@@ -63,7 +63,7 @@ public class StorefrontUserService {
         UserAddress address;
         if (form.getId() != null) {
             address = userAddressRepository.findByIdAndUserEmail(form.getId(), email)
-                    .orElseThrow(() -> new BusinessRuleException("Địa chỉ không tồn tại."));
+                    .orElseThrow(() -> new BusinessRuleException("Địa chỉ không tồn tại"));
         } else {
             address = new UserAddress();
             address.setUser(user);
@@ -88,7 +88,7 @@ public class StorefrontUserService {
     @Transactional
     public void setDefaultAddress(String email, Long addressId) {
         UserAddress targetAddress = userAddressRepository.findByIdAndUserEmail(addressId, email)
-                .orElseThrow(() -> new BusinessRuleException("Địa chỉ không hợp lệ."));
+                .orElseThrow(() -> new BusinessRuleException("Địa chỉ không hợp lệ"));
 
         userAddressRepository.findByUserEmailAndIsDefaultTrue(email).forEach(addr -> {
             addr.setIsDefault(false);
@@ -102,7 +102,7 @@ public class StorefrontUserService {
     @Transactional
     public void deleteAddress(String email, Long addressId) {
         UserAddress target = userAddressRepository.findByIdAndUserEmail(addressId, email)
-                .orElseThrow(() -> new BusinessRuleException("Địa chỉ không hợp lệ."));
+                .orElseThrow(() -> new BusinessRuleException("Địa chỉ không hợp lệ"));
         
         boolean wasDefault = target.getIsDefault();
         userAddressRepository.delete(target);
@@ -126,7 +126,7 @@ public class StorefrontUserService {
     public boolean toggleWishlist(String email, Integer productId) {
         User user = userRepository.findByEmail(email).orElseThrow();
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new BusinessRuleException("Sản phẩm không tồn tại."));
+                .orElseThrow(() -> new BusinessRuleException("Sản phẩm không tồn tại"));
 
         WishlistItemId id = new WishlistItemId(email, productId);
         if (wishlistItemRepository.existsById(id)) {
@@ -145,6 +145,6 @@ public class StorefrontUserService {
     @Transactional(readOnly = true)
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessRuleException("Người dùng không tồn tại."));
+                .orElseThrow(() -> new BusinessRuleException("Người dùng không tồn tại"));
     }
 }

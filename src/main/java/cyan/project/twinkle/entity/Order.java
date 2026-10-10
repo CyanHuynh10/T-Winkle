@@ -49,7 +49,11 @@ public class Order {
     @Column(name = "payment_method", nullable = false)
     private String paymentMethod;
 
-    @Column(nullable = false, length = 30)
+    @Builder.Default
+    @Column(name = "fulfillment_mode", nullable = false, length = 20)
+    private String fulfillmentMode = "DELIVERY";
+
+    @Column(nullable = false, length = 50)
     private String status; 
 
     @Column(nullable = false)
@@ -93,4 +97,15 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
+    @Transient private String paymentStatus;
+    @Transient private String refundStatus;
+    @Transient private boolean cancellationPending;
+    public String getDisplayStatus() {
+        return "BANKING".equals(paymentMethod) && "Chờ xác nhận đơn hàng".equals(status) && !"PAID".equals(paymentStatus) ? "Chờ xác nhận thanh toán" : status;
+    }
+    public String getStatusStyle() {
+        return "Chờ xác nhận thanh toán".equals(getDisplayStatus()) ? "payment-waiting" : cyan.project.twinkle.service.OrderStatus.of(status).style();
+    }
+    public String getFulfillmentLabel() {return "PICKUP".equals(fulfillmentMode)?"Nhận tại cửa hàng":"Giao tận nơi";}
+    public java.util.List<Store> getPickupStores() {return orderItems.stream().map(OrderItem::getStore).distinct().toList();}
 }

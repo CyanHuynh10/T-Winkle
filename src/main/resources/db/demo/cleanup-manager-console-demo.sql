@@ -1,0 +1,40 @@
+-- Only TWMGRDEMO-owned records. Refuse cleanup if unrelated data references the demo store/catalog/users.
+SET XACT_ABORT ON;
+SET ANSI_NULLS ON;
+SET QUOTED_IDENTIFIER ON;
+SET ANSI_WARNINGS ON;
+SET ANSI_PADDING ON;
+SET ARITHABORT ON;
+SET CONCAT_NULL_YIELDS_NULL ON;
+SET NUMERIC_ROUNDABORT OFF;
+BEGIN TRANSACTION;
+DECLARE @store INT=(SELECT store_id FROM STORES WHERE slug='TWMGRDEMO-store');
+IF @store IS NULL BEGIN COMMIT;PRINT 'No TWMGRDEMO store; no data changed.';RETURN;END;
+IF EXISTS(SELECT 1 FROM ORDER_ITEMS i JOIN ORDERS o ON o.id=i.order_id JOIN PRODUCTS p ON p.id=i.product_id WHERE (i.store_id=@store OR p.slug LIKE 'TWMGRDEMO-%') AND o.order_code NOT LIKE 'TWMGRDEMO-%')
+ OR EXISTS(SELECT 1 FROM SUPPORT_CONVERSATIONS WHERE store_id=@store AND user_email NOT LIKE 'TWMGRDEMO%@example.invalid')
+ OR EXISTS(SELECT 1 FROM ORDERS WHERE user_email LIKE 'TWMGRDEMO%@example.invalid' AND order_code NOT LIKE 'TWMGRDEMO-%')
+ THROW 51001,'Unrelated data references TWMGRDEMO entities. No cleanup performed; review references.',1;
+DELETE r FROM SUPPORT_CONVERSATION_READ_STATE r JOIN SUPPORT_CONVERSATIONS c ON c.id=r.conversation_id WHERE c.store_id=@store AND c.user_email LIKE 'TWMGRDEMO%@example.invalid';
+DELETE m FROM SUPPORT_MESSAGES m JOIN SUPPORT_CONVERSATIONS c ON c.id=m.conversation_id WHERE c.store_id=@store AND c.user_email LIKE 'TWMGRDEMO%@example.invalid';
+DELETE FROM SUPPORT_CONVERSATIONS WHERE store_id=@store AND user_email LIKE 'TWMGRDEMO%@example.invalid';
+DELETE FROM STORE_STATUS_HISTORY WHERE store_id=@store;
+DELETE FROM CATALOG_CHANGE_REQUESTS WHERE store_id=@store;
+DELETE FROM INVENTORY_RESTOCK_REQUESTS WHERE store_id=@store;
+DELETE f FROM ORDER_STORE_FULFILLMENTS f JOIN ORDERS o ON o.id=f.order_id WHERE o.order_code LIKE 'TWMGRDEMO-%';
+DELETE h FROM ORDER_STATUS_HISTORY h JOIN ORDERS o ON o.id=h.order_id WHERE o.order_code LIKE 'TWMGRDEMO-%';
+DELETE c FROM ORDER_CANCELLATIONS c JOIN ORDERS o ON o.id=c.order_id WHERE o.order_code LIKE 'TWMGRDEMO-%';
+DELETE p FROM PAYMENTS p JOIN ORDERS o ON o.id=p.order_id WHERE o.order_code LIKE 'TWMGRDEMO-%';
+DELETE i FROM ORDER_ITEMS i JOIN ORDERS o ON o.id=i.order_id WHERE o.order_code LIKE 'TWMGRDEMO-%';
+DELETE FROM ORDERS WHERE order_code LIKE 'TWMGRDEMO-%';
+DELETE FROM STORE_STAFF_ASSIGNMENTS WHERE store_id=@store AND user_email LIKE 'TWMGRDEMO%@example.invalid';
+DELETE FROM STORE_INVENTORY WHERE store_id=@store;
+DELETE v FROM PRODUCT_VARIANTS v JOIN PRODUCTS p ON p.id=v.product_id WHERE p.slug LIKE 'TWMGRDEMO-product-%';
+DELETE i FROM PRODUCT_IMAGES i JOIN PRODUCTS p ON p.id=i.product_id WHERE p.slug LIKE 'TWMGRDEMO-product-%';
+DELETE FROM PRODUCTS WHERE slug LIKE 'TWMGRDEMO-product-%';
+DELETE FROM CATEGORIES WHERE slug='TWMGRDEMO-category';
+DELETE FROM BRANDS WHERE slug='TWMGRDEMO-brand';
+DELETE FROM STORES WHERE store_id=@store AND slug='TWMGRDEMO-store';
+DELETE FROM USER_ROLES WHERE user_email LIKE 'TWMGRDEMO%@example.invalid';
+DELETE FROM USERS WHERE email LIKE 'TWMGRDEMO%@example.invalid';
+COMMIT;
+PRINT 'TWMGRDEMO cleanup completed. Non-demo data preserved.';

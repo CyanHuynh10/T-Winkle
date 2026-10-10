@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/stores")
 @RequiredArgsConstructor
 public class StorefrontStoreController {
-    
+
     private final StorefrontStoreService storeService;
     private final StorefrontProductService productService;
     private final cyan.project.twinkle.repository.CategoryRepository categoryRepository;
@@ -37,17 +37,19 @@ public class StorefrontStoreController {
                                 @PathVariable(required = false) String categorySlug,
                                 @RequestParam(required = false) String category,
                                 @RequestParam(required = false) String keyword,
-                                @RequestParam(required = false) String sort,
-                                @RequestParam(defaultValue = "0") int page,
+                                @RequestParam(required = false) String sort, @RequestParam(required=false) String brand,
+                                @RequestParam(required=false) String size, @RequestParam(required=false) String color, @RequestParam(required=false) java.math.BigDecimal minPrice, @RequestParam(required=false) java.math.BigDecimal maxPrice, @RequestParam(required=false) Boolean available, @RequestParam(required=false) Boolean sale,
+            @RequestParam(defaultValue = "0") int page,
                                 @AuthenticationPrincipal CustomUserDetails userDetails,
                                 Model model) {
         category = categorySlug != null ? categorySlug : category;
         model.addAttribute("keyword", keyword);
         model.addAttribute("sort", sort);
         model.addAttribute("store", storeService.getStoreBySlug(slug));
-        model.addAttribute("products", productService.getStoreProducts(slug, category, keyword, sort, page, userDetails != null ? userDetails.getUsername() : null)); 
+        model.addAttribute("products", productService.filteredProducts(keyword,category,brand,sort,page,userDetails!=null?userDetails.getUsername():null,slug,new cyan.project.twinkle.service.PricingService.CatalogFilter(size,color,minPrice,maxPrice,available,sale)));
         model.addAttribute("categories", categoryRepository.findStoreCategories(slug));
         model.addAttribute("selectedCategory", category);
+        model.addAttribute("filterOptions",productService.filterOptions(category,slug));
         model.addAttribute("currentUri", "/stores/" + slug + "/catagories" + (category != null ? "/" + category : ""));
         return "storefront/category/list";
     }

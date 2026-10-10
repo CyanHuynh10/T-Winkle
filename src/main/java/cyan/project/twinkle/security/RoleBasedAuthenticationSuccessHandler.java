@@ -20,16 +20,22 @@ public class RoleBasedAuthenticationSuccessHandler implements AuthenticationSucc
 
         Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
 
+        var cache = new org.springframework.security.web.savedrequest.HttpSessionRequestCache();
+        var saved = cache.getRequest(request, response);
+        cache.removeRequest(request, response);
+        String destination = "/";
         if (roles.contains("ROLE_ADMIN")) {
-            response.sendRedirect("/admin");
+            destination = "/admin";
         } else if (roles.contains("ROLE_MANAGER")) {
-            response.sendRedirect("/manager");
-        } else if (roles.contains("ROLE_SHIPPER")) {
-            response.sendRedirect("/shipper");
+            destination = "/manager";
         } else if (roles.contains("ROLE_SUPPORT")) {
-            response.sendRedirect("/support");
-        } else {
-            response.sendRedirect("/");
+            destination = "/support";
+        } else if (roles.contains("ROLE_USER") && saved != null) {
+            // Only restore customer destinations, using a local path, never a supplied origin.
+            String path = java.net.URI.create(saved.getRedirectUrl()).getPath();
+            if(path.startsWith(request.getContextPath())) path=path.substring(request.getContextPath().length());
+            if (path.matches("/chat(?:/store/\\d+|/start/\\d+)?") || path.equals("/settings")) destination = path;
         }
+        response.sendRedirect(request.getContextPath() + destination);
     }
 }

@@ -4,7 +4,7 @@
 <main class="storefront-page-main pb-5"><div class="container">
 <h1 class="h3 fw-bold storefront-page-title">Xác nhận chuyển khoản</h1>
 <p class="text-muted">Chỉ xác nhận sau khi kiểm tra tiền đã vào tài khoản nhận.</p>
-<div th:if="${#lists.isEmpty(payments)}" class="glass-card rounded-4 p-4">Chưa có thanh toán chuyển khoản thuộc quyền quản lý.</div>
+<div th:if="${#lists.isEmpty(payments)}" class="glass-card rounded-4 p-4">Chưa có thanh toán chuyển khoản thuộc quyền quản lý</div>
 <article th:each="payment : ${payments}" class="glass-card rounded-4 p-4 mb-3" th:data-payment-id="${payment.id}">
 <div class="d-flex flex-wrap justify-content-between gap-3 align-items-center">
 <div><h2 class="h5 fw-bold text-cyan" th:text="${payment.order.orderCode}"></h2>

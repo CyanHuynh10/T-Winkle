@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     async function readState() {
         const response = await fetch('/cart/api/state', {headers:{Accept:'application/json'}});
-        if (response.redirected || !response.ok) throw Error('Phiên đăng nhập đã hết hạn. Vui lòng tải lại và đăng nhập.');
+        if (response.redirected || !response.ok) throw Error('Phiên đăng nhập đã hết hạn. Vui lòng tải lại và đăng nhập');
         return response.json();
     }
     function mutate(row, operation, fields) {
@@ -34,10 +34,10 @@ document.addEventListener('DOMContentLoaded', () => {
             row.querySelectorAll('button,input[type=checkbox],input[type=number]').forEach(el => el.disabled = true);
             try {
                 const response = await fetch('/cart/api/' + operation, {method:'POST',headers:{Accept:'application/json'},body:new URLSearchParams({cartItemId:row.dataset.cartItemId,...fields,_csrf:document.querySelector('meta[name=_csrf]').content})});
-                if (response.redirected) throw Error('Phiên đăng nhập đã hết hạn. Vui lòng tải lại và đăng nhập.');
+                if (response.redirected) throw Error('Phiên đăng nhập đã hết hạn. Vui lòng tải lại và đăng nhập');
                 const body = await response.json();
                 if (body.state) render(body.state);
-                if (!response.ok) throw Error(body.error || 'Không thể cập nhật giỏ hàng.');
+                if (!response.ok) throw Error(body.error || 'Không thể cập nhật giỏ hàng');
             } catch (error) {
                 window.showToast(error.message, 'error');
                 try {render(await readState());} catch {}
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function quantity(row, value) {
         const input = row.querySelector('[data-cart-quantity]'), number = window.TwQuantity.parse(value, input.max);
         if (number === null) {
-            window.showToast('Số lượng phải từ 1 đến tồn kho hiện tại.', 'error'); readState().then(render).catch(() => {}); return;
+            window.showToast('Số lượng phải từ 1 đến tồn kho hiện tại', 'error'); readState().then(render).catch(() => {}); return;
         }
         mutate(row, 'update', {quantity:number});
     }
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     window.TwQuantity.bind(root, {input:'[data-cart-quantity]', step:'[data-cart-step]', scope:'[data-cart-item-id]',
         commit:(row, value) => quantity(row, value),
-        invalid:() => {window.showToast('Số lượng phải từ 1 đến tồn kho hiện tại.', 'error');readState().then(render).catch(() => {});}
+        invalid:() => {window.showToast('Số lượng phải từ 1 đến tồn kho hiện tại', 'error');readState().then(render).catch(() => {});}
     });
     window.addEventListener('cart:changed', async () => {
         const response = await fetch('/cart');

@@ -43,7 +43,7 @@
                 
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 animate-fade-up position-relative" style="animation-delay: 0.2s;" id="storeGridList">
                     <div class="col" th:each="store : ${stores}">
-                        <div tabindex="0" role="button" th:aria-label="'Xem chi tiết ' + ${store.name}" style="cursor: pointer;" class="glass-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm bg-white position-relative store-card" data-bs-toggle="modal" data-bs-target="#storeDetailModal" th:data-store-slug="${store.slug}" th:data-store-name="${store.name}" th:data-store-status="${store.status == 'OPEN' ? 'Đang mở' : 'Đã đóng'}" th:data-store-address="${store.addressLine + ', ' + (store.ward != null ? store.ward + ', ' : '') + (store.district != null ? store.district + ', ' : '') + store.city}" th:data-store-rating="${store.ratingAverage}" th:data-store-reviews="${store.reviewCount + ' đánh giá'}" th:data-store-phone="${store.phone}" th:data-store-image="${store.imageUrl}" th:data-store-status-color="${store.status == 'OPEN' ? 'success' : 'danger'}">
+                        <div tabindex="0" role="button" th:aria-label="'Xem chi tiết ' + ${store.name}" style="cursor: pointer;" class="glass-card h-100 p-3 pb-4 d-flex flex-column rounded-4 border shadow-sm bg-white position-relative store-card" data-bs-toggle="modal" data-bs-target="#storeDetailModal" th:data-store-id="${store.id}" th:data-store-slug="${store.slug}" th:data-store-name="${store.name}" th:data-store-status="${store.status == 'OPEN' ? 'Đang mở' : 'Đã đóng'}" th:data-store-address="${store.addressLine + ', ' + (store.ward != null ? store.ward + ', ' : '') + (store.district != null ? store.district + ', ' : '') + store.city}" th:data-store-rating="${store.ratingAverage}" th:data-store-reviews="${store.reviewCount + ' đánh giá'}" th:data-store-phone="${store.phone}" th:data-store-image="${store.imageUrl}" th:data-store-status-color="${store.status == 'OPEN' ? 'success' : 'danger'}">
                             <div class="store-img-wrapper bg-light rounded-3 mb-3 overflow-hidden position-relative" style="aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center;">
                                 <img th:if="${store.imageUrl != null and !store.imageUrl.isEmpty()}" th:src="${store.imageUrl}" alt="Store Image" class="w-100 h-100 object-fit-cover">
                                 <i th:unless="${store.imageUrl != null and !store.imageUrl.isEmpty()}" class="bi bi-shop text-muted opacity-25" style="font-size: 4rem;"></i>
@@ -134,7 +134,7 @@
                             </p>
 
                             <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-md-start mt-2 mt-md-auto pb-md-2">
-                                <a href="#" class="tw-btn tw-btn-primary rounded-pill px-4 py-2 text-decoration-none d-flex align-items-center gap-2 shadow-sm hover-lift">
+                                <a href="/chat" id="modalStoreChatBtn" class="tw-btn tw-btn-primary rounded-pill px-4 py-2 text-decoration-none d-flex align-items-center gap-2 shadow-sm hover-lift">
                                     <i class="bi bi-chat-dots-fill"></i> Chat với cửa hàng
                                 </a>
                                 <a href="#" id="modalStoreCatalogBtn" class="tw-btn control-btn bg-white border shadow-sm rounded-pill px-4 py-2 text-decoration-none d-flex align-items-center gap-2 text-dark fw-bold hover-cyan">
@@ -164,6 +164,7 @@
                 
                 card.addEventListener('click', function() {
                     const slug = this.getAttribute('data-store-slug');
+                    document.getElementById('modalStoreChatBtn').href = '/chat/start/' + this.dataset.storeId;
                     const name = this.getAttribute('data-store-name');
                     const status = this.getAttribute('data-store-status');
                     const address = this.getAttribute('data-store-address');

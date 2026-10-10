@@ -45,7 +45,7 @@ BEGIN TRY
  INSERT dbo.ORDER_STATUS_HISTORY(order_id,status,note,created_at)
  SELECT o.id,s.status,N'DEMO-SI: dữ liệu giao hàng mẫu',DATEADD(day,s.offset_days,o.created_at)
  FROM dbo.ORDERS o JOIN #newOrders n ON n.id=o.id
- CROSS JOIN(VALUES(N'Chờ xác nhận',0),(N'Đã xác nhận',1),(N'Đã giao',3))s(status,offset_days);
+ CROSS JOIN(VALUES(N'Chờ xác nhận đơn hàng',0),(N'Đã xác nhận',1),(N'Đã giao',3))s(status,offset_days);
  INSERT dbo.REVIEWS(order_id,order_item_id,user_email,product_id,rating,comment,status,created_at,updated_at)
  SELECT o.id,i.id,o.user_email,i.product_id,
   CASE WHEN (i.product_id*7+CONVERT(int,RIGHT(o.order_code,1))*11)%20=0 THEN 1

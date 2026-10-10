@@ -48,7 +48,7 @@ class BankPaymentTests {
         String tag="BP"+System.nanoTime();
         buyer=tag+"b@twinkle.test";admin=tag+"a@twinkle.test";manager=tag+"m@twinkle.test";outsider=tag+"x@twinkle.test";
         for(String email:List.of(buyer,admin,manager,outsider)) {
-            sql.update("INSERT USERS(email,username,password_hash,is_enabled) SELECT ?,?,password_hash,1 FROM USERS WHERE email='user3@twinkle.com'",email,email);
+            sql.update("INSERT USERS(email,username,password_hash,is_enabled) VALUES(?,?,'!unusable-test-password',1)",email,email);
             String role=email.equals(admin)?"ROLE_ADMIN":email.equals(manager)||email.equals(outsider)?"ROLE_MANAGER":"ROLE_USER";
             sql.update("INSERT USER_ROLES(user_email,role_id) SELECT ?,id FROM ROLES WHERE name=?",email,role);
         }
@@ -134,8 +134,8 @@ class BankPaymentTests {
         assertThrows(ResponseStatusException.class,()->payments.confirm(id,buyer));
         payments.confirm(id,admin);entityManager.flush();assertEquals("PAID",sql.queryForObject("SELECT status FROM PAYMENTS WHERE id=?",String.class,id));
     }
-    @Test void newCheckoutRejectsLegacyMethodsButOldRecordsRemainReadable() throws Exception {
+    @Test void newCheckoutRejectsUnsupportedMethods() throws Exception {
         for(String method:List.of("VNPAY","MOMO"))assertThrows(BusinessRuleException.class,()->checkout.processCheckout(buyer,form(method)));
-        for(long id:List.of(2L,3L,5L))mvc.perform(get("/orders/"+id).with(user(principal("user1@twinkle.com")))).andExpect(status().isOk());
+        assertEquals(0,sql.queryForObject("SELECT COUNT(*) FROM PAYMENTS WHERE method NOT IN ('COD','BANKING')",Integer.class));
     }
 }

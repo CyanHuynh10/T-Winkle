@@ -45,6 +45,55 @@ class FinalFeatureTests {
  }
  int product(String suffix){return sql.queryForObject("INSERT PRODUCTS(slug,name,category_id,brand_id,base_price,status) OUTPUT INSERTED.id SELECT ?,?,MIN(c.id),MIN(b.id),100,'ACTIVE' FROM CATEGORIES c CROSS JOIN BRANDS b",Integer.class,(tag+suffix).toLowerCase(Locale.ROOT),tag+suffix);}
  @AfterEach void clear(){SecurityContextHolder.clearContext();}
+ @Test void invoicePdfScopeTotalsAndAdminLifecycle()throws Exception {
+  sql.update("UPDATE USERS SET full_name=N'Trần Minh - Quản lý' WHERE email=?",manager);
+  sql.update("UPDATE USERS SET full_name=N'Nguyễn Hà' WHERE email=?",buyer);
+  sql.update("UPDATE STORES SET name=N'T-Winkle - Quận 3',address_line=N'26 Nguyễn Thị Minh Khai',city=N'TP. Hồ Chí Minh',phone='02812345678' WHERE store_id=?",store);
+  sql.update("INSERT PAYMENTS(order_id,method,status,amount) VALUES(?,'COD','PAID',305)",order);
+  sql.update("UPDATE ORDERS SET subtotal=300,shipping_fee=30,coupon_discount=25,total=305,recipient_name=N'Nguyễn Hà',recipient_phone='0900000000' WHERE id=?",order);
+  sql.update("UPDATE ORDER_ITEMS SET product_name=N'Giày thể thao tiếng Việt',variant_name=N'Size 41 - Đen' WHERE id=?",item);
+  sql.update("INSERT ORDER_ITEMS(order_id,product_id,store_id,variant_id,product_name,variant_name,quantity,unit_price,discount_amount,line_total) VALUES(?,?,?,?,N'PRIVATE OTHER STORE','fixture',1,200,0,200)",order,product,other,variant);
+  var invoices=web.getBean(cyan.project.twinkle.invoice.InvoiceService.class);
+  auth(manager,"MANAGER");var prepared=invoices.prepare(new cyan.project.twinkle.invoice.InvoiceService.Prepare(" "+tag+" "));long reportId=((Number)prepared.get("id")).longValue();
+  assertEquals(1,prepared.get("rowCount"));assertTrue(prepared.get("filename").toString().endsWith(".pdf"));
+  var file=reports.download(reportId,false);assertEquals("application/pdf",file.contentType());
+  java.nio.file.Files.createDirectories(java.nio.file.Path.of("target/invoice-preview"));java.nio.file.Files.write(java.nio.file.Path.of("target/invoice-preview/hoa-don-cua-hang.pdf"),file.data());
+  try(var pdf=org.apache.pdfbox.Loader.loadPDF(file.data())){String text=new org.apache.pdfbox.text.PDFTextStripper().getText(pdf).replaceAll("\\s+"," ");assertTrue(text.contains("Giày thể thao tiếng Việt"),text);assertTrue(text.contains("Nguyễn Hà"),text);assertTrue(text.contains("101,67 đ"),text);assertFalse(text.contains("PRIVATE OTHER STORE"));assertTrue(text.contains(manager));}
+  var orderRepo=web.getBean(cyan.project.twinkle.repository.OrderRepository.class);var paymentRepo=web.getBean(cyan.project.twinkle.repository.PaymentRepository.class);var data=web.getBean(cyan.project.twinkle.invoice.InvoiceDataService.class);
+  var snapshot=orderRepo.findById(order).orElseThrow();var payment=paymentRepo.findByOrderId(order).orElseThrow();
+  var a=data.build(snapshot,payment,null,LocalDateTime.now(),store,manager);var b=data.build(snapshot,payment,null,LocalDateTime.now(),other,otherManager);
+  assertEquals(0,a.total().add(b.total()).compareTo(new BigDecimal("305")));assertEquals(0,a.couponDiscount().add(b.couponDiscount()).compareTo(new BigDecimal("25")));assertEquals(0,a.shippingFee().add(b.shippingFee()).compareTo(new BigDecimal("30")));
+  auth(otherManager,"MANAGER");assertThrows(Exception.class,()->reports.download(reportId,false));assertThrows(Exception.class,()->reports.send(reportId));
+  auth(admin,"ADMIN");assertThrows(Exception.class,()->reports.download(reportId,true));
+  auth(manager,"MANAGER");reports.send(reportId);reports.send(reportId);
+  mvc.perform(get("/api/manager/exports/"+reportId+"/download").with(user(manager).roles("MANAGER"))).andExpect(status().isOk()).andExpect(content().contentType("application/pdf"));
+  mvc.perform(get("/api/admin/reports/"+reportId+"/download").with(user(admin).roles("ADMIN"))).andExpect(status().isOk()).andExpect(content().contentType("application/pdf"));
+  auth(admin,"ADMIN");assertEquals("application/pdf",reports.list(0,prepared.get("filename").toString(),store).items().getFirst().get("content_type"));
+  var out=java.nio.file.Path.of("target/invoice-preview/hoa-don-cua-hang.pdf");java.nio.file.Files.createDirectories(out.getParent());java.nio.file.Files.write(out,file.data());
+ }
+ @Test void invoiceRejectsForeignUndeliveredInvalidAndUnauthorizedRequests()throws Exception {
+  sql.update("INSERT PAYMENTS(order_id,method,status,amount) VALUES(?,'COD','PAID',100)",order);
+  var invoices=web.getBean(cyan.project.twinkle.invoice.InvoiceService.class);
+  auth(otherManager,"MANAGER");assertThrows(org.springframework.web.server.ResponseStatusException.class,()->invoices.prepare(new cyan.project.twinkle.invoice.InvoiceService.Prepare(tag)));
+  auth(manager,"MANAGER");assertThrows(Exception.class,()->invoices.prepare(new cyan.project.twinkle.invoice.InvoiceService.Prepare("")));
+  sql.update("INSERT ORDER_STORE_FULFILLMENTS(order_id,store_id,status) VALUES(?,?,N'Đang giao')",order,store);
+  assertThrows(org.springframework.web.server.ResponseStatusException.class,()->invoices.prepare(new cyan.project.twinkle.invoice.InvoiceService.Prepare(tag)));
+  for(String role:List.of("USER","SUPPORT","ADMIN"))mvc.perform(post("/api/manager/invoices/prepare").with(user(buyer).roles(role)).with(csrf()).contentType("application/json").content("{\"orderCode\":\""+tag+"\"}")).andExpect(status().isForbidden());
+  mvc.perform(post("/api/manager/invoices/prepare").with(user(manager).roles("MANAGER")).contentType("application/json").content("{\"orderCode\":\""+tag+"\"}")).andExpect(status().isForbidden());
+  mvc.perform(post("/api/manager/invoices/prepare").with(user(manager).roles("MANAGER")).with(csrf()).contentType("application/json").content("{\"orderCode\":\""+tag+"\"}")).andExpect(status().isConflict());
+  assertEquals(0,sql.queryForObject("SELECT COUNT(*) FROM STORE_REPORTS WHERE store_id=?",Integer.class,store));
+ }
+ @Test void invoicePdfWrapsLongRowsRepeatsHeadersAndPreservesTotals()throws Exception {
+  sql.update("INSERT PAYMENTS(order_id,method,status,amount) VALUES(?,'COD','PAID',100)",order);
+  var snapshot=web.getBean(cyan.project.twinkle.repository.OrderRepository.class).findById(order).orElseThrow();
+  var payment=web.getBean(cyan.project.twinkle.repository.PaymentRepository.class).findByOrderId(order).orElseThrow();
+  var data=web.getBean(cyan.project.twinkle.invoice.InvoiceDataService.class);var base=data.build(snapshot,payment,LocalDateTime.now(),LocalDateTime.now(),store,manager);
+  var lines=new ArrayList<cyan.project.twinkle.invoice.InvoiceDataService.Line>();for(int i=1;i<=70;i++)lines.add(new cyan.project.twinkle.invoice.InvoiceDataService.Line(i,"Giày thể thao chất lượng cao với tên sản phẩm dài cần xuống dòng tiếng Việt "+i,"Size 41 - Đen",base.sellers().getFirst().name(),1,new BigDecimal("1234567"),BigDecimal.ZERO,new BigDecimal("1234567")));
+  var model=new cyan.project.twinkle.invoice.InvoiceDataService.Invoice(base.number(),base.orderCode(),base.orderedAt(),base.issuedAt(),base.deliveredAt(),base.issuerName(),base.issuerEmail(),base.customerName(),base.customerEmail(),base.customerPhone(),base.recipientName(),base.recipientPhone(),base.address(),base.note(),base.fulfillment(),base.status(),base.paymentMethod(),base.paymentStatus(),base.sellers(),lines,new BigDecimal("86419690"),BigDecimal.ZERO,BigDecimal.ZERO,BigDecimal.ZERO,new BigDecimal("86419690"),"");
+  byte[] bytes=web.getBean(cyan.project.twinkle.invoice.InvoicePdfRenderer.class).render(model);
+  try(var pdf=org.apache.pdfbox.Loader.loadPDF(bytes)){assertTrue(pdf.getNumberOfPages()>2);String text=new org.apache.pdfbox.text.PDFTextStripper().getText(pdf).replaceAll("\\s+"," ");assertTrue(text.contains("86.419.690 đ"));assertTrue(text.contains("70"));assertEquals(pdf.getNumberOfPages(),text.split("STT",-1).length-1);}
+  java.nio.file.Files.createDirectories(java.nio.file.Path.of("target/invoice-preview"));java.nio.file.Files.write(java.nio.file.Path.of("target/invoice-preview/hoa-don-nhieu-trang.pdf"),bytes);
+ }
  @Test void reviewAuthorityAndOfficialIdentity(){
   assertEquals(1,reviews.list(auth(manager,"MANAGER"),0,tag,null,"",null).total());assertEquals(0,reviews.list(auth(otherManager,"MANAGER"),0,tag,null,"",null).total());
   assertThrows(AccessDeniedException.class,()->reviews.reply(review,"foreign",auth(otherManager,"MANAGER")));
@@ -73,8 +122,8 @@ class FinalFeatureTests {
  @Test void supportRoutesAreDedicatedAndManagerForbidden()throws Exception {mvc.perform(get("/support").with(user(support).roles("SUPPORT"))).andExpect(status().isOk());mvc.perform(get("/support/reviews").with(user(support).roles("SUPPORT"))).andExpect(status().isOk());mvc.perform(get("/manager/support").with(user(support).roles("SUPPORT"))).andExpect(status().isForbidden());mvc.perform(get("/admin/system-config").with(user(admin).roles("ADMIN"))).andExpect(redirectedUrl("/admin/history"));}
  @Test void inventoryOrdersAndPaymentsExportUseAuthoritativeFilters()throws Exception {
   sql.update("INSERT PAYMENTS(order_id,method,status,amount) VALUES(?,'COD','PAID',100)",order);auth(manager,"MANAGER");
-  for(var input:List.of(new ReportService.Prepare("INVENTORY",Map.of("search",tag,"sizeFilter","41","color","blue"),List.of("sku","quantity")),new ReportService.Prepare("ORDERS",Map.of("search",tag,"status","Đã giao"),List.of("order_code","merchandise_value","created_at")),new ReportService.Prepare("PAYMENTS",Map.of("search",tag,"status","PAID","method","COD"),List.of("order_code","amount")))){
-   var f=reports.prepare(input);assertEquals(1,f.get("rowCount"));try(var wb=new XSSFWorkbook(new ByteArrayInputStream(reports.download(((Number)f.get("id")).longValue(),false).data()))){assertEquals(CellType.NUMERIC,wb.getSheetAt(0).getRow(7).getCell(1).getCellType());}
+  for(var input:List.of(new ReportService.Prepare("INVENTORY",Map.of("search",tag,"sizeFilter","41","color","blue"),List.of("sku","quantity","availability")),new ReportService.Prepare("ORDERS",Map.of("search",tag,"status","Đã giao"),List.of("order_code","merchandise_value","created_at")),new ReportService.Prepare("PAYMENTS",Map.of("search",tag,"status","PAID","method","COD"),List.of("order_code","amount")))){
+   var f=reports.prepare(input);assertEquals(1,f.get("rowCount"));try(var wb=new XSSFWorkbook(new ByteArrayInputStream(reports.download(((Number)f.get("id")).longValue(),false).data()))){assertEquals(CellType.NUMERIC,wb.getSheetAt(0).getRow(7).getCell(1).getCellType());if(input.type().equals("INVENTORY")){assertEquals("Trạng thái",wb.getSheetAt(0).getRow(6).getCell(2).getStringCellValue());assertEquals("Còn hàng",wb.getSheetAt(0).getRow(7).getCell(2).getStringCellValue());}}
   }
   assertEquals(0,reports.prepare(new ReportService.Prepare("PAYMENTS",Map.of("search",tag,"status","FAILED"),List.of("order_code"))).get("rowCount"));
  }
@@ -109,5 +158,5 @@ class FinalFeatureTests {
   for(int n=2;n<=14;n++)product("page"+n);var f=new PricingService.CatalogFilter(null,null,BigDecimal.ZERO,new BigDecimal("100000"),null,null);var first=catalog.filteredProducts(tag,null,null,"price-asc",0,buyer,null,f);var next=catalog.filteredProducts(tag,null,null,"price-asc",1,buyer,null,f);assertEquals(14,first.getTotalElements());assertEquals(12,first.getContent().size());assertEquals(2,next.getContent().size());assertTrue(first.getContent().stream().noneMatch(p->next.getContent().stream().anyMatch(q->q.getProductId().equals(p.getProductId()))));
   mvc.perform(get("/categories").param("keyword",tag).param("minPrice","0").param("maxPrice","100000").param("sort","price-asc")).andExpect(status().isOk()).andExpect(content().string(org.hamcrest.Matchers.containsString("maxPrice=100000"))).andExpect(content().string(org.hamcrest.Matchers.containsString("sort=price-asc")));
  }
- @Test void approvedLiveSupportHasNoInventedStoreScope(){var a=auth("support1@twinkle.com","SUPPORT");assertTrue(((List<?>)chat.staffContext(a).get("stores")).isEmpty());assertEquals(0,chat.staffInbox(a,0,30).total());assertEquals(0,reviews.list(a,0,"",null,"",null).total());}
+ @Test void liveSupportScopeMatchesActiveAssignments(){var a=auth("support1@twinkle.com","SUPPORT");var expected=new HashSet<>(sql.queryForList("SELECT store_id FROM STORE_STAFF_ASSIGNMENTS WHERE user_email=? AND active=1",Integer.class,a.getName()));var actual=((List<Map<String,Object>>)chat.staffContext(a).get("stores")).stream().map(s->((Number)s.get("id")).intValue()).collect(java.util.stream.Collectors.toSet());assertEquals(expected,actual);assertTrue(chat.staffInbox(a,0,30).items().stream().allMatch(c->expected.contains(sql.queryForObject("SELECT store_id FROM SUPPORT_CONVERSATIONS WHERE id=?",Integer.class,c.get("id")))));if(expected.isEmpty()){assertEquals(0,chat.staffInbox(a,0,30).total());assertEquals(0,reviews.list(a,0,"",null,"",null).total());}}
 }

@@ -155,13 +155,13 @@
             <div class="d-flex flex-column flex-grow-1">
                 <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1" th:text="${product.categoryName}">SNEAKER</span>
                 <h3 class="h5 fw-bold text-dark mb-1 text-truncate" th:title="${product.name}" th:text="${product.name}">Product Name</h3>
-                <div class="d-flex align-items-center gap-2 mb-3 text-sm">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-3 text-sm">
                     <div style="color: #FACC15;">
                         <i class="bi bi-star-fill"></i>
                         <span class="text-dark fw-bold ms-1" th:text="${product.ratingAverage != null ? #numbers.formatDecimal(product.ratingAverage, 1, 1) : '0.0'}">5.0</span>
                     </div>
                     <span class="text-muted-custom">|</span>
-                    <span class="text-muted-custom" th:text="'Đã bán ' + (${product.soldCount != null ? product.soldCount : 0})">Đã bán 0</span>
+                                    <span class="text-muted-custom text-sm w-100" th:if="${product != null}" th:text="'Đã bán: ' + ${#numbers.formatInteger(product.demoSoldCount > 0 ? product.demoSoldCount : product.soldCount, 1, 'POINT')}"></span>
                 </div>
                 <div class="mt-auto d-flex align-items-end pe-5">
                     <div>
@@ -179,16 +179,16 @@
     <nav aria-label="Phân trang sản phẩm">
         <ul class="pagination pagination-glass gap-2 mb-0 d-flex flex-wrap justify-content-center">
             <li class="page-item" th:classappend="${products.first ? 'disabled' : ''}">
-                <a class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm" th:href="@{${currentUri}(page=${products.number - 1},category=${selectedCategory})}" aria-label="Trang trước" style="width: 40px; height: 40px;"><i class="bi bi-chevron-left"></i></a>
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm" th:href="@{${currentUri}(page=${products.number - 1},category=${selectedCategory},keyword=${param.keyword},sort=${param.sort},brand=${param.brand},size=${param.size},color=${param.color},minPrice=${param.minPrice},maxPrice=${param.maxPrice},available=${param.available},sale=${param.sale})}" aria-label="Trang trước" style="width: 40px; height: 40px;"><i class="bi bi-chevron-left"></i></a>
             </li>
             
             <li class="page-item" th:each="i : ${#numbers.sequence(0, products.totalPages - 1)}" th:classappend="${i == products.number ? 'active' : ''}">
                 <a th:if="${i == products.number}" class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm bg-primary text-white border-primary" href="#" style="width: 40px; height: 40px;" th:text="${i + 1}">1</a>
-                <a th:unless="${i == products.number}" class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm bg-white text-dark" th:href="@{${currentUri}(page=${i},category=${selectedCategory})}" style="width: 40px; height: 40px;" th:text="${i + 1}">2</a>
+                <a th:unless="${i == products.number}" class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm bg-white text-dark" th:href="@{${currentUri}(page=${i},category=${selectedCategory},keyword=${param.keyword},sort=${param.sort},brand=${param.brand},size=${param.size},color=${param.color},minPrice=${param.minPrice},maxPrice=${param.maxPrice},available=${param.available},sale=${param.sale})}" style="width: 40px; height: 40px;" th:text="${i + 1}">2</a>
             </li>
             
             <li class="page-item" th:classappend="${products.last ? 'disabled' : ''}">
-                <a class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm" th:href="@{${currentUri}(page=${products.number + 1},category=${selectedCategory})}" aria-label="Trang sau" style="width: 40px; height: 40px;"><i class="bi bi-chevron-right"></i></a>
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm" th:href="@{${currentUri}(page=${products.number + 1},category=${selectedCategory},keyword=${param.keyword},sort=${param.sort},brand=${param.brand},size=${param.size},color=${param.color},minPrice=${param.minPrice},maxPrice=${param.maxPrice},available=${param.available},sale=${param.sale})}" aria-label="Trang sau" style="width: 40px; height: 40px;"><i class="bi bi-chevron-right"></i></a>
             </li>
         </ul>
     </nav>
@@ -427,74 +427,5 @@
 });
         </script>
     </div>
-
-    <!-- Sort Dropdown Logic -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const sortItems = document.querySelectorAll('.sort-dropdown-item, .category-dropdown-item');
-            const sortLabel = document.getElementById('sortLabel');
-            
-            sortItems.forEach(item => {
-                item.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    
-                    // Reset all
-                    sortItems.forEach(el => {
-                        el.classList.remove('selected-sort');
-                    });
-                    
-                    // Set active
-                    item.classList.add('selected-sort');
-                    
-                    // Update label
-                    const textNode = item.querySelector('.sort-text, .category-text');
-                    if (textNode && sortLabel) {
-                        sortLabel.innerHTML = textNode.innerHTML;
-                    }
-                });
-            });
-            
-            // Filter UI sync - just to be absolutely sure inputs trigger changes in some browsers
-            const filterInputs = document.querySelectorAll('#filterOffcanvas .form-check-input');
-            filterInputs.forEach(input => {
-                input.addEventListener('change', () => {
-                    // CSS :checked handles visual, but this forces a repaint just in case
-                });
-            });
-        });
-    </script>
-
-
-        <!-- Pagination Boundary Script -->
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                const paginations = document.querySelectorAll('.pagination');
-                paginations.forEach(pag => {
-                    const items = pag.querySelectorAll('.page-item');
-                    if (items.length < 3) return;
-                    
-                    const prevItem = items[0];
-                    const nextItem = items[items.length - 1];
-                    const pages = Array.from(items).slice(1, -1);
-                    
-                    let activeIndex = -1;
-                    pages.forEach((p, idx) => {
-                        if (p.classList.contains('active')) activeIndex = idx;
-                    });
-                    
-                    if (activeIndex === 0) {
-                        prevItem.classList.add('disabled');
-                    } else {
-                        prevItem.classList.remove('disabled');
-                    }
-                    
-                    if (activeIndex === pages.length - 1) {
-                        nextItem.classList.add('disabled');
-                    } else {
-                        nextItem.classList.remove('disabled');
-                    }
-                });
-            });
-        </script>
 </body>
 </html>

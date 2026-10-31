@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const row = root.querySelector(`[data-cart-item-id="${item.id}"]`); if (!row) continue;
             const check = row.querySelector('[data-cart-select]'); check.checked = item.selected && item.available; check.disabled = !item.available;
             const input = row.querySelector('[data-cart-quantity]'); input.value = item.quantity; input.dataset.committed = item.quantity; input.max = item.stock; input.disabled = !item.available;
+            row.querySelector('[data-cart-stock]').textContent = '* Còn lại: ' + item.stock + ' sản phẩm';
             row.querySelector('[data-cart-step="-1"]').disabled = !item.available || item.quantity <= 1;
             row.querySelector('[data-cart-step="1"]').disabled = !item.available || item.quantity >= item.stock;
             const reason = row.querySelector('.cart-unavailable-reason'); reason.textContent = item.reason || ''; reason.classList.toggle('d-none', item.available);

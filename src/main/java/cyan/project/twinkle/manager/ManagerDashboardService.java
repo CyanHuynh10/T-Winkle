@@ -35,6 +35,7 @@ public class ManagerDashboardService {
         var revenue=(java.math.BigDecimal)kpi.get("revenue");long deliveredOrders=((Number)kpi.get("delivered_orders")).longValue();
         kpi.put("average_order_value",deliveredOrders==0?java.math.BigDecimal.ZERO:revenue.divide(java.math.BigDecimal.valueOf(deliveredOrders),2,java.math.RoundingMode.HALF_UP));
         long orders=((Number)kpi.get("orders")).longValue();kpi.put("cancellation_rate",orders==0?0.0:((Number)kpi.get("cancelled_orders")).doubleValue()/orders);
+        kpi.put("demo_units_period_ending",sql.queryForObject("SELECT COALESCE(SUM(CONVERT(bigint,quantity_sold)),0) FROM DEMO_VARIANT_SALES WHERE is_demo=1 AND store_id=? AND period_end>=? AND period_end<?",Long.class,store,w.start(),w.end()));
         result.put("kpi",kpi);
         result.put("trend",sql.queryForList("SELECT "+w.grouping()+" AS label,COALESCE(SUM(CASE WHEN "+delivered+" THEN i.line_total ELSE 0 END),0) AS value,COUNT(DISTINCT o.id) AS orders,COUNT(DISTINCT CASE WHEN COALESCE(f.status,o.status)=N'Đã hủy' THEN o.id END) AS cancelled"+source+" GROUP BY "+w.grouping()+" ORDER BY "+w.grouping(),args));
         result.put("order_status",sql.queryForList("SELECT COALESCE(f.status,o.status) AS label,COUNT(DISTINCT o.id) AS value"+source+" GROUP BY COALESCE(f.status,o.status)",args));

@@ -1,0 +1,15 @@
+<!doctype html><html xmlns:th="http://www.thymeleaf.org" th:replace="~{layouts/console :: base(~{::section})}"><body>
+<section>
+ <div th:if="${consoleError != null}" class="alert alert-danger" role="alert" th:text="${consoleError}"></div>
+ <div id="console-content">
+  <div th:if="${consoleInitial != null and consoleColumns != null}" class="card table-responsive">
+   <table class="table table-hover tw-console-table"><thead><tr><th th:each="col : ${consoleColumns}" scope="col" th:text="${consolePage == 'inventory' and col == 'status' ? 'Nhập hàng' : (consoleLabels.get(col) ?: col)}"></th></tr></thead>
+    <tbody><tr th:each="row : ${consoleInitial.items}"><td th:each="col : ${consoleColumns}" th:class="${@consoleViewService.cellClass(col)}" th:attr="data-column=${col}"><span th:if="${col != 'availability'}" class="tw-cell-content" th:title="${@consoleViewService.display(col,row.get(col))}" th:text="${col == 'quantity' and consoleRole == 'manager' and consolePage == 'variants' and row.get('inventory_store_id') == null ? '—' : @consoleViewService.display(col,row.get(col))}"></span><span th:if="${col == 'availability'}" class="tw-stock-badge" th:classappend="${'tw-stock-' + row.get('availability_style')}" th:text="${row.get('availability')}"></span></td></tr><tr th:if="${#lists.isEmpty(consoleInitial.items)}"><td th:colspan="${#lists.size(consoleColumns)}" class="p-5 text-center">Không có dữ liệu phù hợp</td></tr></tbody>
+   </table><p class="p-3 text-secondary small" th:text="${consoleInitial.total + ' dòng · 30 dòng / trang'}"></p>
+  </div>
+  <div th:if="${consoleInitial != null and consoleInitial['kpi'] != null}" class="row g-3"><div th:each="metric : ${consoleInitial.kpi}" class="col-12 col-sm-6 col-xl-3"><div class="card p-3"><span th:text="${metric.key}"></span><strong class="fs-4" th:text="${metric.value}"></strong></div></div></div>
+ </div>
+ <div th:if="${consolePage == 'support' or (consoleRole == 'support' and consolePage != 'reviews')}"><div th:replace="~{fragments/console-ui :: chat}"></div></div>
+ <noscript>Cần bật JavaScript để sử dụng bộ lọc và thao tác. Các thay đổi đều được kiểm tra tại máy chủ.</noscript>
+ <script th:inline="javascript">window.twConsoleInitial = JSON.parse(/*[[${consoleInitialJson}]]*/ 'null');</script>
+</section></body></html>

@@ -22,6 +22,12 @@
             .cart-item-row:last-child {
                 border-bottom: none;
             }
+            .cart-container .cart-item-info { min-width: 0; }
+            .cart-container .cart-item-actions { max-width: 100%; }
+            .cart-container .cart-item-info .badge { max-width: 100%; white-space: normal; overflow-wrap: anywhere; text-align: left; }
+            @media (max-width: 767.98px) {
+                .cart-container .cart-item-img { width: 64px !important; height: 64px !important; }
+            }
             .qty-btn {
                 width: 32px;
                 height: 32px;
@@ -141,7 +147,7 @@
                                         </div>
                                         
                                         <!-- Info -->
-                                        <div class="d-flex flex-column flex-grow-1 min-w-0">
+                                        <div class="d-flex flex-column flex-grow-1 cart-item-info">
                                             <h3 class="h6 fw-bold text-dark mb-1 text-truncate" th:text="${item.product.name}" style="cursor: pointer;" th:data-product-id="${item.product.id}" onclick="showProductDetail(this.dataset.productId)">Product</h3>
                                             <span class="badge bg-light text-dark border px-2 py-1 mb-1" style="width: fit-content; align-self: flex-start;" th:text="${item.variant.size} + ' - ' + ${item.variant.color}">Variant</span>
                                             
@@ -151,17 +157,20 @@
                                                     <span data-cart-price class="fw-bold text-dark" th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span>
                                                 </div>
                                                 
-                                                <div class="d-flex align-items-center gap-3">
+                                                <div class="d-flex flex-wrap align-items-start gap-3 cart-item-actions">
                                                     <!-- Quantity Update -->
+                                                    <div class="d-flex flex-column">
                                                     <form th:action="@{/cart/update}" method="POST" class="quantity-control d-flex align-items-center gap-2" data-cart-operation="update">
                                                         <input type="hidden" name="cartItemId" th:value="${item.id}" />
                                                         <button type="button" class="btn btn-light border" aria-label="Giảm số lượng" th:disabled="${item.quantity <= 1 or !cartAvailability[item.id].available}" data-cart-step="-1">−</button>
                                                         <input type="number" name="quantity" min="1" step="1" required inputmode="numeric" class="form-control text-center fw-bold" th:value="${item.quantity}" th:max="${cartStock[item.id] != null ? cartStock[item.id] : 0}" th:disabled="${!cartAvailability[item.id].available}" data-cart-quantity>
                                                         <button type="button" class="btn btn-light border" aria-label="Tăng số lượng" th:disabled="${cartStock[item.id] == null or item.quantity >= cartStock[item.id] or !cartAvailability[item.id].available}" data-cart-step="1">+</button>
                                                     </form>
+                                                    <div data-cart-stock class="mt-2 text-xs text-muted-custom fst-italic" aria-live="polite" th:text="'* Còn lại: ' + ${cartStock[item.id] != null ? cartStock[item.id] : 0} + ' sản phẩm'"></div>
+                                                    </div>
                                                     
                                                     <!-- Remove Button -->
-                                                    <form th:action="@{/cart/remove}" method="POST" class="m-0 p-0" data-cart-operation="remove">
+                                                    <form th:action="@{/cart/remove}" method="POST" class="mt-1 p-0" data-cart-operation="remove">
                                                         <input type="hidden" name="cartItemId" th:value="${item.id}" />
                                                         <button type="submit" class="btn btn-sm btn-light text-danger rounded-circle shadow-sm d-flex align-items-center justify-content-center hover-scale" style="width: 36px; height: 36px;">
                                                             <i class="bi bi-trash"></i>

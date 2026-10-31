@@ -36,6 +36,7 @@ public class StorefrontProductService {
 
     private final ProductRepository productRepository;
     private final PricingService pricingService;
+    private final DemoSalesService demoSales;
     private final ProductImageRepository productImageRepository;
     private final ReviewRepository reviewRepository;
     private final cyan.project.twinkle.review.StaffReviewService staffReviews;
@@ -47,7 +48,8 @@ public class StorefrontProductService {
 
     private final org.springframework.jdbc.core.JdbcTemplate sql;
     @Transactional(readOnly=true) public Page<ProductDTO> filteredProducts(String keyword,String category,String brand,String sort,int page,String email,String storeSlug,PricingService.CatalogFilter filter){
-        Integer store=storeSlug==null?null:stores.findBySlug(storeSlug).orElseThrow().getId();var now=LocalDateTime.now();var products=pricingService.catalogPage(normalize(keyword),normalize(category),normalize(brand),store,now,page,12,sort==null?"popular":sort,filter,false);var result=mapToProductDTOPage(products,email,now);
+        filter = new PricingService.CatalogFilter(normalize(filter.size()), normalize(filter.color()), filter.minPrice(), filter.maxPrice(), filter.available(), filter.sale());
+        Integer store=storeSlug==null?null:stores.findBySlug(storeSlug).orElseThrow().getId();var now=LocalDateTime.now();var products=pricingService.catalogPage(normalize(keyword),normalize(category),normalize(brand),store,now,page,12,normalize(sort)==null?"popular":sort,filter,false);var result=mapToProductDTOPage(products,email,now);
         if(store!=null){var prices=pricingService.calculateEffectivePricesBatch(products.getContent(),now,store);result.forEach(p->p.setEffectivePrice(prices.get(p.getProductId())));}return result;
     }
     @Transactional(readOnly=true) public Map<String,Object> filterOptions(String category,String storeSlug){
@@ -57,7 +59,13 @@ public class StorefrontProductService {
 
     @Transactional(readOnly = true)
     public Page<ProductDTO> getWishlistProducts(String email, int page) {
-        return mapToProductDTOPage(productRepository.findWishlistProducts(email, PageRequest.of(page, 12)), email, LocalDateTime.now());
+        if ((long)page * 12 > Integer.MAX_VALUE) {
+            long total = productRepository.countWishlistProducts(email);
+            page = (int)Math.max(0, (total - 1) / 12);
+        }
+        var result = productRepository.findWishlistProducts(email, PageRequest.of(Math.max(0, page), 12));
+        if (result.getNumber() > 0 && result.isEmpty()) result = productRepository.findWishlistProducts(email, PageRequest.of(Math.max(0, result.getTotalPages()-1), 12));
+        return mapToProductDTOPage(result, email, LocalDateTime.now());
     }
 
     @Transactional(readOnly = true)
@@ -94,7 +102,7 @@ public class StorefrontProductService {
                     normalize(keyword),
                     normalize(categorySlug),
                     normalize(brandSlug),
-                    PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "createdAt"))
+                    PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "createdAt").and(Sort.by("id")))
             );
         }
 
@@ -149,7 +157,7 @@ public class StorefrontProductService {
                     storeSlug,
                     normalizedCategory,
                     search,
-                    PageRequest.of(page, 12, Sort.by(Sort.Direction.DESC, "createdAt"))
+                    PageRequest.of(page, 12, Sort.by(Sort.Direction.DESC, "createdAt").and(Sort.by("id")))
             );
         }
 
@@ -165,10 +173,10 @@ public class StorefrontProductService {
         LocalDateTime now = LocalDateTime.now();
 
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Sáº£n pháº©m khÃ´ng tá»“n táº¡i"));
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Sản phẩm không tồn tại"));
 
         if (!"ACTIVE".equals(product.getStatus())) {
-            throw new IllegalArgumentException("Sản phẩm ngừng kinh doanh");
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Sản phẩm ngừng kinh doanh");
         }
 
         ProductDetailDTO dto = new ProductDetailDTO();
@@ -185,6 +193,8 @@ public class StorefrontProductService {
         Long sold = orderItemRepository.getSoldCountForProduct(id, "Đã giao");
         dto.setRatingAverage(avgRating != null ? avgRating : 0.0);
         dto.setSoldCount(sold != null ? sold : 0L);
+        var demoVariantSales = demoSales.variants(id);
+        dto.setDemoSoldCount(demoVariantSales.values().stream().mapToLong(Long::longValue).sum());
         dto.setInWishlist(
                 email != null
                         && wishlistItemRepository.existsById(new WishlistItemId(email, id))
@@ -219,6 +229,7 @@ public class StorefrontProductService {
                     variantDTO.setEffectivePrice(pricingService.calculateItemPrice(product,variant,null,now));
                     variantDTO.setImageUrl(variant.getImageUrl());
                     variantDTO.setSoldCount(variantSales.getOrDefault(variant.getId(), 0L));
+                    variantDTO.setDemoSoldCount(demoVariantSales.getOrDefault(variant.getId(), 0L));
                     var stats = variantRatings.get(variant.getId());
                     variantDTO.setRatingAverage(stats == null ? 0.0 : ((Number) stats[1]).doubleValue());
                     variantDTO.setReviewCount(stats == null ? 0L : ((Number) stats[2]).longValue());
@@ -298,6 +309,7 @@ public class StorefrontProductService {
             ratingMap.put((Integer) row[0], (Double) row[1]);
         });
 
+        var demoSoldMap = demoSales.products(productIds);
         Map<Integer, Long> soldMap = new HashMap<>();
         orderItemRepository.getSoldCountsForProducts(productIds, "Đã giao").forEach(row -> {
             soldMap.put((Integer) row[0], ((Number) row[1]).longValue());
@@ -328,6 +340,7 @@ public class StorefrontProductService {
                             inWishlist
                     );
                     dto.setPrimaryImagePath(imageMap.get(product.getId()));
+                    dto.setDemoSoldCount(demoSoldMap.getOrDefault(product.getId(), 0L));
                     return dto;
                 })
                 .collect(Collectors.toList());

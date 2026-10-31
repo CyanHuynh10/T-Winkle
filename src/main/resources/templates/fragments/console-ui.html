@@ -1,0 +1,16 @@
+<!doctype html><html xmlns:th="http://www.thymeleaf.org"><body>
+<div th:fragment="feedback">
+ <div id="console-notice" class="toast-container position-fixed bottom-0 end-0 p-3" aria-live="polite"></div>
+ <div id="console-modal" class="modal fade" tabindex="-1" aria-labelledby="console-modal-title"><div class="modal-dialog modal-lg modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="console-modal-title"></h2><button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Đóng"></button></div><div id="console-modal-body" class="modal-body"></div></div></div></div>
+</div>
+<div th:fragment="loading" class="p-4 text-center" role="status"><span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Đang tải…</div>
+<div th:fragment="chat" id="conversation-app" class="card" th:attr="data-mode=${chatMode},data-conversation-id=${conversationId},data-start-store-id=${startStoreId}">
+ <div class="card-header d-flex flex-wrap gap-2 align-items-center"><strong id="chat-title">Hội thoại</strong><span class="small text-secondary" id="chat-connection" role="status"></span><div id="chat-actions" class="ms-auto d-flex gap-2 flex-wrap"></div></div>
+ <div id="chat-error" class="alert alert-danger m-3" role="alert" hidden></div>
+ <div class="conversation-grid"><aside id="chat-inbox" class="border-end p-3" aria-label="Cuộc trò chuyện"></aside><section class="conversation-thread">
+  <div id="chat-summary" class="small p-3 border-bottom" hidden></div>
+  <div id="chat-messages" class="conversation-messages p-3" aria-live="polite" aria-label="Lịch sử tin nhắn"><div th:replace="~{fragments/console-ui :: loading}"></div></div>
+  <form id="chat-compose" class="d-flex gap-2 p-3 border-top"><label class="visually-hidden" for="chat-input">Tin nhắn</label><textarea id="chat-input" class="form-control" maxlength="2000" rows="2" placeholder="Nhập tin nhắn…" required></textarea><button class="btn btn-primary align-self-end" type="submit">Gửi</button></form>
+ </section></div>
+</div>
+</body></html>

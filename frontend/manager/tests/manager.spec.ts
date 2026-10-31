@@ -34,7 +34,7 @@ test('Manager CSS does not change Storefront',async({page})=>{
   await page.goto(route);expect((await page.request.get(route)).status()).toBeLessThan(500)
   if(route==='/chat')continue
   const before=await page.locator('body').evaluate(el=>({font:getComputedStyle(el).fontFamily,color:getComputedStyle(el).color,background:getComputedStyle(el).backgroundColor,margin:getComputedStyle(el).margin}))
-  await page.addStyleTag({url:'/manager-assets/manager.css'})
+  await page.addStyleTag({url:'/css/console.css'})
   const after=await page.locator('body').evaluate(el=>({font:getComputedStyle(el).fontFamily,color:getComputedStyle(el).color,background:getComputedStyle(el).backgroundColor,margin:getComputedStyle(el).margin}))
   expect(after).toEqual(before)
  }

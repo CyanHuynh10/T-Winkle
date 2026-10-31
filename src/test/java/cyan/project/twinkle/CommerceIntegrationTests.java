@@ -34,9 +34,10 @@ class CommerceIntegrationTests {
     @Test @Transactional void mismatchedCartProductAndUnauthorizedFulfillmentLeaveSqlUnchanged() {
         String email="24110064@student.hcmute.edu.vn";
         int before=sql.queryForObject("SELECT COALESCE(SUM(ci.quantity),0) FROM CART_ITEMS ci JOIN CARTS c ON c.id=ci.cart_id WHERE c.user_email=?",Integer.class,email);
-        assertThrows(BusinessRuleException.class,()->cart.addToCart(email,99999,1L,1,1));
+        long variant=sql.queryForObject("SELECT MIN(id) FROM PRODUCT_VARIANTS",Long.class);
+        assertThrows(BusinessRuleException.class,()->cart.addToCart(email,99999,variant,1,1));
         assertEquals(before,sql.queryForObject("SELECT COALESCE(SUM(ci.quantity),0) FROM CART_ITEMS ci JOIN CARTS c ON c.id=ci.cart_id WHERE c.user_email=?",Integer.class,email));
-        long order=sql.queryForObject("SELECT MIN(id) FROM ORDERS WHERE user_email=?",Long.class,email);
+        long order=CatalogTestFixtures.order(sql,email);
         String status=sql.queryForObject("SELECT status FROM ORDERS WHERE id=?",String.class,order);
         assertThrows(BusinessRuleException.class,()->fulfillment.transition(order,email,"Đã xác nhận"));
         assertEquals(status,sql.queryForObject("SELECT status FROM ORDERS WHERE id=?",String.class,order));
@@ -45,7 +46,7 @@ class CommerceIntegrationTests {
     @Test @Transactional void quoteUsesCurrentPricingAndDoesNotMutateCouponCartOrInventory() {
         String email="quote-test-"+System.nanoTime()+"@twinkle.test";
         sql.update("INSERT INTO USERS(email,username,password_hash,is_enabled) VALUES(?,?,'!unusable-test-password',1)",email,email);
-        var available=products.getProductDetailDTO(1,null).getStoreAvailability().stream().filter(i->i.getQuantity()>0).findFirst().orElseThrow();
+        var available=products.getProductDetailDTO(CatalogTestFixtures.availableProduct(sql),null).getStoreAvailability().stream().filter(i->i.getQuantity()>0).findFirst().orElseThrow();
         cart.addToCart(email,available.getVariantId(),available.getStoreId(),1);
         var before=sql.queryForList("SELECT ci.id,ci.unit_price,ci.quantity FROM CART_ITEMS ci JOIN CARTS c ON c.id=ci.cart_id WHERE c.user_email=? ORDER BY ci.id",email);
         var quote=checkout.quote(email,null);

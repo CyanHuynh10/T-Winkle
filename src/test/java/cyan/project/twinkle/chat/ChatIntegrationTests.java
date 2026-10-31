@@ -67,6 +67,8 @@ class ChatIntegrationTests {
         assertFalse(results.isEmpty()); assertTrue(results.size()<=3);
         var id=c.getCurrentProductId();
         var detail=(Map<?,?>)tool("get_product_details",Map.of("productId",id),c); assertEquals(true,detail.get("active"));
+        assertEquals("/products/"+id,detail.get("productUrl"));
+        for(Object item:results){var result=(Map<?,?>)item;assertEquals("/products/"+result.get("productId"),result.get("productUrl"));}
         assertFalse(((List<?>)tool("get_product_variants",Map.of("productId",id),c)).isEmpty());
         var price=(Map<?,?>)tool("get_current_price",Map.of("productId",id),c);
         assertNotNull(price.get("effectivePrice")); assertTrue(price.containsKey("promotionNames"));
@@ -106,7 +108,8 @@ class ChatIntegrationTests {
         assertTrue(second.stream().noneMatch(v -> v.containsKey("quantity")));
     }
     @Test @Transactional void ownOrderOnlyAndMinimalProviderData() {
-        var row=sql.queryForMap("SELECT TOP(1) order_code,user_email FROM ORDERS ORDER BY id");
+        long fixture=cyan.project.twinkle.CatalogTestFixtures.order(sql,owner);
+        var row=sql.queryForMap("SELECT order_code,user_email FROM ORDERS WHERE id=?",fixture);
         String code=row.get("order_code").toString(),email=row.get("user_email").toString();
         var call=new AiChatProvider.ToolCall("t","get_my_order_status",json.writeValueAsString(Map.of("orderCode",code)));
         var memory=new AiShoppingContext();

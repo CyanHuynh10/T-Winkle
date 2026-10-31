@@ -1,0 +1,78 @@
+T-Winkle final catalog operation (manual only)
+
+Post-catalog display correction (2026-10-22)
+------------------------------------------
+Do not rerun the reset/import to correct names. Use pagination_db.py backup to
+capture current names, all non-name field/table hashes, a targeted rollback SQL
+export, and a verified COPY_ONLY backup. It restores a new dedicated clone and
+rehearses the name-only update twice. Evidence is in tmp/pagination-fix, not docs.
+Run the isolated Maven tests, then Maven package and
+pagination_browser.py. Only after successful checks run pagination_db.py apply
+and verify. Existing clones and changed live baselines are refused.
+The current versioned commercial_name fields omit the standalone Giày prefix;
+source titles, image alt text/provenance, descriptions, prices and identifiers
+retain their meaning. The original import batch identity remains unchanged;
+this correction creates no new import batch and never reseeds existing data.
+Admin catalog writes (including approved Manager requests) use ProductNames.
+Storefront Đã bán: is a concise display of existing demonstration quantities;
+DEMO_VARIANT_SALES/is_demo and actual order/revenue statistics remain separate.
+Public catalog pages use zero-based page parameters, 12 Products per page,
+normalize blank sort to popular, and clamp stale pages after counting Products.
+Operational tables retain their approved 30 rows and store authorization.
+Manager Excel exports intentionally include all rows matching the active
+filters/sort and selected columns across pages, with store-scoped private data.
+
+Original import workflow below is retained for recovery/reference only.
+
+1. Review the deletion list in reset-seed-final-catalog.sql and the current
+   identity/fingerprints. This historical batch targets server Cyan / T_Winkle only.
+   Use the fresh-install baseline/seed in db/README.md for new installations.
+2. python tools/catalog/verify_final_catalog.py
+3. python tools/catalog/final_catalog.py backup
+4. python tools/catalog/final_catalog.py rehearse
+5. python tools/catalog/validate_final_catalog.py tests
+6. Maven alone packages the native Thymeleaf/Bootstrap/JavaScript frontend.
+7. python tools/catalog/validate_final_catalog.py package
+8. Run the packaged application against T_Winkle_FinalCatalog_20261018 only;
+   verify public and authenticated workflows. Record actual test/runtime evidence.
+9. Stop the isolated runtime and restore/rehearse the owned test copy if transient
+   browser fixtures were created. No temporary fixtures may reach T_Winkle.
+10. python tools/catalog/final_catalog.py apply
+11. python tools/catalog/final_catalog.py verify
+
+The operator requires verified backup, restore/rehearsal and regression evidence
+before live apply. It refuses a different database GUID, changed baseline or seed.
+No cleanup runs on startup. ddl-auto remains none. No passwords are changed.
+Do not run apply a second time as a new reset. The seed batch is immutable: a repeat
+of the SQL seed is a no-op; a conflicting manifest aborts instead of overwriting it.
+
+Schema: migration-final-catalog.sql (additive/idempotent).
+Data: reset-seed-final-catalog.sql and catalog-final-20261018.json.
+Provenance: CATALOG_PRODUCT_PROVENANCE; manufacturer code may be NULL when only
+retail size SKUs were published. No manufacturer code is inferred from those SKUs.
+The preserved historical inventory backup table is recovery data, never live stock.
+
+Inventory/sales determinism: seed 20261018. H(key) = unsigned big-endian integer
+from the first eight bytes of SHA256(UTF8('20261018:' + key)). For each variant key,
+rank stores 1..6 by H(variant + ':store:' + store). Carry the first
+2 + H(variant + ':carried') % 3 stores. Quantities and simulated sales are validated
+from the same algorithm by verify_final_catalog.py. Explicit zero rows mean tracked
+but unavailable; missing rows mean not carried. Manager reorder level stays 10;
+customer availability threshold stays 5.
+
+DEMO_VARIANT_SALES contains explicitly simulated UNITS ONLY for [2026-09-01,
+2026-10-18). No prices/revenue, customer identities, Orders or Payments are created.
+Real soldCount/deliveredQuantity and all financial metrics still use transactions.
+A separate demoSoldCount/demoQuantity is labeled 'Lượt bán mô phỏng'. Dashboard
+and its Excel export select complete summary periods whose exclusive period_end
+falls in the selected date window; no daily distribution is invented.
+
+Rollback evidence: an outer transaction runs the entire data reset/seed and rolls
+it back, then all table hashes are compared. SQL Server identities may advance
+on rollback; keys are never reused or reseeded. Recovery backup location is recorded
+locally in tmp/catalog-operations/recovery.json. Do not restore the live backup
+blindly after new user transactions have occurred. Preserve it for controlled recovery.
+
+Credentials are read into process environment, never command arguments or outputs.
+Research/output CSVs and operational evidence stay in the Git-ignored docs folder.
+No Git commit or push is performed by these tools.

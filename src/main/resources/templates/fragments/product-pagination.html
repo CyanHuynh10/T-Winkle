@@ -1,0 +1,20 @@
+<div xmlns:th="http://www.thymeleaf.org" th:fragment="pager(products,currentUri)">
+                    <div class="d-flex justify-content-center mt-5 animate-fade-up" style="animation-delay: 0.3s;" th:if="${products.totalPages > 1}">
+    <nav aria-label="Phân trang sản phẩm">
+        <ul class="pagination pagination-glass gap-2 mb-0 d-flex flex-wrap justify-content-center">
+            <li class="page-item" th:classappend="${products.first ? 'disabled' : ''}">
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm" th:href="@{${currentUri}(page=${products.number - 1},keyword=${param.keyword},sort=${param.sort},brand=${param.brand},size=${param.size},color=${param.color},minPrice=${param.minPrice},maxPrice=${param.maxPrice},available=${param.available},sale=${param.sale})}" th:attr="aria-disabled=${products.first},tabindex=${products.first ? -1 : 0}" aria-label="Trang trước" style="width: 40px; height: 40px;"><i class="bi bi-chevron-left"></i></a>
+            </li>
+
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, products.totalPages - 1)}" th:classappend="${i == products.number ? 'active' : ''}">
+                <a th:if="${i == products.number}" class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm bg-primary text-white border-primary" href="#" style="width: 40px; height: 40px;" th:text="${i + 1}">1</a>
+                <a th:unless="${i == products.number}" class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm bg-white text-dark" th:href="@{${currentUri}(page=${i},keyword=${param.keyword},sort=${param.sort},brand=${param.brand},size=${param.size},color=${param.color},minPrice=${param.minPrice},maxPrice=${param.maxPrice},available=${param.available},sale=${param.sale})}" style="width: 40px; height: 40px;" th:text="${i + 1}">2</a>
+            </li>
+
+            <li class="page-item" th:classappend="${products.last ? 'disabled' : ''}">
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center shadow-sm" th:href="@{${currentUri}(page=${products.number + 1},keyword=${param.keyword},sort=${param.sort},brand=${param.brand},size=${param.size},color=${param.color},minPrice=${param.minPrice},maxPrice=${param.maxPrice},available=${param.available},sale=${param.sale})}" th:attr="aria-disabled=${products.last},tabindex=${products.last ? -1 : 0}" aria-label="Trang sau" style="width: 40px; height: 40px;"><i class="bi bi-chevron-right"></i></a>
+            </li>
+        </ul>
+    </nav>
+</div>
+</div>

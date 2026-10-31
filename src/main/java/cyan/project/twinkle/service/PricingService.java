@@ -19,7 +19,7 @@ public class PricingService {
  }
  public record CatalogFilter(String size,String color,BigDecimal minPrice,BigDecimal maxPrice,Boolean available,Boolean sale){}
  @Transactional(readOnly=true) public org.springframework.data.domain.Page<Product> catalogPage(String keyword,String category,String brand,Integer store,LocalDateTime now,int page,int size,String sort,CatalogFilter filter,boolean saleOrdering){
-  if(page<0||size<1||size>100||keyword!=null&&keyword.length()>150||!Set.of("popular","newest","price-asc","price-desc").contains(sort)||filter.minPrice()!=null&&filter.minPrice().signum()<0||filter.maxPrice()!=null&&filter.maxPrice().signum()<0||filter.minPrice()!=null&&filter.maxPrice()!=null&&filter.minPrice().compareTo(filter.maxPrice())>0)throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST,"Bộ lọc sản phẩm không hợp lệ");
+  if(size<1||size>100||keyword!=null&&keyword.length()>150||!Set.of("popular","newest","price-asc","price-desc").contains(sort)||filter.minPrice()!=null&&filter.minPrice().signum()<0||filter.maxPrice()!=null&&filter.maxPrice().signum()<0||filter.minPrice()!=null&&filter.maxPrice()!=null&&filter.minPrice().compareTo(filter.maxPrice())>0)throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST,"Bộ lọc sản phẩm không hợp lệ");
   boolean sale=Boolean.TRUE.equals(filter.sale());
   String amount="CASE WHEN pr.discount_type='PERCENT' THEN p.base_price*(1-pr.discount_value/100.0) ELSE p.base_price-pr.discount_value END";
   String effective="CAST(CASE WHEN ("+amount+")<0 THEN 0 ELSE ("+amount+") END AS DECIMAL(18,2))";
@@ -31,10 +31,11 @@ public class PricingService {
   if(filter.size()!=null||filter.color()!=null||filter.available()!=null){
    source+=" AND EXISTS(SELECT 1 FROM PRODUCT_VARIANTS fv WHERE fv.product_id=p.id AND fv.status='ACTIVE' AND (? IS NULL OR fv.size=?) AND (? IS NULL OR fv.color=?)";
    args.add(filter.size());args.add(filter.size());args.add(filter.color());args.add(filter.color());
+   if(store!=null){source+=" AND EXISTS(SELECT 1 FROM STORE_INVENTORY carried WHERE carried.variant_id=fv.id AND carried.store_id=?)";args.add(store);}
    if(Boolean.TRUE.equals(filter.available())){source+=" AND EXISTS(SELECT 1 FROM STORE_INVENTORY fs JOIN STORES st ON st.store_id=fs.store_id WHERE fs.variant_id=fv.id AND fs.quantity>0 AND (? IS NULL OR fs.store_id=?))";args.add(store);args.add(store);}source+=")";
    if(Boolean.FALSE.equals(filter.available())){source+=" AND NOT EXISTS(SELECT 1 FROM PRODUCT_VARIANTS av JOIN STORE_INVENTORY fs ON fs.variant_id=av.id JOIN STORES st ON st.store_id=fs.store_id WHERE av.product_id=p.id AND av.status='ACTIVE' AND (? IS NULL OR av.size=?) AND (? IS NULL OR av.color=?) AND fs.quantity>0 AND (? IS NULL OR fs.store_id=?))";args.add(filter.size());args.add(filter.size());args.add(filter.color());args.add(filter.color());args.add(store);args.add(store);}
   }
-  long total=sql.queryForObject("SELECT COUNT_BIG(*)"+source,Long.class,args.toArray());args.add(Math.multiplyExact(page,size));args.add(size);
+  long total=sql.queryForObject("SELECT COUNT_BIG(*)"+source,Long.class,args.toArray());page=(int)Math.min(Math.max(0L,page),total==0?0:(total-1)/size);args.add((long)page*size);args.add(size);
   String ordering=saleOrdering?"p.base_price-COALESCE(price.effective_price,p.base_price) DESC":switch(sort){case "price-asc"->"COALESCE(price.effective_price,p.base_price) ASC";case "price-desc"->"COALESCE(price.effective_price,p.base_price) DESC";case "newest"->"p.created_at DESC";default->"COALESCE((SELECT SUM(oi.quantity) FROM ORDER_ITEMS oi JOIN ORDERS o ON o.id=oi.order_id WHERE oi.product_id=p.id AND o.status=N'Đã giao' AND (? IS NULL OR oi.store_id=?)),0) DESC";};
   if(sort.equals("popular")&&!saleOrdering){args.add(args.size()-2,store);args.add(args.size()-2,store);}
   var ids=sql.queryForList("SELECT p.id"+source+" ORDER BY "+ordering+",p.id ASC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY",Integer.class,args.toArray());var byId=new HashMap<Integer,Product>();products.findByIdIn(ids).forEach(p->byId.put(p.getId(),p));return new org.springframework.data.domain.PageImpl<>(ids.stream().map(byId::get).toList(),org.springframework.data.domain.PageRequest.of(page,size),total);

@@ -19,6 +19,7 @@ public class ProductDetailDTO {
     private BigDecimal effectivePrice;
     private Double ratingAverage;
     private Long soldCount;
+    private Long demoSoldCount = 0L;
     private Boolean inWishlist;
 
     private List<VariantDTO> variants;
@@ -51,6 +52,7 @@ public class ProductDetailDTO {
         private BigDecimal effectivePrice;
         private String imageUrl;
         private Long soldCount;
+    private Long demoSoldCount = 0L;
         private Double ratingAverage;
         private Long reviewCount;
         // Five counts in ascending star order, derived through the actual reviewed order item.

@@ -65,6 +65,9 @@ window.initializeProductSelection = function(modal, preferredStoreId) {
         }
         const chosenRow = availableRows.find(row => !row.querySelector('button').disabled && row.querySelector('button').dataset.storeId === selectedStore);
         const stock = chosenRow ? Number(chosenRow.dataset.quantity) : 0;
+        const stockHint = modal.querySelector('#modalStockHint');
+        stockHint.textContent = chosenRow ? '* Còn lại: ' + stock + ' sản phẩm' : '';
+        stockHint.hidden = !chosenRow;
         const qty = Number(quantity.value);
         quantity.max = stock || '';
         quantity.disabled = !chosenRow;

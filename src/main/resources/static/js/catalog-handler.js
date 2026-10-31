@@ -25,7 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
         item.classList.toggle('selected-sort', active);
         item.setAttribute('aria-current', active ? 'true' : 'false');
         if (active) {
-            document.getElementById('sortLabel').textContent = item.querySelector('.sort-text')?.textContent || item.textContent;
+            const label = document.getElementById('sortLabel');
+            if (label) label.textContent = item.querySelector('.sort-text')?.textContent || item.textContent;
         }
     });
 });

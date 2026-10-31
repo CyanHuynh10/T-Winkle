@@ -16,6 +16,7 @@ public class ProductDTO {
     private BigDecimal effectivePrice;
     private Double ratingAverage;
     private Integer soldCount;
+    private Long demoSoldCount = 0L;
     private Boolean inWishlist;
     private String primaryImagePath;
 

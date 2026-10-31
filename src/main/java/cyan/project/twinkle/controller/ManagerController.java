@@ -11,12 +11,12 @@ public class ManagerController {
  private final StoreFulfillmentService fulfillment;
  private final SupportAuthorizationService support;
  @GetMapping({"/manager","/manager/","/manager/products","/manager/products/{id}","/manager/variants","/manager/inventory","/manager/orders","/manager/payments","/manager/reviews","/manager/orders/{id}","/manager/store-profile"})
- public String manager(){return "manager/island";}
+ public String manager(){return "console/page";}
  @GetMapping({"/manager/support","/manager/support/{id}"})
  public String inbox(@PathVariable(required=false) Long id,Authentication auth,Model model){
   if(id!=null)support.require(id,auth);
-  if(auth.getAuthorities().stream().anyMatch(a->a.getAuthority().equals("ROLE_MANAGER")))return "manager/island";
-  model.addAttribute("chatMode",id==null?"inbox":"support");model.addAttribute("conversationId",id);return "chat/island";
+  if(auth.getAuthorities().stream().anyMatch(a->a.getAuthority().equals("ROLE_MANAGER")))return "console/page";
+  model.addAttribute("chatMode",id==null?"inbox":"support");model.addAttribute("conversationId",id);return "chat/page";
  }
  @GetMapping({"/manager/dashboard","/manager/revenue"}) public String dashboard(){return "redirect:/manager";}
  @GetMapping({"/manager/store","/manager/account"}) public String profile(){return "redirect:/manager/store-profile";}

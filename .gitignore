@@ -47,7 +47,7 @@ node_modules/
 .DS_Store
 Thumbs.db
 
-# Local personal reports and documentation
+# Academic reports are user-owned local files
 /docs/
 
 # Browser execution output; maintained tests remain source
@@ -66,3 +66,6 @@ blob-report/
 *.private.json
 private-login.json
 private-credentials.json
+/tmp/
+__pycache__/
+*.pyc

@@ -1,10 +1,31 @@
+## Fresh installation baseline
+
+`schema-baseline.sql` contains the final SQL Server schema only, including keys,
+checks and indexes. Apply it once to a newly created empty database. Do not combine
+this baseline with historical migrations on a fresh installation; it already
+includes their final schema. Existing installations apply only missing migrations.
+
+Generate a seed with `python tools/release/seed_demo.py OUTPUT.sql`, then apply it
+manually to that empty database. It reads `demo-master-data.json` and the verified
+`catalog-final-20261018.json`; it recreates public brand/category/store data, 45
+products, 259 variants, 776 sparse inventory rows and 776 simulated-sales summaries.
+It refuses live `T_Winkle` and populated tables. No accounts, assignments, orders,
+payments, reviews or conversations are copied. Keep real account/media recovery
+backups private. Set `SPRING_DATASOURCE_URL` to your new database.
+
+`reset-seed-final-catalog.sql` and the guarded historical catalog operator remain
+for original-installation recovery only. They are not fresh-install instructions
+and must never be invoked during cleanup or normal startup. Promotion maintenance
+is explicit through `tools/catalog/promotion_campaign.py`; its backup/rehearsal
+requirements and chosen campaign dates remain necessary.
+
 # Database source of truth
 
 ## Final delivery execution order
 
-Restore an authorized, verified existing storefront backup first. These scripts
-are not a demonstrated empty-database bootstrap. Review the actual schema and apply
-only missing scripts after a recovery backup, in order: avatar → banking-payment →
+For existing installations, restore an authorized backup when recovery is needed.
+For a fresh installation, use the final baseline above. Review the actual schema
+and apply only missing historical scripts after a recovery backup: avatar → banking-payment →
 order-delivery-mail → chat-support → manager-console → admin-console →
 full-integration → final-features (`migration-<name>.sql`). `schema-auth.sql`
 initializes only the early authentication schema; never run it blindly on an existing
@@ -18,14 +39,10 @@ Flyway/Liquibase, migration runner hoặc seed tự động. Giữ `ddl-auto=non
 
 ## Database hiện hữu
 
-Project yêu cầu database `T_Winkle` đã có schema Storefront. Bộ script bên dưới
-là nguồn migration hiện hành, không phải bộ khởi tạo đủ 26 bảng nghiệp vụ từ
-database trống. SQL sample/reset tại thư mục gốc đã được xóa theo quyết định
-của người dùng; không khôi phục hoặc dùng nó trong hướng dẫn chạy.
-
-Khi chuyển máy, chuẩn bị database bằng quy trình backup/restore SQL Server của
-dự án, rồi kiểm tra schema và chỉ áp dụng migration còn thiếu. Các ảnh demo
-runtime được giữ trong `src/main/resources/static/images/storefront`.
+Database đang chạy dùng schema Storefront hiện hữu. Khi phục hồi dữ liệu riêng tư,
+dùng backup/restore đã kiểm chứng; không chạy seed hoặc reset trên database sống.
+Cài mới dùng `schema-baseline.sql` và seed trống theo hướng dẫn ở đầu tài liệu.
+Ảnh sản phẩm và tài sản runtime nằm trong `src/main/resources/static/`.
 
 ## Migration hiện hành
 
@@ -40,8 +57,9 @@ runtime được giữ trong `src/main/resources/static/images/storefront`.
 Chat migration giữ `ddl-auto=none`, có transaction và các SET options cần cho
 filtered indexes trên SQL Server. Áp dụng thủ công trước khi sử dụng Human Chat.
 Không tự phân quyền nhân viên. ROLE_SUPPORT cần một dòng active trong
-`STORE_STAFF_ASSIGNMENTS` cho đúng cửa hàng. Ví dụ phân công bằng tham số quản
-trị đã kiểm chứng: `store_id`, `user_email`, `active=1`. Các kiểm thử tạo phân
+`STORE_STAFF_ASSIGNMENTS` cho đúng cửa hàng. Quản lý phân công tại Admin → Người
+dùng → Thêm mới / Sửa: bật tài khoản, chọn quyền ROLE_SUPPORT và chọn cửa hàng
+phụ trách hỗ trợ. Bỏ chọn cửa hàng để thu hồi phân công. Các kiểm thử tạo phân
 công synthetic trong transaction và rollback, không thay đổi quyền vận hành.
 
 Các migration avatar/banking/delivery được kiểm tra idempotent. Không đổi tên,
@@ -85,4 +103,13 @@ Regression tests live in `src/test/java/cyan/project/twinkle/`; run them against
 isolated database copy as described in the root README. Automatic startup account seeding is removed.
 ## Final feature migration
 
-Apply `migration-final-features.sql` manually to the existing SQL Server database after a verified backup. It is additive/idempotent and was verified by running twice. Reviews retain their authoritative existing order-item Store provenance; `REVIEW_RESPONSES` uses composite FKs to preserve that linkage. `STORE_REPORTS` stores private prepared XLSX files, sent timestamps, byte hashes and query/column snapshots, with a 20 MiB byte constraint. No account/Store assignment or demo data is seeded by this migration.
+Apply `migration-final-features.sql` manually to the existing SQL Server database after a verified backup. It is additive/idempotent and was verified by running twice. Reviews retain their authoritative existing order-item Store provenance; `REVIEW_RESPONSES` uses composite FKs to preserve that linkage. `STORE_REPORTS` stores private prepared XLSX files and PDF invoices, sent timestamps, byte hashes and query/column snapshots, with a 20 MiB byte constraint. No account/Store assignment or demo data is seeded by this migration.
+
+## Creating the first local administrator on a fresh demo
+
+Register your own account through the application's normal registration/OTP flow.
+A trusted database operator can then add ROLE_ADMIN to that existing account using
+USER_ROLES and ROLES (without editing password_hash). Verify the exact chosen email
+before granting access. Use Admin → Users and Stores to configure subsequent staff
+roles and store assignments. There is deliberately no seeded administrator login.
+Configure a working mail provider before using registration and password recovery.

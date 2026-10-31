@@ -38,6 +38,63 @@ class AdminIntegrationTests {
   product=sql.queryForObject("INSERT PRODUCTS(slug,name,category_id,brand_id,base_price,status) OUTPUT INSERTED.id SELECT ?,?,MIN(c.id),MIN(b.id),100,'ACTIVE' FROM CATEGORIES c CROSS JOIN BRANDS b",Integer.class,tag.toLowerCase(java.util.Locale.ROOT),tag);variant=sql.queryForObject("INSERT PRODUCT_VARIANTS(product_id,size,color,sku,price_adjustment,status) OUTPUT INSERTED.id VALUES(?,'41','blue',?,10,'ACTIVE')",Long.class,product,tag);sql.update("INSERT STORE_INVENTORY(store_id,variant_id,quantity,reorder_level) VALUES(?,?,10,10),(?,?,30,10)",store,variant,other,variant);auth(admin,"ADMIN");
  }
  @AfterEach void clear(){SecurityContextHolder.clearContext();}
+ @Test void newMultiStoreCheckoutDisplaysFulfillmentsWithoutWritingOnRead() {
+  long order=cyan.project.twinkle.CatalogTestFixtures.order(sql,buyer);
+  sql.update("UPDATE ORDERS SET subtotal=200,total=200 WHERE id=?",order);
+  for(int destination:List.of(store,other))sql.update("INSERT ORDER_ITEMS(order_id,product_id,variant_id,store_id,product_name,variant_name,quantity,unit_price,discount_amount,line_total) VALUES(?,?,?,?,?,'fixture',1,100,0,100)",order,product,variant,destination,tag);
+  sql.update("INSERT PAYMENTS(order_id,method,status,amount) VALUES(?,'COD','PENDING',200)",order);
+  var details=queries.detail("orders",Long.toString(order));
+  var rows=(List<Map<String,Object>>)details.get("fulfillments");
+  assertEquals(2,rows.size());assertTrue(rows.stream().allMatch(row->row.get("status").equals("Chờ xác nhận đơn hàng")));
+  assertEquals(0,sql.queryForObject("SELECT COUNT(*) FROM ORDER_STORE_FULFILLMENTS WHERE order_id=?",Integer.class,order));
+  fulfillment.transitionAdmin(order,store,"Đã xác nhận");
+  assertEquals(2,sql.queryForObject("SELECT COUNT(*) FROM ORDER_STORE_FULFILLMENTS WHERE order_id=?",Integer.class,order));
+  assertEquals("Đã xác nhận",sql.queryForObject("SELECT status FROM ORDER_STORE_FULFILLMENTS WHERE order_id=? AND store_id=?",String.class,order,store));
+ }
+ @Test void supportAssignmentsCreateReplaceRevokeAndReactivate() {
+  String email=tag+"support@test.invalid";
+  users.save(new AdminUserService.Account(email,"Support",null,null,true,Set.of("ROLE_SUPPORT"),Set.of(store,other)),true);
+  var access=web.getBean(SupportAuthorizationService.class);
+  var supportAuth=new UsernamePasswordAuthenticationToken(email,"",List.of(new SimpleGrantedAuthority("ROLE_SUPPORT")));
+  assertTrue(access.staff(supportAuth,store));assertTrue(access.staff(supportAuth,other));
+  assertEquals(2,((List<?>)chat.staffContext(supportAuth).get("stores")).size());
+  assertEquals(Set.of(store,other),new HashSet<>((List<?>)queries.detail("users",email).get("support_store_ids")));
+  var row=queries.list("users",0,30,email,"",null,"id","asc","","","","","","").items().getFirst();
+  assertTrue(row.get("assigned_store").toString().contains(tag+"a"));assertTrue(row.get("assigned_store").toString().contains(tag+"b"));
+  users.save(new AdminUserService.Account(email,"Support",null,null,true,Set.of("ROLE_SUPPORT"),Set.of(other)),false);
+  assertFalse(access.staff(supportAuth,store));assertTrue(access.staff(supportAuth,other));
+  users.save(new AdminUserService.Account(email,"Support",null,null,true,Set.of("ROLE_SUPPORT"),Set.of(store)),false);
+  assertTrue(access.staff(supportAuth,store));assertFalse(access.staff(supportAuth,other));
+  assertEquals(2,sql.queryForObject("SELECT COUNT(*) FROM STORE_STAFF_ASSIGNMENTS WHERE user_email=?",Integer.class,email));
+  users.save(new AdminUserService.Account(email,"Renamed",null,null,true,Set.of("ROLE_SUPPORT")),false);
+  assertTrue(access.staff(supportAuth,store)); // Older clients omitting assignments preserve them.
+  users.save(new AdminUserService.Account(email,"Support",null,null,true,Set.of("ROLE_SUPPORT"),Set.of()),false);
+  assertFalse(access.staff(supportAuth,store));
+  users.save(new AdminUserService.Account(email,"Support",null,null,true,Set.of("ROLE_SUPPORT"),Set.of(store)),false);
+  users.save(new AdminUserService.Account(email,"Support",null,null,false,Set.of("ROLE_SUPPORT"),Set.of()),false);
+  assertFalse(access.staff(supportAuth,store));
+  users.save(new AdminUserService.Account(email,"Support",null,null,true,Set.of("ROLE_SUPPORT"),Set.of(store)),false);
+  users.save(new AdminUserService.Account(email,"Support",null,null,true,Set.of("ROLE_USER"),Set.of()),false);
+  assertFalse(access.staff(supportAuth,store));
+  assertEquals(0,sql.queryForObject("SELECT COUNT(*) FROM STORE_STAFF_ASSIGNMENTS WHERE user_email=? AND active=1",Integer.class,email));
+  assertTrue(sql.queryForObject("SELECT COUNT(*) FROM ADMIN_AUDIT_LOG WHERE entity_id=? AND action_type='SUPPORT_STORES_ASSIGNED'",Integer.class,email)>0);
+ }
+ @Test void supportAssignmentApiValidatesAndRequiresAdminAndCsrf() throws Exception {
+  String email=tag+"http-support@test.invalid";
+  String body="{\"email\":\""+email+"\",\"username\":\"Support\",\"enabled\":true,\"roles\":[\"ROLE_SUPPORT\"],\"supportStoreIds\":["+store+"]}";
+  for(String role:List.of("USER","MANAGER","SUPPORT"))
+   mvc.perform(post("/api/admin/users").with(user(buyer).roles(role)).with(csrf()).contentType("application/json").content(body)).andExpect(status().isForbidden());
+  mvc.perform(post("/api/admin/users").with(user(admin).roles("ADMIN")).contentType("application/json").content(body)).andExpect(status().isForbidden());
+  mvc.perform(post("/api/admin/users").with(user(admin).roles("ADMIN")).with(csrf()).contentType("application/json").content(body)).andExpect(status().isOk());
+  mvc.perform(get("/api/admin/users/"+email).with(user(admin).roles("ADMIN"))).andExpect(status().isOk()).andExpect(jsonPath("$.support_store_ids[0]").value(store)).andExpect(jsonPath("$.support_stores[0].name").value(tag+"a"));
+  for(String invalid:List.of(body.replace("["+store+"]","[2147483647]"),body.replace("["+store+"]","[0]"),body.replace("["+store+"]","[null]"),body.replace("ROLE_SUPPORT","ROLE_USER"),body.replace("\"enabled\":true","\"enabled\":false"))) {
+   mvc.perform(post("/api/admin/users/"+email).with(user(admin).roles("ADMIN")).with(csrf()).contentType("application/json").content(invalid)).andExpect(status().isBadRequest());
+   auth(admin,"ADMIN");
+   assertEquals(List.of(store),queries.detail("users",email).get("support_store_ids"));
+   assertEquals("ROLE_SUPPORT",queries.detail("users",email).get("roles"));
+   assertEquals(true,queries.detail("users",email).get("is_enabled"));
+  }
+ }
  @Autowired org.springframework.security.core.session.SessionRegistry sessions;
  @Test void resetDefaultPasswordReplacesCredentialAndInvalidatesOutstandingState() throws Exception {
   sql.update("UPDATE USERS SET password_hash=? WHERE email=?",encoder.encode("Fixture-old-password"),buyer);

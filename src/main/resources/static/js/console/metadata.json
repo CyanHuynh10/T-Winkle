@@ -1,0 +1,747 @@
+{
+  "fields": {
+    "users": [
+      {
+        "key": "email",
+        "label": "Email",
+        "required": true,
+        "max": 100,
+        "type": "email"
+      },
+      {
+        "key": "username",
+        "label": "Tên đăng nhập",
+        "required": true,
+        "max": 50
+      },
+      {
+        "key": "fullName",
+        "label": "Họ tên",
+        "required": false,
+        "max": 100
+      },
+      {
+        "key": "phone",
+        "label": "Điện thoại",
+        "required": false,
+        "max": 20
+      },
+      {
+        "key": "enabled",
+        "label": "Hoạt động",
+        "type": "checkbox"
+      },
+      {
+        "key": "roles",
+        "label": "Quyền tài khoản",
+        "type": "roles",
+        "required": true
+      },
+      {
+        "key": "supportStoreIds",
+        "label": "Cửa hàng phụ trách hỗ trợ",
+        "type": "supportStores"
+      }
+    ],
+    "stores": [
+      {
+        "key": "name",
+        "label": "Tên cửa hàng",
+        "required": true,
+        "max": 150
+      },
+      {
+        "key": "slug",
+        "label": "Slug",
+        "required": true,
+        "max": 80
+      },
+      {
+        "key": "description",
+        "label": "Mô tả",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "imageUrl",
+        "label": "Ảnh HTTPS / đường dẫn nội bộ",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "phone",
+        "label": "Điện thoại",
+        "required": false,
+        "max": 20
+      },
+      {
+        "key": "addressLine",
+        "label": "Địa chỉ",
+        "required": true,
+        "max": 200
+      },
+      {
+        "key": "ward",
+        "label": "Phường",
+        "required": false,
+        "max": 100
+      },
+      {
+        "key": "district",
+        "label": "Quận",
+        "required": false,
+        "max": 100
+      },
+      {
+        "key": "city",
+        "label": "Thành phố",
+        "required": true,
+        "max": 100
+      },
+      {
+        "key": "status",
+        "label": "Hoạt động",
+        "values": [
+          "OPEN",
+          "CLOSED"
+        ],
+        "required": true
+      },
+      {
+        "key": "managerEmail",
+        "label": "Manager",
+        "options": "managers"
+      }
+    ],
+    "categories": [
+      {
+        "key": "name",
+        "label": "Tên danh mục",
+        "required": true,
+        "max": 100
+      },
+      {
+        "key": "slug",
+        "label": "Slug",
+        "required": true,
+        "max": 80
+      },
+      {
+        "key": "description",
+        "label": "Mô tả",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "imageUrl",
+        "label": "Ảnh",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "status",
+        "label": "Trạng thái",
+        "values": [
+          "ACTIVE",
+          "INACTIVE"
+        ],
+        "required": true
+      }
+    ],
+    "brands": [
+      {
+        "key": "name",
+        "label": "Tên thương hiệu",
+        "required": true,
+        "max": 100
+      },
+      {
+        "key": "slug",
+        "label": "Slug",
+        "required": true,
+        "max": 80
+      },
+      {
+        "key": "description",
+        "label": "Mô tả",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "imageUrl",
+        "label": "Logo",
+        "required": false,
+        "max": 500
+      }
+    ],
+    "products": [
+      {
+        "key": "name",
+        "label": "Tên sản phẩm",
+        "required": true,
+        "max": 180
+      },
+      {
+        "key": "slug",
+        "label": "Slug",
+        "required": true,
+        "max": 180
+      },
+      {
+        "key": "brandId",
+        "label": "Thương hiệu",
+        "options": "brands",
+        "required": true
+      },
+      {
+        "key": "categoryId",
+        "label": "Danh mục",
+        "options": "categories",
+        "required": true
+      },
+      {
+        "key": "basePrice",
+        "label": "Giá cơ bản",
+        "type": "number",
+        "required": true
+      },
+      {
+        "key": "imageUrl",
+        "label": "Ảnh chính HTTPS / đường dẫn nội bộ",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "description",
+        "label": "Mô tả",
+        "required": false,
+        "max": 4000
+      },
+      {
+        "key": "status",
+        "label": "Trạng thái",
+        "values": [
+          "ACTIVE",
+          "INACTIVE"
+        ],
+        "required": true
+      }
+    ],
+    "variants": [
+      {
+        "key": "productId",
+        "label": "Sản phẩm",
+        "options": "products",
+        "required": true
+      },
+      {
+        "key": "sku",
+        "label": "SKU",
+        "required": true,
+        "max": 80
+      },
+      {
+        "key": "size",
+        "label": "Size",
+        "required": true,
+        "max": 20
+      },
+      {
+        "key": "color",
+        "label": "Màu",
+        "required": true,
+        "max": 50
+      },
+      {
+        "key": "priceAdjustment",
+        "label": "Điều chỉnh giá",
+        "type": "number",
+        "required": true
+      },
+      {
+        "key": "imageUrl",
+        "label": "Ảnh",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "status",
+        "label": "Trạng thái",
+        "values": [
+          "ACTIVE",
+          "INACTIVE"
+        ],
+        "required": true
+      }
+    ],
+    "promotions": [
+      {
+        "key": "name",
+        "label": "Tên khuyến mãi",
+        "required": true,
+        "max": 120
+      },
+      {
+        "key": "description",
+        "label": "Mô tả",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "discountType",
+        "label": "Loại giảm giá",
+        "values": [
+          "PERCENT",
+          "FIXED"
+        ],
+        "required": true
+      },
+      {
+        "key": "discountValue",
+        "label": "Giá trị giảm",
+        "type": "number",
+        "required": true
+      },
+      {
+        "key": "startsAt",
+        "label": "Bắt đầu",
+        "type": "datetime-local",
+        "required": true
+      },
+      {
+        "key": "endsAt",
+        "label": "Kết thúc",
+        "type": "datetime-local",
+        "required": true
+      },
+      {
+        "key": "scope",
+        "label": "Phạm vi",
+        "values": [
+          "GLOBAL",
+          "STORE",
+          "CATEGORY",
+          "BRAND",
+          "PRODUCT",
+          "VARIANT"
+        ],
+        "required": true
+      },
+      {
+        "key": "targets",
+        "label": "Đối tượng áp dụng",
+        "type": "targets"
+      },
+      {
+        "key": "priority",
+        "label": "Ưu tiên",
+        "type": "number",
+        "required": true
+      },
+      {
+        "key": "status",
+        "label": "Trạng thái",
+        "values": [
+          "ACTIVE",
+          "INACTIVE"
+        ],
+        "required": true
+      }
+    ],
+    "coupons": [
+      {
+        "key": "code",
+        "label": "Mã coupon",
+        "required": true,
+        "max": 50
+      },
+      {
+        "key": "name",
+        "label": "Tên coupon",
+        "required": true,
+        "max": 120
+      },
+      {
+        "key": "description",
+        "label": "Mô tả",
+        "required": false,
+        "max": 500
+      },
+      {
+        "key": "discountType",
+        "label": "Loại giảm giá",
+        "values": [
+          "PERCENT",
+          "FIXED",
+          "FREESHIP"
+        ],
+        "required": true
+      },
+      {
+        "key": "discountValue",
+        "label": "Giá trị giảm",
+        "type": "number",
+        "required": true
+      },
+      {
+        "key": "minOrderValue",
+        "label": "Đơn tối thiểu",
+        "type": "number",
+        "required": true
+      },
+      {
+        "key": "maxDiscountValue",
+        "label": "Giảm tối đa",
+        "type": "number",
+        "required": false
+      },
+      {
+        "key": "usageLimit",
+        "label": "Tổng lượt tối đa",
+        "type": "number",
+        "required": false
+      },
+      {
+        "key": "perUserLimit",
+        "label": "Lượt tối đa / khách",
+        "type": "number",
+        "required": false
+      },
+      {
+        "key": "startsAt",
+        "label": "Bắt đầu",
+        "type": "datetime-local",
+        "required": true
+      },
+      {
+        "key": "endsAt",
+        "label": "Kết thúc",
+        "type": "datetime-local",
+        "required": true
+      },
+      {
+        "key": "active",
+        "label": "Hoạt động",
+        "type": "checkbox"
+      }
+    ]
+  },
+  "defaults": {
+    "status": "ACTIVE",
+    "scope": "GLOBAL",
+    "discountType": "PERCENT",
+    "enabled": true,
+    "active": true,
+    "roles": [
+      "ROLE_USER"
+    ],
+    "supportStoreIds": [],
+    "targets": [],
+    "priority": 0,
+    "priceAdjustment": 0,
+    "minOrderValue": 0
+  },
+  "labels": {
+    "support_store_ids": "ID cửa hàng hỗ trợ",
+    "support_stores": "Cửa hàng hỗ trợ",
+    "refund_status": "Hoàn tiền",
+    "cancellation_status": "Yêu cầu hủy",
+    "id": "ID",
+    "name": "Tên sản phẩm",
+    "slug": "Slug",
+    "brand": "Thương hiệu",
+    "category": "Danh mục",
+    "base_price": "Giá cơ bản",
+    "effective_price": "Giá hiện tại",
+    "variant_count": "Biến thể",
+    "size_count": "Số size",
+    "color_count": "Số màu",
+    "quantity": "Số lượng",
+    "status": "Trạng thái",
+    "updated_at": "Cập nhật",
+    "product": "Sản phẩm",
+    "product_id": "Product ID",
+    "sku": "SKU",
+    "size": "Size",
+    "color": "Màu",
+    "price_adjustment": "Điều chỉnh giá",
+    "reorder_level": "Ngưỡng nhập hàng",
+    "replenishment_state": "Nhập hàng",
+    "pending_request": "Yêu cầu chờ",
+    "order_code": "Mã đơn",
+    "created_at": "Ngày tạo",
+    "payment_method": "Thanh toán",
+    "payment_status": "Trạng thái thanh toán",
+    "fulfillment_mode": "Hình thức nhận hàng",
+    "display_status": "Trạng thái đơn hàng",
+    "refunds": "Hoàn tiền",
+    "fulfillment_status": "Xử lý tại cửa hàng",
+    "item_count": "Dòng hàng",
+    "merchandise_value": "Giá trị hàng tại cửa hàng",
+    "request_type": "Loại yêu cầu",
+    "requested_quantity": "Số lượng đề nghị",
+    "reason": "Lý do",
+    "note": "Ghi chú",
+    "requester_email": "Người yêu cầu",
+    "requested_by": "Người yêu cầu",
+    "description": "Mô tả",
+    "image_url": "Ảnh",
+    "images": "Hình ảnh",
+    "variants": "Biến thể",
+    "promotions": "Khuyến mãi",
+    "items": "Mặt hàng tại cửa hàng",
+    "history": "Lịch sử đơn hàng",
+    "cancellation": "Yêu cầu hủy",
+    "recipient_name": "Người nhận",
+    "recipient_phone": "Số điện thoại",
+    "shipping_address_line": "Địa chỉ giao",
+    "shipping_ward": "Phường",
+    "shipping_district": "Quận",
+    "shipping_city": "Thành phố",
+    "shipping_note": "Ghi chú giao",
+    "unit_price": "Đơn giá",
+    "discount_amount": "Giảm giá",
+    "line_total": "Thành tiền",
+    "variant_name": "Tên biến thể",
+    "product_name": "Tên sản phẩm",
+    "variant_id": "Variant ID",
+    "requested_data": "Thông tin đề xuất",
+    "reviewed_by": "Người duyệt",
+    "reviewed_at": "Ngày duyệt",
+    "fulfilled_at": "Ngày nhập hàng",
+    "current_quantity": "Số lượng hiện tại",
+    "availability": "Trạng thái",
+    "availability_style": "Màu trạng thái"
+  },
+  "states": {
+    "PICKUP": "Nhận tại cửa hàng",
+    "DELIVERY": "Giao tận nơi",
+    "OUT": "Hết hàng",
+    "LOW": "Sắp hết",
+    "AVAILABLE": "Còn hàng",
+    "OPEN": "Đang mở",
+    "CLOSED": "Đã đóng",
+    "PENDING": "Đang chờ",
+    "APPROVED": "Đã duyệt",
+    "REJECTED": "Từ chối",
+    "FULFILLED": "Đã nhập hàng",
+    "APPLIED": "Đã áp dụng",
+    "ACTIVE": "Hoạt động",
+    "INACTIVE": "Ngừng hoạt động",
+    "PAID": "Đã thanh toán",
+    "FAILED": "Thất bại",
+    "REFUNDED": "Đã hoàn tiền",
+    "ADD_PRODUCT": "Thêm sản phẩm",
+    "UPDATE_PRODUCT": "Sửa sản phẩm",
+    "REMOVE_PRODUCT": "Ngừng sản phẩm",
+    "ADD_VARIANT": "Thêm biến thể",
+    "UPDATE_VARIANT": "Sửa biến thể",
+    "REMOVE_VARIANT": "Ngừng biến thể"
+  },
+  "adminColumns": {
+    "users": [
+      "email",
+      "full_name",
+      "roles",
+      "is_enabled",
+      "assigned_store",
+      "created_at"
+    ],
+    "stores": [
+      "name",
+      "manager_email",
+      "manager_enabled",
+      "status",
+      "city",
+      "inventory_count",
+      "order_count"
+    ],
+    "categories": [
+      "name",
+      "slug",
+      "status",
+      "product_count"
+    ],
+    "brands": [
+      "name",
+      "slug",
+      "logo_url",
+      "product_count"
+    ],
+    "products": [
+      "name",
+      "brand",
+      "category",
+      "base_price",
+      "effective_price",
+      "status",
+      "variant_count",
+      "store_count"
+    ],
+    "variants": [
+      "sku",
+      "product",
+      "size",
+      "color",
+      "price_adjustment",
+      "status",
+      "inventory_count"
+    ],
+    "inventory": [
+      "store",
+      "product",
+      "sku",
+      "quantity",
+      "availability",
+      "reorder_level",
+      "status",
+      "pending_requests"
+    ],
+    "orders": [
+      "order_code",
+      "user_email",
+      "status",
+      "payment_method",
+      "payment_status",
+      "total",
+      "created_at"
+    ],
+    "payments": [
+      "order_code",
+      "stores",
+      "customer",
+      "amount",
+      "method",
+      "status",
+      "refund_status",
+      "cancellation_status",
+      "verification_status",
+      "reported_at",
+      "reviewed_by"
+    ],
+    "promotions": [
+      "name",
+      "discount_type",
+      "discount_value",
+      "scope",
+      "priority",
+      "status",
+      "starts_at",
+      "ends_at"
+    ],
+    "coupons": [
+      "code",
+      "name",
+      "discount_type",
+      "discount_value",
+      "used_count",
+      "usage_limit",
+      "per_user_limit",
+      "is_active"
+    ],
+    "catalog-requests": [
+      "store",
+      "request_type",
+      "reason",
+      "status",
+      "requester_email",
+      "reviewed_by",
+      "created_at"
+    ],
+    "restock-requests": [
+      "store",
+      "sku",
+      "requested_quantity",
+      "reason",
+      "status",
+      "requested_by",
+      "reviewed_by"
+    ],
+    "inventory-movements": [
+      "store",
+      "sku",
+      "old_quantity",
+      "quantity_delta",
+      "new_quantity",
+      "movement_type",
+      "performed_by",
+      "reason"
+    ],
+    "audit": [
+      "actor_email",
+      "action_type",
+      "entity_type",
+      "entity_id",
+      "summary",
+      "created_at"
+    ]
+  },
+  "managerColumns": {
+    "products": [
+      "id",
+      "name",
+      "brand",
+      "category",
+      "base_price",
+      "effective_price",
+      "variant_count",
+      "size_count",
+      "color_count",
+      "quantity",
+      "status",
+      "updated_at"
+    ],
+    "variants": [
+      "id",
+      "product",
+      "sku",
+      "size",
+      "color",
+      "price_adjustment",
+      "quantity",
+      "availability",
+      "replenishment_state",
+      "status"
+    ],
+    "inventory": [
+      "product",
+      "sku",
+      "size",
+      "color",
+      "quantity",
+      "availability",
+      "reorder_level",
+      "replenishment_state",
+      "updated_at",
+      "pending_request"
+    ],
+    "orders": [
+      "order_code",
+      "created_at",
+      "item_count",
+      "quantity",
+      "merchandise_value",
+      "payment_method",
+      "payment_status",
+      "fulfillment_status",
+      "status",
+      "updated_at"
+    ],
+    "catalog-requests": [
+      "id",
+      "request_type",
+      "reason",
+      "status",
+      "created_at"
+    ],
+    "restock-requests": [
+      "id",
+      "variant_id",
+      "current_quantity",
+      "requested_quantity",
+      "reason",
+      "status",
+      "created_at"
+    ]
+  }
+}

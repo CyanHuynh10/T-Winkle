@@ -6,6 +6,7 @@
         <div th:replace="~{fragments/navbar :: navbar}"></div>
 
         <style>
+            .checkout-container .checkout-item-info { min-width: 0; overflow-wrap: anywhere; }
             .checkout-card {
                 background: rgba(255, 255, 255, 0.85);
                 backdrop-filter: blur(28px);
@@ -146,7 +147,7 @@
             <div class="checkout-item-img rounded-3 overflow-hidden border bg-white flex-shrink-0" style="width: 70px; height: 70px;">
                 <img th:src="${item.imageUrl}" class="w-100 h-100" style="object-fit: cover;"/>
             </div>
-            <div class="d-flex flex-column flex-grow-1 min-w-0">
+            <div class="d-flex flex-column flex-grow-1 checkout-item-info">
                 <h3 class="h6 fw-bold text-dark mb-1 text-truncate" th:text="${item.productName}">Product Name</h3>
                 <span class="text-muted text-sm mb-1" th:text="${item.variantName}">Variant | Store</span>
                 <div class="d-flex justify-content-between align-items-center mt-auto">

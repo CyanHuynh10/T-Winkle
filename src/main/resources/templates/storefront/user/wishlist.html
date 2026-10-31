@@ -44,13 +44,13 @@
                             <div class="d-flex flex-column flex-grow-1">
                                 <span class="badge text-cyan bg-cyan bg-opacity-10 align-self-start fw-semibold text-xs mb-2 px-2 py-1" th:text="${product.categoryName}">SNEAKER</span>
                                 <h3 class="h5 fw-bold text-dark mb-1 text-truncate" th:title="${product.name}" th:text="${product.name}">Product Name</h3>
-                                <div class="d-flex align-items-center gap-2 mb-3 text-sm">
+                                <div class="d-flex flex-wrap align-items-center gap-2 mb-3 text-sm">
                                     <div style="color: #FACC15;">
                                         <i class="bi bi-star-fill"></i>
                                         <span class="text-dark fw-bold ms-1" th:text="${#numbers.formatDecimal(product.ratingAverage, 1, 1)}">5.0</span>
                                     </div>
                                     <span class="text-muted-custom">|</span>
-                                    <span class="text-muted-custom" th:text="'Đã bán ' + ${product.soldCount}">Đã bán 0</span>
+                                    <span class="text-muted-custom text-sm w-100" th:if="${product != null}" th:text="'Đã bán: ' + ${#numbers.formatInteger(product.demoSoldCount > 0 ? product.demoSoldCount : product.soldCount, 1, 'POINT')}"></span>
                                 </div>
                                 <div class="mt-auto d-flex align-items-center justify-content-between">
                                     <div>
@@ -62,7 +62,7 @@
                         </div>
                     </div>
                 </div>
-<div id="wishlistPaginationWrapper" class="w-100"></div>
+<div id="wishlistPaginationWrapper" class="w-100"><div th:replace="~{fragments/product-pagination :: pager(${wishlistPage},'/wishlist')}"></div></div>
             </section>
         </main>
 

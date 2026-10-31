@@ -1,0 +1,185 @@
+{
+  "ROLES": [
+    {
+      "id": 1,
+      "name": "ROLE_ADMIN"
+    },
+    {
+      "id": 2,
+      "name": "ROLE_MANAGER"
+    },
+    {
+      "id": 4,
+      "name": "ROLE_SUPPORT"
+    },
+    {
+      "id": 5,
+      "name": "ROLE_USER"
+    }
+  ],
+  "BRANDS": [
+    {
+      "id": 1,
+      "slug": "nike",
+      "name": "Nike",
+      "description": "Thương hiệu thể thao quốc tế tập trung vào sneaker và hiệu năng thể thao.",
+      "logo_url": "/images/storefront/brands/T-Winkle.png"
+    },
+    {
+      "id": 2,
+      "slug": "adidas",
+      "name": "Adidas",
+      "description": "Thương hiệu thể thao nổi bật với sneaker, running và streetwear.",
+      "logo_url": "/images/storefront/brands/T-Winkle.png"
+    },
+    {
+      "id": 3,
+      "slug": "new-balance",
+      "name": "New Balance",
+      "description": "Thương hiệu nổi tiếng với dòng running và lifestyle retro.",
+      "logo_url": "/images/storefront/brands/T-Winkle.png"
+    },
+    {
+      "id": 4,
+      "slug": "teva",
+      "name": "Teva",
+      "description": "Thương hiệu sandal outdoor chú trọng độ bền và khả năng di chuyển.",
+      "logo_url": "/images/storefront/brands/T-Winkle.png"
+    },
+    {
+      "id": 5,
+      "slug": "birkenstock",
+      "name": "Birkenstock",
+      "description": "Thương hiệu footwear nổi bật với đế bần chuẩn nhân trắc học.",
+      "logo_url": "/images/storefront/brands/T-Winkle.png"
+    },
+    {
+      "id": 6,
+      "slug": "crocs",
+      "name": "Crocs",
+      "description": "Thương hiệu footwear nhẹ, linh hoạt với vật liệu Croslite.",
+      "logo_url": "/images/storefront/brands/T-Winkle.png"
+    },
+    {
+      "id": 7,
+      "slug": "puma",
+      "name": "Puma",
+      "description": "Thương hiệu thể thao đa môn với running, football, training và basketball.",
+      "logo_url": "/images/storefront/brands/T-Winkle.png"
+    },
+    {
+      "id": 8,
+      "slug": "under-armour",
+      "name": "Under Armour",
+      "description": "Thương hiệu performance sportswear và footwear chuyên dụng.",
+      "logo_url": "/images/storefront/brands/T-Winkle.png"
+    },
+    {
+      "id": 9,
+      "slug": "asics",
+      "name": "Asics",
+      "description": "Thương hiệu running và court sports tập trung vào hiệu năng và ổn định.",
+      "logo_url": "/images/storefront/brands/T-Winkle.png"
+    }
+  ],
+  "CATEGORIES": [
+    {
+      "id": 1,
+      "slug": "sneaker",
+      "name": "Sneaker",
+      "description": "Giày sneaker phong cách lifestyle, streetwear và running.",
+      "image_url": "/images/storefront/categories/T-Winkle.png",
+      "status": "ACTIVE"
+    },
+    {
+      "id": 2,
+      "slug": "sandals",
+      "name": "Sandals",
+      "description": "Dép và sandal linh hoạt cho đời sống hàng ngày, du lịch và outdoor.",
+      "image_url": "/images/storefront/categories/T-Winkle.png",
+      "status": "ACTIVE"
+    },
+    {
+      "id": 3,
+      "slug": "sports",
+      "name": "Sports",
+      "description": "Giày thể thao chuyên dụng cho running, football, training, basketball và court sports.",
+      "image_url": "/images/storefront/categories/T-Winkle.png",
+      "status": "ACTIVE"
+    }
+  ],
+  "STORES": [
+    {
+      "store_id": 1,
+      "slug": "q1",
+      "name": "T-Winkle - Quận 1",
+      "description": "Chi nhánh T-Winkle - Quận 1",
+      "image_url": "/images/storefront/stores/T-Winkle.png",
+      "address_line": "56 Võ Văn Kiệt",
+      "ward": "Phường 1",
+      "district": "Quận 1",
+      "city": "TP. Hồ Chí Minh",
+      "status": "OPEN"
+    },
+    {
+      "store_id": 2,
+      "slug": "q3",
+      "name": "T-Winkle - Quận 3",
+      "description": "Chi nhánh T-Winkle - Quận 3",
+      "image_url": "/images/storefront/stores/T-Winkle.png",
+      "address_line": "26 Nguyễn Thị Minh Khai",
+      "ward": "Phường 3",
+      "district": "Quận 3",
+      "city": "TP. Hồ Chí Minh",
+      "status": "OPEN"
+    },
+    {
+      "store_id": 3,
+      "slug": "q5",
+      "name": "T-Winkle - Quận 5",
+      "description": "Chi nhánh T-Winkle - Quận 5",
+      "image_url": "/images/storefront/stores/T-Winkle.png",
+      "address_line": "69 Hai Bà Trưng",
+      "ward": "Phường 5",
+      "district": "Quận 5",
+      "city": "TP. Hồ Chí Minh",
+      "status": "OPEN"
+    },
+    {
+      "store_id": 4,
+      "slug": "q7",
+      "name": "T-Winkle - Quận 7",
+      "description": "Chi nhánh T-Winkle - Quận 7",
+      "image_url": "/images/storefront/stores/T-Winkle.png",
+      "address_line": "111 Võ Thị Sáu",
+      "ward": "Phường 7",
+      "district": "Quận 7",
+      "city": "TP. Hồ Chí Minh",
+      "status": "CLOSED"
+    },
+    {
+      "store_id": 5,
+      "slug": "thu-duc",
+      "name": "T-Winkle - Thủ Đức",
+      "description": "Chi nhánh T-Winkle - Thủ Đức",
+      "image_url": "/images/storefront/stores/T-Winkle.png",
+      "address_line": "01 Võ Văn Ngân",
+      "ward": "Phường Thủ Đức",
+      "district": "Thủ Đức",
+      "city": "TP. Hồ Chí Minh",
+      "status": "OPEN"
+    },
+    {
+      "store_id": 6,
+      "slug": "binh-thanh",
+      "name": "T-Winkle - Bình Thạnh",
+      "description": "Chi nhánh T-Winkle - Bình Thạnh",
+      "image_url": "/images/storefront/stores/T-Winkle.png",
+      "address_line": "D5 Lê Lợi",
+      "ward": "Phường Bình Thạnh",
+      "district": "Bình Thạnh",
+      "city": "TP. Hồ Chí Minh",
+      "status": "OPEN"
+    }
+  ]
+}

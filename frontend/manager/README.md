@@ -1,16 +1,13 @@
-# T-Winkle Manager Console
+# Retained browser regression sources
 
-Dedicated React/Vite island served at `/manager/**`. Spring Boot serves the committed `src/main/resources/static/manager-assets/manager.js` and `manager.css`; Node/Vite are only build tools.
+The Manager UI uses the shared Thymeleaf/Bootstrap console and JavaScript modules
+under `src/main/resources/static/js/console/`. Maven builds its production assets.
 
-```powershell
-npm ci
-npm run typecheck
-npm run build
-node tests/css-isolation.mjs
-```
+`tests/` and both Playwright configurations remain available. The historical demo
+and cleanup suites have fixture-specific dataset and credential inputs. Never seed
+or clean the approved live database to satisfy those historical assumptions.
+The current five-role native suites are `tools/migration/browser.py` and
+`tools/migration/browser.py flows`, run from the project root on an isolated copy.
+`npm run test:css` checks shared console/chat stylesheet isolation.
 
-Official shadcn CLI 4.21.2 generated the Radix Nova components in `src/components/ui`; lockfile pins the actual dependency versions (including Recharts 3). See the [official Sidebar documentation](https://ui.shadcn.com/docs/components/radix/sidebar). Local adaptations scope portals to `#manager-root`, remove backdrop blur, map component state classes to the installed Radix `data-state`/`data-orientation` attributes, and omit the Sidebar's false `data-active` attribute so inactive entries are not highlighted. Keep these adaptations when regenerating components. All compiled selectors are automatically scoped with PostCSS; never import these styles into Storefront.
-
-Browser review uses a fresh packaged Java runtime at port 5657, the isolated SQL demo, and the temporary ignored `target/manager-review/login.json` produced by `tools/manager/Enable-LocalDemoReview.ps1`. Run `npm run test:ui`. Screenshots and results are under ignored `target/manager-review` and never include real account credentials.
-
-Context, profile, inventory, requests, orders and analytics come from `/api/manager`. The server resolves the Manager's store. Support reuses `/api/support` and the existing STOMP broker. Modifications send the Thymeleaf-generated CSRF token. Text is rendered through React's normal escaping.
+Retired source and prior recovery material are preserved outside the repository.

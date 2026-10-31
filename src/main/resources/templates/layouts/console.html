@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:fragment="base(content)">
+<head>
+ <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+ <meta name="_csrf" th:content="${_csrf.token}"><meta name="_csrf_header" th:content="${_csrf.headerName}">
+ <title th:text="${consoleTitle + ' - T-Winkle'}">T-Winkle</title>
+ <link rel="icon" href="/T-Winkle_LogoNoBG.png">
+ <link rel="stylesheet" href="/vendor/bootstrap/bootstrap.min.css">
+ <link rel="stylesheet" href="/css/fonts.css"><link rel="stylesheet" href="/css/tokens.css">
+ <link rel="stylesheet" href="/vendor/bootstrap-icons/bootstrap-icons.min.css">
+ <link rel="stylesheet" href="/css/order-status.css"><link rel="stylesheet" href="/css/console.css">
+</head>
+<body class="tw-console" th:attr="data-role=${consoleRole},data-page=${consolePage}">
+ <a class="visually-hidden-focusable p-3" href="#console-main">Đến nội dung chính</a>
+ <aside id="console-sidebar" class="offcanvas-lg offcanvas-start" tabindex="-1" aria-labelledby="console-brand">
+  <div class="offcanvas-header border-bottom"><strong id="console-brand">T-Winkle</strong><button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#console-sidebar" aria-label="Đóng"></button></div>
+  <div class="offcanvas-body d-flex flex-column p-3">
+   <a class="console-brand" th:href="${'/' + consoleRole}"><img src="/T-Winkle_LogoNoBG.png" alt="">T-Winkle <small th:text="${consoleRole + ' Console'}"></small></a>
+   <nav class="nav flex-column gap-1 my-4" aria-label="Điều hướng">
+    <a th:each="item : ${consoleMenu}" class="nav-link" th:classappend="${item.key == consolePage ? 'active' : ''}" th:attr="aria-current=${item.key == consolePage ? 'page' : null}" th:href="${'/' + consoleRole + (item.key.isEmpty() ? '' : '/' + item.key)}" th:text="${item.value}"></a>
+   </nav>
+   <div class="mt-auto border-top pt-3 console-account dropdown">
+    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Tài khoản"><i class="bi bi-person-circle" aria-hidden="true"></i> <span th:title="${consoleEmail}" th:text="${consoleEmail}"></span></button>
+    <div class="dropdown-menu p-2">
+     <a class="dropdown-item rounded" href="/profile">Thông tin tài khoản</a>
+     <form th:action="@{/console-storefront/enter}" method="post"><button class="dropdown-item rounded" type="submit">Cửa hàng T-Winkle</button></form>
+     <form th:action="@{/logout}" method="post"><button class="dropdown-item rounded" type="submit">Đăng xuất</button></form>
+    </div>
+   </div>
+  </div>
+ </aside>
+ <div class="console-workspace">
+  <header class="console-toolbar">
+   <button type="button" class="btn btn-outline-secondary d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#console-sidebar" aria-controls="console-sidebar" aria-label="Mở điều hướng"><i class="bi bi-list" aria-hidden="true"></i></button>
+   <nav aria-label="Đường dẫn"><ol class="breadcrumb"><li class="breadcrumb-item"><a th:href="${'/' + consoleRole}" th:text="${consoleRole}"></a></li><li class="breadcrumb-item active" aria-current="page" th:text="${consoleTitle}"></li></ol></nav>
+
+  </header>
+  <main id="console-main" class="p-3 p-md-4"><h1 class="h4 mb-4" th:text="${consoleTitle}"></h1><div th:replace="${content}"></div></main>
+ </div>
+ <div th:replace="~{fragments/console-ui :: feedback}"></div>
+ <script src="/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+ <script type="module" src="/js/console/app.js"></script>
+</body></html>

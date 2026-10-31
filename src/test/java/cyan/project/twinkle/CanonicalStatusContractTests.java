@@ -7,10 +7,10 @@ import java.util.regex.Pattern;
 import static org.junit.jupiter.api.Assertions.*;
 class CanonicalStatusContractTests {
  @Test void sharedFrontendVocabularyAndStyleKeysMatchBackend() throws Exception {
-  String frontend=Files.readString(Path.of("frontend/shared/operational.ts"));
-  var values=new ArrayList<String>();var matcher=Pattern.compile("'([^']+)'").matcher(frontend.substring(frontend.indexOf("["),frontend.indexOf("]")));
+  String frontend=Files.readString(Path.of("src/main/resources/static/js/console/data.js"));
+  var values=new ArrayList<String>();var matcher=Pattern.compile("\"([^\"]+)\"").matcher(frontend.substring(frontend.indexOf("["),frontend.indexOf("]")));
   while(matcher.find())values.add(matcher.group(1));assertEquals(Arrays.stream(OrderStatus.values()).map(OrderStatus::label).toList(),values);
-  for(var status:OrderStatus.values())assertTrue(frontend.contains("'"+status.label()+"':'"+status.style()+"'"),status.label());
+  for(var status:OrderStatus.values())assertTrue(frontend.contains("\""+status.label()+"\":\""+status.style()+"\""),status.label());
  }
  @Test void canonicalOrderColorsAreDistinctAndReadable() throws Exception {
   String css=Files.readString(Path.of("src/main/resources/static/css/order-status.css"));var colors=new HashSet<String>();

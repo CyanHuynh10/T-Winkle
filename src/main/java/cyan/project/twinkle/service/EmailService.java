@@ -17,12 +17,14 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine templates;
+    private final cyan.project.twinkle.invoice.InvoiceDataService invoices;
     private final String baseUrl;
     private final String sender;
 
-    public EmailService(JavaMailSender mailSender, SpringTemplateEngine templates,
+    public EmailService(JavaMailSender mailSender, SpringTemplateEngine templates, cyan.project.twinkle.invoice.InvoiceDataService invoices,
                         @Value("${app.base-url}") String baseUrl,
                         @Value("${spring.mail.username:}") String sender) {
+        this.invoices = invoices;
         this.mailSender = mailSender;
         this.templates = templates;
         this.baseUrl = baseUrl;
@@ -40,6 +42,7 @@ public class EmailService {
     public void sendDeliveredOrderEmail(Order order, Payment payment, LocalDateTime deliveredAt) {
         var context = new Context(Locale.forLanguageTag("vi-VN"));
         context.setVariable("order", order);
+        context.setVariable("invoice", invoices.build(order,payment,deliveredAt,deliveredAt,null,null));
         context.setVariable("deliveredAt", deliveredAt);
         String name = order.getRecipientName();
         if (name == null || name.isBlank()) name = order.getUser().getFullName();

@@ -64,7 +64,10 @@ public class SecurityConfig {
                 .securityContextRepository(securityContextRepository())
             )
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/console-storefront/return").authenticated()
+                .requestMatchers("/console-storefront/**").hasAnyRole("ADMIN", "MANAGER", "SUPPORT")
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/tokens").authenticated()
                 .requestMatchers("/api/manager/**").hasRole("MANAGER")
                 .requestMatchers("/manager/support", "/manager/support/**").hasRole("MANAGER")
                 .requestMatchers("/api/ai-chat/**").hasRole("USER")

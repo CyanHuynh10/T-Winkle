@@ -25,6 +25,11 @@
     --color-surface: #FFFFFF;
     --color-bg-base: #F8FAFC;
 
+    /* Shared quiet surfaces derived from the Storefront cyan palette. */
+    --tw-surface-accent: #ECFEFF;
+    --tw-text-accent: #0E7490; /* Existing Storefront tracking/hover cyan; readable on white. */
+    --tw-shadow-card: var(--bs-box-shadow-sm); /* Storefront product cards use Bootstrap shadow-sm. */
+
     /* MESH GRADIENT BLOBS */
     --color-blob-1: #22D3EE;
     --color-blob-2: #FDE047;

@@ -1,0 +1,5 @@
+<!doctype html><html xmlns:th="http://www.thymeleaf.org"><body>
+<div th:fragment="button" th:if="${storefrontConsoleReturn != null}" class="tw-console-return-bar">
+ <a href="/console-storefront/return" class="tw-console-return" title="Quay lại trang quản lý trước đó" aria-label="Quay lại trang quản lý trước đó"><i class="bi bi-arrow-left" aria-hidden="true"></i> Quay lại <span th:text="${#strings.capitalize(storefrontConsoleReturn.role)}"></span></a>
+</div>
+</body></html>

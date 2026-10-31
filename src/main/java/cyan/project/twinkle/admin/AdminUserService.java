@@ -17,7 +17,11 @@ public class AdminUserService {
     private final PasswordEncoder encoder;
     private final org.springframework.security.core.session.SessionRegistry sessions;
     public static final String DEFAULT_PASSWORD = "123456";
-    public record Account(@NotBlank @Email @Size(max=100) String email,@NotBlank @Size(max=50) String username,@Size(max=100) String fullName,@Pattern(regexp="[0-9+() .-]{0,20}") String phone,@NotNull Boolean enabled,@NotEmpty Set<@NotBlank String> roles) {}
+    public record Account(@NotBlank @Email @Size(max=100) String email,@NotBlank @Size(max=50) String username,@Size(max=100) String fullName,@Pattern(regexp="[0-9+() .-]{0,20}") String phone,@NotNull Boolean enabled,@NotEmpty Set<@NotBlank String> roles,@Size(max=100) Set<@NotNull @Min(1) Integer> supportStoreIds) {
+        public Account(String email,String username,String fullName,String phone,Boolean enabled,Set<String> roles) {
+            this(email,username,fullName,phone,enabled,roles,null);
+        }
+    }
     @Transactional
     public void save(Account input,boolean create) {
         String actor=context.actor();
@@ -28,14 +32,36 @@ public class AdminUserService {
         if(!create && old.isEmpty())throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Tài khoản không tồn tại");
         var allowed=Set.of("ROLE_USER","ROLE_MANAGER","ROLE_SUPPORT","ROLE_ADMIN");
         if(!allowed.containsAll(input.roles()))throw new IllegalArgumentException("Unknown role");
+        if(input.supportStoreIds()!=null && !input.supportStoreIds().isEmpty()) {
+            if(!input.enabled() || !input.roles().contains("ROLE_SUPPORT"))
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Chỉ phân công cửa hàng cho tài khoản Support đang hoạt động");
+            for(int store:input.supportStoreIds().stream().sorted().toList()) {
+                if(sql.queryForList("SELECT store_id FROM STORES WITH(UPDLOCK,HOLDLOCK) WHERE store_id=?",store).isEmpty())
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Cửa hàng được phân công không tồn tại");
+            }
+        }
         var previous=new HashSet<>(sql.queryForList("SELECT r.name FROM USER_ROLES ur JOIN ROLES r ON r.id=ur.role_id WHERE ur.user_email=?",String.class,input.email()));
         if(!input.enabled() || !input.roles().contains("ROLE_ADMIN")) protect(input.email(),actor,previous);
         if(create)sql.update("INSERT USERS(email,username,full_name,phone,password_hash,is_enabled) VALUES(?,?,?,?,?,?)",input.email(),input.username().trim(),input.fullName(),input.phone(),encoder.encode(DEFAULT_PASSWORD),input.enabled());
         else sql.update("UPDATE USERS SET username=?,full_name=?,phone=?,is_enabled=?,updated_at=SYSDATETIME() WHERE email=?",input.username().trim(),input.fullName(),input.phone(),input.enabled(),input.email());
         if(!input.enabled() || !input.roles().contains("ROLE_MANAGER")) sql.update("UPDATE STORES SET manager_email=NULL WHERE manager_email=?",input.email());
-        if(!input.enabled() || !input.roles().contains("ROLE_SUPPORT")) sql.update("UPDATE STORE_STAFF_ASSIGNMENTS SET active=0 WHERE user_email=?",input.email());
+        if(!input.enabled() || !input.roles().contains("ROLE_SUPPORT")) {
+            if(sql.update("UPDATE STORE_STAFF_ASSIGNMENTS SET active=0 WHERE user_email=? AND active=1",input.email())>0)
+                audit.record(actor,"SUPPORT_STORES_ASSIGNED","USERS",input.email(),"Support assignments revoked: account disabled or Support role removed");
+        }
         sql.update("DELETE USER_ROLES WHERE user_email=?",input.email());
         input.roles().forEach(r->sql.update("INSERT USER_ROLES(user_email,role_id) SELECT ?,id FROM ROLES WHERE name=?",input.email(),r));
+        if(input.enabled() && input.roles().contains("ROLE_SUPPORT") && input.supportStoreIds()!=null) {
+            var previousStores=new HashSet<>(sql.queryForList("SELECT store_id FROM STORE_STAFF_ASSIGNMENTS WHERE user_email=? AND active=1",Integer.class,input.email()));
+            for(int store:previousStores) if(!input.supportStoreIds().contains(store))
+                sql.update("UPDATE STORE_STAFF_ASSIGNMENTS SET active=0 WHERE user_email=? AND store_id=?",input.email(),store);
+            for(int store:input.supportStoreIds().stream().sorted().toList()) if(!previousStores.contains(store)) {
+                if(sql.update("UPDATE STORE_STAFF_ASSIGNMENTS SET active=1,assigned_at=SYSDATETIME() WHERE user_email=? AND store_id=?",input.email(),store)==0)
+                    sql.update("INSERT STORE_STAFF_ASSIGNMENTS(store_id,user_email,active) VALUES(?,?,1)",store,input.email());
+            }
+            if(!previousStores.equals(input.supportStoreIds()))
+                audit.record(actor,"SUPPORT_STORES_ASSIGNED","USERS",input.email(),"Support stores: "+input.supportStoreIds().stream().sorted().limit(50).toList()+"; total: "+input.supportStoreIds().size());
+        }
         audit.record(actor,create?"USER_CREATED":"USER_UPDATED","USERS",input.email(),create?"Account created with encoded default credential":"Profile updated");
         if(!previous.equals(input.roles()))audit.record(actor,"USER_ROLE_CHANGED","USERS",input.email(),String.join(",",input.roles()));
         audit.record(actor,input.enabled()?"USER_ENABLED":"USER_DISABLED","USERS",input.email(),"Account status: "+input.enabled());

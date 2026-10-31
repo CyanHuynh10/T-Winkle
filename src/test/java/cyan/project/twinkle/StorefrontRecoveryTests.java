@@ -46,9 +46,10 @@ class StorefrontRecoveryTests {
     CustomUserDetails principal() { return new CustomUserDetails(users.findByEmail(EMAIL).orElseThrow()); }
 
     @Test void publicAndAuthenticatedTemplatesRenderWithRealDatabase() throws Exception {
-        for (String route : new String[]{"/", "/categories", "/categories/sneaker", "/categories/sandals", "/categories/sports", "/products/1", "/products/2", "/stores"}) {
+        for (String route : new String[]{"/", "/categories", "/categories/sneaker", "/categories/sandals", "/categories/sports", "/products/"+CatalogTestFixtures.availableProduct(jdbc), "/stores"}) {
             mvc.perform(get(route)).andExpect(status().isOk());
         }
+        mvc.perform(get("/products/1")).andExpect(status().isNotFound());
         for (String slug : new String[]{"q1", "q3", "q5", "q7", "thu-duc", "binh-thanh"}) {
             mvc.perform(get("/stores/" + slug + "/catagories")).andExpect(status().isOk());
         }
@@ -144,7 +145,9 @@ class StorefrontRecoveryTests {
 
     @Test @Transactional void productAggregatesAndCartRespectInventoryAndClosedStores() {
         jdbc.update("UPDATE STORES SET status='CLOSED' WHERE store_id=2");
-        for (int id : new int[]{1, 2}) {
+        var productIds=jdbc.queryForList("SELECT TOP(2) p.id FROM PRODUCTS p WHERE p.status='ACTIVE' AND EXISTS(SELECT 1 FROM PRODUCT_VARIANTS v JOIN STORE_INVENTORY si ON si.variant_id=v.id WHERE v.product_id=p.id AND v.status='ACTIVE' AND si.store_id=2 AND si.quantity>0) ORDER BY p.id",Integer.class);
+        assertEquals(2,productIds.size());
+        for (int id : productIds) {
             ProductDetailDTO detail = products.getProductDetailDTO(id, EMAIL);
             assertFalse(detail.getImages().isEmpty()); assertFalse(detail.getVariants().isEmpty());
             assertEquals(jdbc.queryForObject("SELECT COALESCE(SUM(oi.quantity),0) FROM ORDER_ITEMS oi JOIN ORDERS o ON o.id=oi.order_id WHERE oi.product_id=? AND o.status=N'Đã giao'", Long.class, id), detail.getSoldCount());

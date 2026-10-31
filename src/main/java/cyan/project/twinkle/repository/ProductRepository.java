@@ -31,8 +31,11 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     @EntityGraph(attributePaths = {"category", "brand"})
     java.util.List<Product> findByIdIn(java.util.List<Integer> ids);
     @EntityGraph(attributePaths = {"category", "brand"})
-    @Query("SELECT p FROM WishlistItem w JOIN w.product p WHERE w.user.email = :email AND p.status = 'ACTIVE' ORDER BY w.createdAt DESC")
+    @Query("SELECT p FROM WishlistItem w JOIN w.product p WHERE w.user.email = :email AND p.status = 'ACTIVE' ORDER BY w.createdAt DESC, p.id ASC")
     Page<Product> findWishlistProducts(@Param("email") String email, Pageable pageable);
+
+    @Query("SELECT COUNT(p) FROM WishlistItem w JOIN w.product p WHERE w.user.email = :email AND p.status = 'ACTIVE'")
+    long countWishlistProducts(@Param("email") String email);
 
     @EntityGraph(attributePaths = {"category", "brand"})
     @Query(

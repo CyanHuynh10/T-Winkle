@@ -44,7 +44,7 @@ public class ManagerQueryService {
             }
             case "variants", "inventory" -> {
                 boolean inv=area.equals("inventory");
-                select="v.id,v.product_id,p.name AS product,v.sku,v.size,v.color,v.price_adjustment,v.status,COALESCE(si.quantity,0) AS quantity,COALESCE(si.reorder_level,10) AS reorder_level,si.updated_at,"+
+                select="v.id,v.product_id,p.name AS product,v.sku,v.size,v.color,v.price_adjustment,v.status,si.store_id AS inventory_store_id,COALESCE(si.quantity,0) AS quantity,COALESCE(si.reorder_level,10) AS reorder_level,si.updated_at,"+
                     "CASE WHEN COALESCE(si.quantity,0)=0 THEN 'OUT' WHEN si.quantity<=si.reorder_level THEN 'LOW' ELSE 'AVAILABLE' END AS replenishment_state,"+
                     "CASE WHEN EXISTS(SELECT 1 FROM INVENTORY_RESTOCK_REQUESTS r WHERE r.store_id=scope.store_id AND r.variant_id=v.id AND r.status='PENDING') THEN 1 ELSE 0 END AS pending_request";
                 from="PRODUCT_VARIANTS v JOIN PRODUCTS p ON p.id=v.product_id CROSS JOIN (SELECT ? AS store_id) scope "+(inv?"JOIN":"LEFT JOIN")+" STORE_INVENTORY si ON si.variant_id=v.id AND si.store_id=scope.store_id";
@@ -83,6 +83,7 @@ public class ManagerQueryService {
             var prices=pricing.calculateEffectivePricesBatch(products.findByIdIn(ids),LocalDateTime.now(),store);
             rows.forEach(r->r.put("effective_price",prices.get(((Number)r.get("id")).intValue())));
         }
+        if(Set.of("inventory","variants").contains(area)) rows.forEach(r -> cyan.project.twinkle.service.StockPresentation.enrich(r,area.equals("inventory") || r.get("inventory_store_id")!=null));
         return new PageDto(rows,total,page,size);
     }
     private LocalDateTime parseDate(String value) {try{return java.time.LocalDate.parse(value).atStartOfDay();}catch(Exception ex){throw ManagerException.invalid("Ngày không hợp lệ");}}

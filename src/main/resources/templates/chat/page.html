@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: base('Chat - T-Winkle', ~{::div.chat-page})}"><body>
+<div class="chat-page" style="display:flow-root">
+ <div th:replace="~{fragments/navbar :: navbar}"></div>
+ <main class="chat-native"><link rel="stylesheet" href="/css/console.css"><div th:replace="~{fragments/console-ui :: chat}"></div><div th:replace="~{fragments/console-ui :: feedback}"></div></main>
+ <script type="module">import {chat} from '/js/console/chat.js';import {notice} from '/js/console/core.js';chat(document.querySelector('#conversation-app')).catch(error=>notice(error.message,true));</script>
+</div></body></html>
